@@ -5,6 +5,7 @@ import { Program } from "../models/program.model";
 import { Class } from "../models/classes.model";
 import { Staff } from "../models/staff.model";
 import { faker } from "@faker-js/faker";
+import { Flag } from "../models/associations";
 
 export async function generateCTESchoolData() {
   await CTESchool.bulkCreate([
@@ -112,24 +113,46 @@ export async function generateClassData() {
 
 export async function generateStudentData() {
   try {
-    await Student.bulkCreate([
-      {
+    const students = [];
+    for (let i = 0; i < 20; i++) {
+      students.push({
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
         student_id: faker.string.numeric(8),
         gender: faker.person.gender(),
         dateOfBirth: faker.date.birthdate({ min: 15, max: 18, mode: "age" }),
         email: faker.internet.email(),
-        grade: faker.string.numeric(1), // Assuming grades are 9-12
-        race: "white",
+        grade: faker.number.int({ min: 9, max: 12 }),
+        race: faker.helpers.arrayElement([
+          "White",
+          "Black or African American",
+          "Asian",
+          "American Indian or Alaska Native",
+          "Native Hawaiian or Other Pacific Islander",
+        ]),
         hispanic: faker.datatype.boolean(),
-        counslorId: 1, // Assuming Staff member with ID 1 is the counselor
-        cteSchoolId: 1, // Assuming CTE School A has ID 1
-        schoolDistrictId: 1, // Assuming District A has ID 1
-      },
-    ]);
+        counslorId: faker.number.int({ min: 1, max: 2 }), // Assuming 2 counselors exist
+        cteSchoolId: faker.number.int({ min: 1, max: 2 }), // Assuming 2 CTE schools exist
+        schoolDistrictId: faker.number.int({ min: 1, max: 2 }), // Assuming 2 districts exist
+      });
+    }
+    await Student.bulkCreate(students);
     console.log("Students created successfully.");
   } catch (error: any) {
     console.error("Error creating Students:", error);
+  }
+}
+
+export async function generateFlags() {
+  try {
+    // Assuming Flag model exists and has been defined
+    await Flag.bulkCreate([
+      { name: "IEP" },
+      { name: "504" },
+      { name: "Econ Dis." },
+    ]);
+    console.log("Flags created successfully.");
+  } catch (error: any) {
+    console.error("Error creating Flags:", error);
   }
 }

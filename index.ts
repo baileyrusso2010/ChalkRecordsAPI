@@ -18,6 +18,7 @@ import classRoutes from "./src/routes/class.routes";
 import {
   generateClassData,
   generateCTESchoolData,
+  generateFlags,
   generateProgramData,
   generateSchoolDistrictData,
   generateStaffData,
@@ -41,6 +42,7 @@ app.listen(PORT, async () => {
   await generateStaffData();
   await generateClassData();
   await generateStudentData();
+  await generateFlags();
 
   console.log(`Server is running on port ${PORT}`);
 });

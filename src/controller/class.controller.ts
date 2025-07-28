@@ -17,10 +17,10 @@ export const getAllClasses = async (
         },
         {
           model: Staff, // Assuming Staff model is defined and associated
-          attributes: ["name", "email"],
+          attributes: ["first_name", "last_name", "email"],
         },
       ],
-      attributes: ["id"],
+      attributes: ["id", "name"],
     });
 
     res.status(200).json(classes);
