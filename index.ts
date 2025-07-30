@@ -16,6 +16,7 @@ import "./src/models/associations"
 import studentRoutes from "./src/routes/student.routes"
 import classRoutes from "./src/routes/class.routes"
 import cteSchoolRoutes from "./src/routes/cte_school.routes"
+import wblRoutes from "./src/routes/wbl.routes"
 import { generateFakeData } from "./src/data/fake_data"
 
 app.listen(PORT, async () => {
@@ -28,8 +29,8 @@ app.listen(PORT, async () => {
             console.error("Unable to connect to the database:", error)
         })
 
-    await sequelize.sync({ force: true }) // Use force: true only in development to drop and recreate tables
-    await generateFakeData()
+    await sequelize.sync({ alter: true }) // Use force: true only in development to drop and recreate tables
+    // await generateFakeData()
 
     console.log(`Server is running on port ${PORT}`)
 })
@@ -37,3 +38,4 @@ app.listen(PORT, async () => {
 app.use("/api", studentRoutes)
 app.use("/api", classRoutes)
 app.use("/api", cteSchoolRoutes)
+app.use("/api", wblRoutes)
