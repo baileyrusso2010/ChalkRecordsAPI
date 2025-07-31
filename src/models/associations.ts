@@ -9,9 +9,24 @@ import { Flag } from "./flag.model"
 import { StudentFlags } from "./student_flags.model"
 import { CTESchool } from "./cte_school.model"
 import { Attendance } from "./attendance.model"
+import { WBL_types } from "./wbl_types.model"
+import { Student_WBL } from "./student_wbl_hours.model"
+import { Grades } from "./grades.model"
+import { TechnicalAssessment } from "./technical_assessment.model"
+
+//fill out wbl
+// Association between WBL_types and Student_WBL
+WBL_types.hasMany(Student_WBL, { foreignKey: "wbl_type_id", as: "student_wbl_hours" })
+Student_WBL.belongsTo(WBL_types, { foreignKey: "wbl_type_id", as: "wbl_type" })
 
 Student.hasMany(Attendance, { foreignKey: "student_id", as: "attendance" })
 Attendance.belongsTo(Student, { foreignKey: "student_id", as: "student" })
+
+Student.hasOne(Grades, { foreignKey: "student_id", as: "grades" })
+Grades.belongsTo(Student, { foreignKey: "student_id", as: "student" })
+
+Student.hasOne(TechnicalAssessment, { foreignKey: "student_id", as: "technical_assessment" })
+TechnicalAssessment.belongsTo(Student, { foreignKey: "student_id", as: "student" })
 
 // ClassStudents: Many-to-Many between Classes and Students
 Classes.belongsToMany(Student, {
@@ -28,6 +43,8 @@ Student.hasMany(ClassStudents, { foreignKey: "student_id" })
 ClassStudents.belongsTo(Student, { foreignKey: "student_id" })
 Classes.hasMany(ClassStudents, { foreignKey: "class_id" })
 ClassStudents.belongsTo(Classes, { foreignKey: "class_id" })
+
+// (Removed duplicate belongsToMany associations between Student and Classes)
 
 // StudentFlags: Many-to-Many between Students and Flags
 Student.belongsToMany(Flag, {

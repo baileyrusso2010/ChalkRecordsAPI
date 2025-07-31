@@ -7,6 +7,8 @@ import { Class } from "../models/classes.model"
 import { StudentFlags } from "../models/student_flags.model"
 import { Attendance } from "../models/attendance.model"
 import { Staff } from "../models/staff.model"
+import { Grades } from "../models/grades.model"
+import { TechnicalAssessment } from "../models/technical_assessment.model"
 
 export const searchStudent = async (req: Request, res: Response): Promise<void> => {
     const search = (req.query.search as string) || ""
@@ -52,6 +54,11 @@ export const getStudent = async (req: Request, res: Response): Promise<void> => 
                     ],
                     attributes: ["class_id"],
                 },
+                {
+                    model: Grades,
+                    as: "grades", // Use the alias defined in associations
+                    attributes: ["junior_grade", "senior_grade"],
+                },
             ],
         })
 
@@ -78,38 +85,36 @@ export const getStudentsInClass = async (req: Request, res: Response): Promise<v
             attributes: ["id", "name"],
         })
 
-        console.log(classInfo)
-
         if (!classInfo) {
             res.status(404).json({ error: "Class not found" })
             return
         }
 
-        // Simple query to get students in this class
-        const classStudents = await ClassStudents.findAll({
-            where: { class_id: id },
+        const classStudents = await Student.findAll({
             include: [
                 {
-                    model: Student,
-                    attributes: [
-                        "id",
-                        "firstName",
-                        "lastName",
-                        "student_id",
-                        "gender",
-                        "race",
-                        "grade",
-                    ],
-                    include: [
-                        {
-                            model: Attendance,
-                            as: "attendance", // Use the alias defined in associations
-                            attributes: ["absences", "absenses_unexcused", "absenses_excused"],
-                        },
-                    ],
+                    model: ClassStudents,
+                    // as: "class_students", // Ensure this matches the alias in your association if set
+                    where: { class_id: id },
+                    attributes: ["school_year"],
+                },
+                {
+                    model: Grades,
+                    as: "grades", // Use the alias defined in associations
+                    attributes: ["junior_grade", "senior_grade"],
+                },
+                {
+                    model: Attendance,
+                    as: "attendance",
+                    attributes: ["absences", "absenses_unexcused", "absenses_excused"],
+                },
+                {
+                    model: TechnicalAssessment,
+                    as: "technical_assessment",
+                    attributes: ["jr_sem_1", "jr_sem_2", "sr_sem_1", "sr_sem_2"],
                 },
             ],
-            attributes: ["school_year"],
+            attributes: ["id", "firstName", "lastName", "student_id"],
         })
 
         const response = {
@@ -122,18 +127,28 @@ export const getStudentsInClass = async (req: Request, res: Response): Promise<v
                     email: (classInfo as any).Staff?.email,
                 },
                 program: (classInfo as any).Program?.name,
-                schoolYear: classStudents.length > 0 ? classStudents[0].school_year : null,
+                schoolYear:
+                    classStudents.length > 0 && (classStudents[0] as any).ClassStudents.length > 0
+                        ? (classStudents[0] as any).ClassStudents[0].school_year
+                        : null,
             },
-            students: classStudents.map((cs: any) => ({
-                id: cs.Student.id,
-                firstName: cs.Student.firstName,
-                lastName: cs.Student.lastName,
-                studentId: cs.Student.student_id,
-                gender: cs.Student.gender,
-                race: cs.Student.race,
-                grade: cs.Student.grade,
+            students: classStudents.map((student: any) => ({
+                id: student.id,
+                firstName: student.firstName,
+                lastName: student.lastName,
+                studentId: student.student_id,
+                techAssessment: {
+                    jrSem1: student.technical_assessment?.jr_sem_1,
+                    jrSem2: student.technical_assessment?.jr_sem_2,
+                    srSem1: student.technical_assessment?.sr_sem_1,
+                    srSem2: student.technical_assessment?.sr_sem_2,
+                },
+                grades: {
+                    juniorGrade: student.grades?.junior_grade,
+                    seniorGrade: student.grades?.senior_grade,
+                },
                 attendance:
-                    cs.Student.attendance?.map((a: any) => ({
+                    student.attendance?.map((a: any) => ({
                         absences: a.absences,
                         absensesUnexcused: a.absenses_unexcused,
                         absensesExcused: a.absenses_excused,
