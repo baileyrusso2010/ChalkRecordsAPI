@@ -15,6 +15,14 @@ WBL_types.init(
             allowNull: false,
             unique: true, // Assuming each WBL type has a unique name
         },
+        school_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: "cte_schools", // Name of the referenced table
+                key: "id", // Key in the referenced model
+            },
+        },
     },
     {
         sequelize,
