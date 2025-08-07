@@ -17,6 +17,8 @@ import studentRoutes from "./src/routes/student.routes"
 import classRoutes from "./src/routes/class.routes"
 import cteSchoolRoutes from "./src/routes/cte_school.routes"
 import wblRoutes from "./src/routes/wbl.routes"
+import technicalRoutes from "./src/routes/technical.routes"
+import performanceRoutes from "./src/routes/performance.routes"
 import { generateFakeData } from "./src/data/fake_data"
 
 app.listen(PORT, async () => {
@@ -39,3 +41,5 @@ app.use("/api", studentRoutes)
 app.use("/api", classRoutes)
 app.use("/api", cteSchoolRoutes)
 app.use("/api", wblRoutes)
+app.use("/api", technicalRoutes)
+app.use("/api", performanceRoutes)

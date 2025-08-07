@@ -17,7 +17,7 @@ WBL_types.init(
         },
         school_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true, //set to false for production
             references: {
                 model: "cte_schools", // Name of the referenced table
                 key: "id", // Key in the referenced model

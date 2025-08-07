@@ -20,7 +20,7 @@ SchoolDistricts.init(
         },
         cte_school_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true, //change to false for production
             references: {
                 model: "cte_schools", // name of Target model
                 key: "id", // key in Target model that we're referencing
