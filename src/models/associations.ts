@@ -8,6 +8,7 @@ import { Program } from "./program.model"
 import { Flag } from "./flag.model"
 import { StudentFlags } from "./student_flags.model"
 import { CTESchool } from "./cte_school.model"
+// SchoolDistricts belongsTo CTESchool (one-to-one)
 import { Attendance } from "./attendance.model"
 import { WBL_types } from "./wbl_types.model"
 import { Student_WBL } from "./student_wbl_hours.model"
@@ -27,6 +28,8 @@ Grades.belongsTo(Student, { foreignKey: "student_id", as: "student" })
 
 Student.hasOne(TechnicalAssessment, { foreignKey: "student_id", as: "technical_assessment" })
 TechnicalAssessment.belongsTo(Student, { foreignKey: "student_id", as: "student" })
+SchoolDistricts.belongsTo(CTESchool, { foreignKey: "cte_school_id", as: "cte_school" })
+CTESchool.hasOne(SchoolDistricts, { foreignKey: "cte_school_id", as: "school_district" })
 
 // ClassStudents: Many-to-Many between Classes and Students
 Classes.belongsToMany(Student, {
