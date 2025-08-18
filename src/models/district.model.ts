@@ -1,24 +1,25 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../database"
 
-export class Membership extends Model {}
+export class District extends Model {}
 
-Membership.init(
+District.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
+            allowNull: false,
             autoIncrement: true,
         },
         name: {
-            type: DataTypes.INTEGER,
-            allowNull: true,
+            type: DataTypes.STRING,
+            allowNull: false,
         },
     },
     {
         sequelize,
-        modelName: "Grades",
-        tableName: "grades",
+        modelName: "District",
+        tableName: "district",
         timestamps: false, // if you want createdAt and updatedAt fields
         underscored: true, // if you prefer snake_case for column names
     }

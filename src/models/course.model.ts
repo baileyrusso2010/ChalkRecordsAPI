@@ -2,9 +2,9 @@ import { Model, DataTypes } from "sequelize"
 import sequelize from "../database"
 import { da } from "@faker-js/faker/."
 
-export class Program extends Model {}
+export class Course extends Model {}
 
-Program.init(
+Course.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -12,33 +12,25 @@ Program.init(
             allowNull: false,
             autoIncrement: true,
         },
-        programCatalogId: {
+        programId: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            field: "program_catalog_id",
+            field: "program_id",
             references: {
-                model: "program_catalog",
+                model: "program",
                 key: "id",
             },
             onUpdate: "CASCADE",
             onDelete: "RESTRICT",
         },
-        active: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true,
-        },
-        original_approval_date: {
-            type: DataTypes.DATE,
-            // allowNull: true
-        },
-        approved_through: {
-            type: DataTypes.DATE,
+        school_year: {
+            type: DataTypes.STRING,
         },
     },
     {
         sequelize,
-        modelName: "Program",
-        tableName: "program",
+        modelName: "Course",
+        tableName: "course",
         timestamps: false, // if you want createdAt and updatedAt fields
         underscored: true, // if you prefer snake_case for column names
     }
