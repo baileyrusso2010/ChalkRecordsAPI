@@ -1,6 +1,5 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../database"
-import { da } from "@faker-js/faker/."
 
 export class Course extends Model {}
 
@@ -23,8 +22,25 @@ Course.init(
             onUpdate: "CASCADE",
             onDelete: "RESTRICT",
         },
-        school_year: {
+        catalogId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            field: "catalog_id",
+            references: {
+                model: "course_catalog",
+                key: "id",
+            },
+            onUpdate: "CASCADE",
+            onDelete: "RESTRICT",
+        },
+        alias: {
             type: DataTypes.STRING,
+            allowNull: false,
+        },
+        school_year: {
+            //change later
+            type: DataTypes.STRING,
+            allowNull: true,
         },
     },
     {
