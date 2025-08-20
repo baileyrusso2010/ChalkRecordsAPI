@@ -11,25 +11,31 @@ Course.init(
             allowNull: false,
             autoIncrement: true,
         },
-        programId: {
+        program_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            field: "program_id",
-            references: {
-                model: "program",
-                key: "id",
-            },
+            references: { model: "program", key: "id" },
             onUpdate: "CASCADE",
             onDelete: "RESTRICT",
         },
-        catalogId: {
+        catalog_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            field: "catalog_id",
-            references: {
-                model: "course_catalog",
-                key: "id",
-            },
+            references: { model: "course_catalog", key: "id" },
+            onUpdate: "CASCADE",
+            onDelete: "RESTRICT",
+        },
+        teacher_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true, // set false if required
+            references: { model: "users", key: "id" },
+            onUpdate: "CASCADE",
+            onDelete: "RESTRICT",
+        },
+        school_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true, // set false if required
+            references: { model: "school", key: "id" },
             onUpdate: "CASCADE",
             onDelete: "RESTRICT",
         },
@@ -38,7 +44,6 @@ Course.init(
             allowNull: false,
         },
         school_year: {
-            //change later
             type: DataTypes.STRING,
             allowNull: true,
         },
@@ -47,7 +52,7 @@ Course.init(
         sequelize,
         modelName: "Course",
         tableName: "course",
-        timestamps: false, // if you want createdAt and updatedAt fields
-        underscored: true, // if you prefer snake_case for column names
+        timestamps: false,
+        underscored: true,
     }
 )

@@ -1,5 +1,6 @@
 import { District } from "../models/district.model"
 import { School } from "../models/school.model"
+import { Users } from "../models/users.model"
 
 export async function generateSchoolDistrict() {
     try {
@@ -18,5 +19,17 @@ export async function generateSchool() {
         // console.log("Flags created successfully.")
     } catch (error: any) {
         console.error("Error creating Flags:", error)
+    }
+}
+
+export async function generateUsers() {
+    try {
+        await Users.create({
+            email: "baileyrusso@gmail.com",
+            name: "Bailey Russo",
+            role: "Teacher",
+        })
+    } catch (error: any) {
+        console.error("Error creating Users:", error)
     }
 }

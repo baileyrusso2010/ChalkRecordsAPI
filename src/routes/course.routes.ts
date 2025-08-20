@@ -1,9 +1,10 @@
 import { Router } from "express"
-import { getAllCourseCatalogs, insertCourses } from "../controller/course.controller"
+import { getAllCourseCatalogs, insertCourse, getAllCourses } from "../controller/course.controller"
 
 const router = Router()
 
 router.get("/course-catalogs", getAllCourseCatalogs)
-router.post("/courses", insertCourses)
+router.get("/courses", getAllCourses)
+router.post("/courses", insertCourse)
 
 export default router
