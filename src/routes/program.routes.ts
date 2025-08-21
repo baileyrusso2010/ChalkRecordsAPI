@@ -7,8 +7,13 @@ import {
 
 const router = Router()
 
+// Program catalogs (reference data)
 router.get("/program-catalogs", getAllProgamCatalog)
-router.post("/programs", insertProgram)
+
+// Programs collection (active / filtered list)
 router.get("/programs", getActiveProgram)
+
+// Create program
+router.post("/programs", insertProgram)
 
 export default router

@@ -8,20 +8,28 @@ dotenv.config()
 
 import sequelize from "./src/database"
 import "./src/models/associations"
-import { generateSchoolDistrict, generateSchool, generateUsers } from "./src/data/fake_data"
+import {
+    generateSchoolDistrict,
+    generateSchool,
+    generateUsers,
+    generateStudents,
+} from "./src/data/fake_data"
 
 import courseRoutes from "./src/routes/course.routes"
 import programRoutes from "./src/routes/program.routes"
-import teacherRoutes from "./src/routes/user.routes"
+import userRoutes from "./src/routes/user.routes"
+import studentRoutes from "./src/routes/student.routes"
 
 const app = express()
 app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-app.use("/api/courses", courseRoutes)
-app.use("/api/programs", programRoutes)
-app.use("/api/teachers", teacherRoutes)
+// Unified API prefix; each router defines its own resource paths (e.g. /courses, /programs, /teachers, /classes/:id/students, /enrollments)
+app.use("/api", courseRoutes)
+app.use("/api", programRoutes)
+app.use("/api", userRoutes)
+app.use("/api", studentRoutes)
 
 app.listen(PORT, async () => {
     await sequelize
@@ -34,6 +42,7 @@ app.listen(PORT, async () => {
         })
 
     await sequelize.sync({ alter: true }) // Use force: true only in development to drop and recreate tables
+    // await generateStudents()
     // await generateSchoolDistrict()
     // await generateSchool()
     // await generateUsers()

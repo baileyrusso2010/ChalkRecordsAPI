@@ -40,6 +40,48 @@ export const insertCourse = async (req: Request, res: Response) => {
     }
 }
 
+export const getCourse = async (req: Request, res: Response) => {
+    const courseId = req.params.id
+
+    try {
+        if (!courseId) {
+            res.status(400).send({ error: "Course ID is required" })
+            return
+        }
+
+        const results = await Course.findByPk(courseId, {
+            include: [
+                {
+                    model: CourseCatalog,
+                    as: "course_catalog",
+                    attributes: ["course_code", "course_name", "course_description"],
+                },
+                {
+                    model: Users,
+                    as: "users",
+                },
+                {
+                    model: Program,
+                    as: "program",
+                    attributes: ["id"],
+                    include: [
+                        {
+                            model: ProgramCatalog,
+                            as: "program_catalog",
+                            attributes: ["code", "name"],
+                        },
+                    ],
+                },
+            ],
+        })
+
+        res.status(200).send(results)
+    } catch (err) {
+        console.error(err)
+        res.status(500).send({ error: "Internal server error" })
+    }
+}
+
 export const getAllCourses = async (req: Request, res: Response) => {
     try {
         const results = await Course.findAll({

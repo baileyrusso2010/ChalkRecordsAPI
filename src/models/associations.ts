@@ -5,6 +5,9 @@ import { Program } from "./program.model"
 import { Course } from "./course.model"
 import { CourseCatalog } from "./course_catalog.model"
 import { Users } from "./users.model"
+import { Enrollment } from "./enrollment.model"
+import { Student } from "./students.model"
+import { SchoolYear } from "./school_year.model"
 
 District.hasMany(School, { foreignKey: "district_id", as: "schools" })
 School.belongsTo(District, { foreignKey: "id", as: "district" })
@@ -27,8 +30,15 @@ District.hasMany(Users, { foreignKey: "district_id", as: "users" })
 // A Course has one teacher (User), referenced by teacher_id in Course
 Course.belongsTo(Users, { foreignKey: "teacher_id", as: "users" })
 Users.hasMany(Course, { foreignKey: "teacher_id", as: "course" })
-//fill out wbl
-// Association between WBL_types and Student_WBL
+
+Enrollment.belongsTo(Student, { foreignKey: "studentId", as: "student" })
+Student.hasMany(Enrollment, { foreignKey: "studentId", as: "enrollments" })
+
+Enrollment.belongsTo(Course, { foreignKey: "classId" }) // or Class if that's your model
+Course.hasMany(Enrollment, { foreignKey: "classId" })
+
+Enrollment.belongsTo(SchoolYear, { foreignKey: "schoolYearId" })
+SchoolYear.hasMany(Enrollment, { foreignKey: "schoolYearId" })
 
 // Export all models for convenience
 export { District, School }
