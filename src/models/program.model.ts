@@ -37,8 +37,8 @@ Program.init(
     },
     {
         sequelize,
-        modelName: "Program",
-        tableName: "program",
+        modelName: "CTEProgram",
+        tableName: "cte_programs",
         timestamps: false, // if you want createdAt and updatedAt fields
         underscored: true, // if you prefer snake_case for column names
     }

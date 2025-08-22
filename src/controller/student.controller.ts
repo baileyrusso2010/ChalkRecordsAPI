@@ -25,6 +25,17 @@ export const getStudentsInClass = async (req: Request, res: Response) => {
     }
 }
 
+export const getStudent = async (req: Request, res: Response) => {
+    try {
+        const result = await Student.findByPk(req.params.id)
+
+        res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        res.status(500).send({ error: "Internal server error" })
+    }
+}
+
 export const findStudents = async (req: Request, res: Response) => {
     try {
         const { name } = req.query

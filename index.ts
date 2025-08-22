@@ -19,6 +19,7 @@ import courseRoutes from "./src/routes/course.routes"
 import programRoutes from "./src/routes/program.routes"
 import userRoutes from "./src/routes/user.routes"
 import studentRoutes from "./src/routes/student.routes"
+import wblRoutes from "./src/routes/wbl.routes"
 
 const app = express()
 app.use(cors())
@@ -30,6 +31,7 @@ app.use("/api", courseRoutes)
 app.use("/api", programRoutes)
 app.use("/api", userRoutes)
 app.use("/api", studentRoutes)
+app.use("/api", wblRoutes)
 
 app.listen(PORT, async () => {
     await sequelize

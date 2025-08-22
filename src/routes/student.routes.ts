@@ -4,6 +4,7 @@ import {
     enrollStudent,
     removeEnrollment,
     findStudents,
+    getStudent,
 } from "../controller/student.controller"
 
 const router = Router()
@@ -18,5 +19,7 @@ router.post("/enrollments", enrollStudent)
 router.delete("/enrollments/:id", removeEnrollment)
 
 router.get("/students", findStudents)
+
+router.get("/student/:id", getStudent)
 
 export default router

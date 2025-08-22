@@ -1,9 +1,9 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../database"
 
-export class Student extends Model {}
+export class Flag extends Model {}
 
-Student.init(
+Flag.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -11,27 +11,22 @@ Student.init(
             allowNull: false,
             autoIncrement: true,
         },
-        firstName: {
+        name: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        lastName: {
+        description: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        email: {
-            type: DataTypes.STRING,
-            unique: true,
-        },
-        grade: {
-            type: DataTypes.STRING,
-            allowNull: true, //some edge cases
-        },
+
+        //code if applicable
+        //state reported
     },
     {
         sequelize,
-        modelName: "Student",
-        tableName: "student",
+        modelName: "Flag",
+        tableName: "flag",
         timestamps: false, // if you want createdAt and updatedAt fields
         underscored: true, // if you prefer snake_case for column names
     }

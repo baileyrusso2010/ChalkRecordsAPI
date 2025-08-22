@@ -1,12 +1,11 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../database"
 
-export class WBLHours extends Model {}
+export class FlagParticipation extends Model {}
 
-WBLHours.init(
+FlagParticipation.init(
     {
         id: {
-            //keep id for now
             type: DataTypes.INTEGER,
             primaryKey: true,
             allowNull: false,
@@ -22,35 +21,34 @@ WBLHours.init(
             onUpdate: "CASCADE",
             onDelete: "RESTRICT",
         },
-        wblTypeId: {
+        flagId: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "wbl_types",
+                model: "flag",
                 key: "id",
             },
             onUpdate: "CASCADE",
             onDelete: "RESTRICT",
         },
-        time: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            comment: "Duration stored in total minutes",
-        },
-        date: {
-            type: DataTypes.DATE,
-            allowNull: false,
-        },
         notes: {
             type: DataTypes.STRING,
+            allowNull: true,
+        },
+        startDate: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
+        endDate: {
+            type: DataTypes.DATE,
             allowNull: true,
         },
     },
     {
         sequelize,
-        modelName: "WBLHours",
-        tableName: "wbl_hours",
-        timestamps: true, // if you want createdAt and updatedAt fields
-        underscored: true, // if you prefer snake_case for column names
+        modelName: "FlagParticipation",
+        tableName: "flag_participation",
+        timestamps: true,
+        underscored: true,
     }
 )
