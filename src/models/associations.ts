@@ -8,6 +8,8 @@ import { Users } from "./users.model"
 import { Enrollment } from "./enrollment.model"
 import { Student } from "./students.model"
 import { SchoolYear } from "./school_year.model"
+import { Assignment } from "./assignment.model"
+import { Grade } from "./grade.model"
 
 District.hasMany(School, { foreignKey: "district_id", as: "schools" })
 School.belongsTo(District, { foreignKey: "id", as: "district" })
@@ -39,6 +41,18 @@ Course.hasMany(Enrollment, { foreignKey: "classId" })
 
 Enrollment.belongsTo(SchoolYear, { foreignKey: "schoolYearId" })
 SchoolYear.hasMany(Enrollment, { foreignKey: "schoolYearId" })
+
+// Course -> Assignments
+Course.hasMany(Assignment, { foreignKey: "courseId", as: "assignments" })
+Assignment.belongsTo(Course, { foreignKey: "courseId", as: "course" })
+
+// Assignment -> Grades
+Assignment.hasMany(Grade, { foreignKey: "assignmentId", as: "grades" })
+Grade.belongsTo(Assignment, { foreignKey: "assignmentId", as: "assignment" })
+
+// Student -> Grades
+Student.hasMany(Grade, { foreignKey: "studentId", as: "grades" })
+Grade.belongsTo(Student, { foreignKey: "studentId", as: "student" })
 
 // Export all models for convenience
 export { District, School }
