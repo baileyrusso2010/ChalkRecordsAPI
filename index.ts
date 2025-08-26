@@ -20,6 +20,10 @@ import programRoutes from "./src/routes/program.routes"
 import userRoutes from "./src/routes/user.routes"
 import studentRoutes from "./src/routes/student.routes"
 import wblRoutes from "./src/routes/wbl.routes"
+import assignmentRoutes from "./src/routes/assignment.routes"
+import gradeRoutes from "./src/routes/grade.routes"
+import attendanceRoutes from "./src/routes/attendance.routes"
+import attendanceTypeRoutes from "./src/routes/attendance_type.routes"
 
 const app = express()
 app.use(cors())
@@ -32,6 +36,10 @@ app.use("/api", programRoutes)
 app.use("/api", userRoutes)
 app.use("/api", studentRoutes)
 app.use("/api", wblRoutes)
+app.use("/api", assignmentRoutes)
+app.use("/api", gradeRoutes)
+app.use("/api", attendanceRoutes)
+app.use("/api", attendanceTypeRoutes)
 
 app.listen(PORT, async () => {
     await sequelize

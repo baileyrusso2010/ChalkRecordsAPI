@@ -1,9 +1,9 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../database"
 
-export class Assignment extends Model {}
+export class ScoreBand extends Model {}
 
-Assignment.init(
+ScoreBand.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -11,36 +11,27 @@ Assignment.init(
             allowNull: false,
             autoIncrement: true,
         },
-
-        courseId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: "course",
-                key: "id",
-            },
-
-            onUpdate: "CASCADE",
-            onDelete: "RESTRICT",
-        },
         name: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        max_score: {
-            type: DataTypes.INTEGER,
+        min_score: {
+            type: DataTypes.NUMBER,
             allowNull: false,
         },
-        weight: {
-            type: DataTypes.FLOAT,
-            defaultValue: 1.0,
+        max_score: {
+            type: DataTypes.NUMBER,
+            allowNull: false,
         },
-        due_date: { type: DataTypes.DATE, allowNull: true },
+        color_hex: {
+            type: DataTypes.CHAR(7),
+            allowNull: false,
+        },
     },
     {
         sequelize,
-        modelName: "Assignment",
-        tableName: "assignment",
+        modelName: "ScoreBand",
+        tableName: "score_band",
         timestamps: false, // if you want createdAt and updatedAt fields
         underscored: true, // if you prefer snake_case for column names
     }
