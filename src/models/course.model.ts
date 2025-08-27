@@ -39,6 +39,10 @@ Course.init(
             onUpdate: "CASCADE",
             onDelete: "RESTRICT",
         },
+        credits: {
+            type: DataTypes.DECIMAL,
+            allowNull: true, //change later
+        },
         alias: {
             type: DataTypes.STRING,
             allowNull: false,

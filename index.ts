@@ -24,6 +24,7 @@ import assignmentRoutes from "./src/routes/assignment.routes"
 import gradeRoutes from "./src/routes/grade.routes"
 import attendanceRoutes from "./src/routes/attendance.routes"
 import attendanceTypeRoutes from "./src/routes/attendance_type.routes"
+import flagRoutes from "./src/routes/flag.routes"
 
 const app = express()
 app.use(cors())
@@ -40,6 +41,7 @@ app.use("/api", assignmentRoutes)
 app.use("/api", gradeRoutes)
 app.use("/api", attendanceRoutes)
 app.use("/api", attendanceTypeRoutes)
+app.use("/api", flagRoutes)
 
 app.listen(PORT, async () => {
     await sequelize

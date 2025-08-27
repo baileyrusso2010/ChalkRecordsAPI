@@ -1,9 +1,9 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../database"
 
-export class Flag extends Model {}
+export class Company extends Model {}
 
-Flag.init(
+Company.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -15,22 +15,22 @@ Flag.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        description: {
+        address: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        color: {
-            type: DataTypes.CHAR(7),
+        active: {
+            type: DataTypes.BOOLEAN,
         },
-
-        //code if applicable
-        //state reported
+        notes: {
+            type: DataTypes.STRING,
+        },
     },
     {
         sequelize,
-        modelName: "Flag",
-        tableName: "flag",
-        timestamps: false, // if you want createdAt and updatedAt fields
-        underscored: true, // if you prefer snake_case for column names
+        modelName: "Company",
+        tableName: "company",
+        timestamps: false,
+        underscored: true,
     }
 )

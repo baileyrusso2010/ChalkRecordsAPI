@@ -68,10 +68,22 @@ const validatePayload = (
 
 export const insertAssingment = async (req: Request, res: Response) => {
     try {
-        const { data, errors } = validatePayload(req.body, { partial: false })
-        if (errors) return res.status(400).json({ errors })
+        // console.log(req.body)
+        // const { data, errors } = validatePayload(req.body, { partial: false })
+        // if (errors) return res.status(400).json({ errors })
 
-        const created = await Assignment.create(data)
+        if (!req.body) return res.status(400).json({ error: "Request body is missing" })
+
+        const { course_id, due_date, weight, max_score, name } = req.body
+        console.log(req.body)
+
+        const created = await Assignment.create({
+            courseId: course_id,
+            due_date: due_date,
+            weight: weight,
+            max_score: max_score,
+            name: name,
+        })
         return res.status(201).json(created)
     } catch (err) {
         console.error("insertAssignment error", err)
