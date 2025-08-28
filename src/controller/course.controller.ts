@@ -108,11 +108,11 @@ export const getAllCourses = async (req: Request, res: Response) => {
                     ],
                 },
             ],
-            attributes: ["alias", "school_year"],
+            attributes: ["id", "alias", "school_year"],
             order: [["id", "DESC"]],
         })
 
-        res.status(200).json(results)
+        res.status(200).json({ courses: results })
     } catch (err) {
         console.error(err)
         res.status(500).send({ error: "Internal server error" })

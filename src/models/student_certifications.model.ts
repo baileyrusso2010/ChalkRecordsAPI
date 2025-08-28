@@ -1,14 +1,9 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../database"
 
-export class Flag extends Model {
-    public id!: number
-    public name!: string
-    public description!: string
-    public color?: string
-}
+export class StudentCertifications extends Model {}
 
-Flag.init(
+StudentCertifications.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -16,9 +11,25 @@ Flag.init(
             allowNull: false,
             autoIncrement: true,
         },
-        name: {
-            type: DataTypes.STRING,
+        certificationId: {
+            type: DataTypes.INTEGER,
             allowNull: false,
+            references: {
+                model: "certification",
+                key: "id",
+            },
+            onUpdate: "CASCADE",
+            onDelete: "RESTRICT",
+        },
+        studentId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: "student",
+                key: "id",
+            },
+            onUpdate: "CASCADE",
+            onDelete: "RESTRICT",
         },
         description: {
             type: DataTypes.STRING,
@@ -27,14 +38,13 @@ Flag.init(
         color: {
             type: DataTypes.CHAR(7),
         },
-
         //code if applicable
         //state reported
     },
     {
         sequelize,
-        modelName: "Flag",
-        tableName: "flag",
+        modelName: "Student_Certifications",
+        tableName: "student_certifications",
         timestamps: false, // if you want createdAt and updatedAt fields
         underscored: true, // if you prefer snake_case for column names
     }

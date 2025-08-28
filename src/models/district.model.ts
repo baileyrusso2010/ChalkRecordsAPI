@@ -1,7 +1,10 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../database"
 
-export class District extends Model {}
+export class District extends Model {
+    public id!: number
+    public name!: string
+}
 
 District.init(
     {

@@ -1,8 +1,13 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../database"
-import { da } from "@faker-js/faker/."
 
-export class Program extends Model {}
+export class Program extends Model {
+    public id!: number
+    public programCatalogId!: number
+    public active!: boolean
+    public original_approval_date!: Date
+    public approved_through!: Date
+}
 
 Program.init(
     {

@@ -8,12 +8,7 @@ dotenv.config()
 
 import sequelize from "./src/database"
 import "./src/models/associations"
-import {
-    generateSchoolDistrict,
-    generateSchool,
-    generateUsers,
-    generateStudents,
-} from "./src/data/fake_data"
+import generateFakeData from "./src/data/fake_data"
 
 import courseRoutes from "./src/routes/course.routes"
 import programRoutes from "./src/routes/program.routes"
@@ -54,10 +49,7 @@ app.listen(PORT, async () => {
         })
 
     await sequelize.sync({ alter: true }) // Use force: true only in development to drop and recreate tables
-    // await generateStudents()
-    // await generateSchoolDistrict()
-    // await generateSchool()
-    // await generateUsers()
+    await generateFakeData()
 
     console.log(`Server is running on port ${PORT}`)
 })
