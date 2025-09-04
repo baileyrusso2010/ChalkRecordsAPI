@@ -123,10 +123,10 @@ async function generateEnrollments() {
 }
 
 export default async function generateFakeData() {
-  //   const districtId = await generateSchoolDistrict();
-  //   if (districtId) await generateSchool(districtId);
-  //   await generateStudents();
-  //   await generateUsers();
-  //   await fillOutClasses();
+  const districtId = await generateSchoolDistrict();
+  if (districtId) await generateSchool(districtId);
+  await generateStudents();
+  await generateUsers();
+  await fillOutClasses();
   await generateEnrollments();
 }
