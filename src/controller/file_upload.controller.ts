@@ -27,7 +27,7 @@ const s3 = new S3Client({
 export const uploadClassFile = async (req: Request, res: Response) => {
   try {
     console.log("In here");
-    const { classId } = req.body;
+    const { classId } = req.params;
     const file = req.file;
 
     if (!file) {
@@ -35,6 +35,7 @@ export const uploadClassFile = async (req: Request, res: Response) => {
     }
 
     const key = `classes/${classId}/${uuidv4()}-${file.originalname}`;
+    console.log(key);
 
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,

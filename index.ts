@@ -1,10 +1,22 @@
 const PORT = process.env.PORT || 3000;
-import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
+import express, {
+  type Request as ExpressRequest,
+  type Response as ExpressResponse,
+  type NextFunction,
+} from "express";
 
 dotenv.config();
+
+import { CognitoJwtVerifier } from "aws-jwt-verify";
+
+const verifier = CognitoJwtVerifier.create({
+  userPoolId: process.env.COGNITO_USER_POOL_ID as string,
+  tokenUse: "access",
+  clientId: process.env.COGNITO_CLIENT_ID as string,
+});
 
 import sequelize from "./src/database";
 import "./src/models/associations";
@@ -23,9 +35,44 @@ import flagRoutes from "./src/routes/flag.routes";
 import uploadRoutes from "./src/routes/file_upload.routes";
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  })
+);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
+
+async function requireAuth(
+  req: ExpressRequest,
+  res: ExpressResponse,
+  next: NextFunction
+) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).send("No token provided");
+
+    const token = authHeader.split(" ")[1]; // Bearer <token>
+    const payload = await verifier.verify(token);
+
+    // Attach user info to request for use in route handlers
+    req.user = payload;
+    next(); // pass control to the next middleware/route
+  } catch (err: any) {
+    res.status(401).send("Unauthorized: " + err.message);
+  }
+}
+
+app.use("/api", requireAuth);
 
 // Unified API prefix; each router defines its own resource paths (e.g. /courses, /programs, /teachers, /classes/:id/students, /enrollments)
 app.use("/api", courseRoutes);
