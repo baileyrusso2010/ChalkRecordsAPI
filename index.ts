@@ -1,5 +1,6 @@
 const PORT = process.env.PORT || 3000;
 import bodyParser from "body-parser";
+import path from "path";
 import cors from "cors";
 import dotenv from "dotenv";
 import express, {
@@ -8,7 +9,7 @@ import express, {
   type NextFunction,
 } from "express";
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, ".env") }); // adjust if running from dist
 
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 
@@ -72,6 +73,9 @@ async function requireAuth(
   }
 }
 
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
 app.use("/api", requireAuth);
 
 // Unified API prefix; each router defines its own resource paths (e.g. /courses, /programs, /teachers, /classes/:id/students, /enrollments)
