@@ -74,7 +74,7 @@ async function requireAuth(
 }
 
 app.get("/health", (req, res) => {
-  res.status(200).send("OK");
+  res.status(200).send("Health Okay");
 });
 app.use("/api", requireAuth);
 
