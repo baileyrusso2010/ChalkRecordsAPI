@@ -43,8 +43,9 @@
   "homepage": "https://github.com/baileyrusso2010/ChalkRecordsAPI#readme",
   "description": "",
   "devDependencies": {
-    "typescript": "^5.3.1",
+    "@types/body-parser": "^1.19.6",
     "@types/express": "^5.0.3",
-    "@types/multer": "^2.0.0"
+    "@types/multer": "^2.0.0",
+    "typescript": "^5.3.1"
   }
 }
