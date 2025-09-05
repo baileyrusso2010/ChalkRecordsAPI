@@ -1,5 +1,5 @@
 const PORT = process.env.PORT || 3000;
-import bodyParser from "body-parser";
+import * as bodyParser from "body-parser";
 import path from "path";
 import cors from "cors";
 import dotenv from "dotenv";
