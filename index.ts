@@ -9,7 +9,7 @@ import express, {
   type NextFunction,
 } from "express";
 
-dotenv.config({ path: path.resolve(__dirname, ".env") }); // adjust if running from dist
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 
