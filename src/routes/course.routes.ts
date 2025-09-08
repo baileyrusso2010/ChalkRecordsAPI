@@ -1,21 +1,30 @@
-import { Router } from "express"
+import { Router } from "express";
 import {
-    getAllCourseCatalogs,
-    insertCourse,
-    getAllCourses,
-    getCourse,
-} from "../controller/course.controller"
+  getAllCourseCatalogs,
+  insertCourse,
+  getAllCourses,
+  getCourse,
+  insertCourseSubCourse,
+  insertSubCourse,
+  getAllSubCourses,
+} from "../controller/course.controller";
 
-const router = Router()
+const router = Router();
 
 // Course catalogs (reference data)
-router.get("/course-catalogs", getAllCourseCatalogs)
+router.get("/course-catalogs", getAllCourseCatalogs);
 
 // Courses collection
-router.get("/courses", getAllCourses)
+router.get("/courses", getAllCourses);
 // Single course
-router.get("/courses/:id", getCourse)
+router.get("/courses/:id", getCourse);
 // Create course
-router.post("/courses", insertCourse)
+router.post("/courses", insertCourse);
 
-export default router
+router.post("/course-sub-courses", insertCourseSubCourse);
+
+router.get("/sub-courses", getAllSubCourses);
+// Create sub course
+router.post("/sub-courses", insertSubCourse);
+
+export default router;

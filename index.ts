@@ -9,15 +9,21 @@ import express, {
   type NextFunction,
 } from "express";
 
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config({ path: path.resolve(__dirname, "./.env") });
+
+const IS_PROD = process.env.NODE_ENV === "production";
 
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 
-const verifier = CognitoJwtVerifier.create({
-  userPoolId: process.env.COGNITO_USER_POOL_ID as string,
-  tokenUse: "access",
-  clientId: process.env.COGNITO_CLIENT_ID as string,
-});
+let verifier: any = null;
+
+if (IS_PROD) {
+  verifier = CognitoJwtVerifier.create({
+    userPoolId: process.env.COGNITO_USER_POOL_ID as string,
+    tokenUse: "access",
+    clientId: process.env.COGNITO_CLIENT_ID as string,
+  });
+}
 
 import sequelize from "./src/database";
 import "./src/models/associations";
@@ -34,6 +40,7 @@ import attendanceRoutes from "./src/routes/attendance.routes";
 import attendanceTypeRoutes from "./src/routes/attendance_type.routes";
 import flagRoutes from "./src/routes/flag.routes";
 import uploadRoutes from "./src/routes/file_upload.routes";
+import schoolRoutes from "./src/routes/school.routes";
 
 const app = express();
 app.use(
@@ -76,7 +83,10 @@ async function requireAuth(
 app.get("/health", (req, res) => {
   res.status(200).send("Health This works....");
 });
-app.use("/api", requireAuth);
+
+if (IS_PROD) {
+  app.use("/api", requireAuth);
+}
 
 // Unified API prefix; each router defines its own resource paths (e.g. /courses, /programs, /teachers, /classes/:id/students, /enrollments)
 app.use("/api", courseRoutes);
@@ -90,6 +100,7 @@ app.use("/api", attendanceRoutes);
 app.use("/api", attendanceTypeRoutes);
 app.use("/api", flagRoutes);
 app.use("/api", uploadRoutes);
+app.use("/api", schoolRoutes);
 
 app.listen(PORT, async () => {
   await sequelize
