@@ -9,7 +9,7 @@ import express, {
   type NextFunction,
 } from "express";
 
-dotenv.config({ path: path.resolve(__dirname, "./.env") });
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const IS_PROD = process.env.NODE_ENV === "production";
 
