@@ -7,6 +7,7 @@ import {
   insertCourseSubCourse,
   insertSubCourse,
   getAllSubCourses,
+  getSubCoursesPerClass,
 } from "../controller/course.controller";
 
 const router = Router();
@@ -22,6 +23,8 @@ router.get("/courses/:id", getCourse);
 router.post("/courses", insertCourse);
 
 router.post("/course-sub-courses", insertCourseSubCourse);
+
+router.get("/classes/:id/sub-courses", getSubCoursesPerClass);
 
 router.get("/sub-courses", getAllSubCourses);
 // Create sub course

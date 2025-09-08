@@ -66,16 +66,17 @@ Student.hasMany(Grade, { foreignKey: "studentId", as: "grades" });
 Grade.belongsTo(Student, { foreignKey: "studentId", as: "student" });
 
 // Many-to-Many: Course <-> SubCourse through CourseSubCourse
+// Use snake_case FK names to match the join model/table columns
 Course.belongsToMany(SubCourse, {
   through: CourseSubCourse,
-  foreignKey: "courseId",
-  otherKey: "subCourseId",
+  foreignKey: "course_id",
+  otherKey: "sub_course_id",
   as: "subCourses",
 });
 SubCourse.belongsToMany(Course, {
   through: CourseSubCourse,
-  foreignKey: "subCourseId",
-  otherKey: "courseId",
+  foreignKey: "sub_course_id",
+  otherKey: "course_id",
   as: "courses",
 });
 SubCourse.belongsTo(CourseCatalog, {
@@ -85,6 +86,16 @@ SubCourse.belongsTo(CourseCatalog, {
 CourseCatalog.hasMany(SubCourse, {
   foreignKey: "catalog_id",
   as: "subcourses",
+});
+
+// Enable eager loading from the join model
+CourseSubCourse.belongsTo(SubCourse, {
+  foreignKey: "sub_course_id",
+  as: "sub_course",
+});
+CourseSubCourse.belongsTo(Course, {
+  foreignKey: "course_id",
+  as: "course",
 });
 
 Users.hasMany(SubCourse, { foreignKey: "teacher_id", as: "subcourses" });

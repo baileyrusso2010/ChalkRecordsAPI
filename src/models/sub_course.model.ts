@@ -30,12 +30,16 @@ SubCourse.init(
       onUpdate: "CASCADE",
       onDelete: "RESTRICT",
     },
+    credits: {
+      type: DataTypes.DECIMAL,
+      allowNull: true, //change later
+    },
   },
   {
     sequelize,
     modelName: "SubCourse",
     tableName: "sub_course",
-    timestamps: true,
+    timestamps: false,
     underscored: true, // if you prefer snake_case for column names
   }
 );

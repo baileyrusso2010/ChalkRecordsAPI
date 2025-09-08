@@ -137,6 +137,44 @@ export const getAllCourses = async (req: Request, res: Response) => {
 
 //sub courses
 
+export const getSubCoursesPerClass = async (req: Request, res: Response) => {
+  try {
+    const courseId = req.params.id;
+    if (!courseId) {
+      return res.status(400).json({ error: "Course ID is required" });
+    }
+
+    const results = await CourseSubCourse.findAll({
+      where: {
+        course_id: courseId,
+      },
+      include: [
+        {
+          model: SubCourse,
+          as: "sub_course",
+          include: [
+            {
+              model: CourseCatalog,
+              as: "course_catalog",
+              attributes: ["course_code", "course_name", "course_description"],
+            },
+            {
+              model: Users,
+              as: "users",
+            },
+          ],
+          attributes: ["id", "name", "catalog_id", "teacher_id", "credits"],
+        },
+      ],
+    });
+
+    res.status(200).json(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
 export const getAllSubCourses = async (req: Request, res: Response) => {
   try {
     //have to do it by school district
@@ -167,7 +205,7 @@ export const insertSubCourse = async (req: Request, res: Response) => {
   try {
     const item = req.body;
 
-    const required = ["name", "catalog_id", "teacher_id"];
+    const required = ["name", "catalog_id", "teacher_id", "credits"];
     const missing = required.find(
       (f) => item[f] === undefined || item[f] === null
     );
@@ -188,6 +226,7 @@ export const insertSubCourse = async (req: Request, res: Response) => {
 export const insertCourseSubCourse = async (req: Request, res: Response) => {
   try {
     const item = req.body;
+    console.log(item);
 
     const required = ["course_id", "sub_course_id"];
     const missing = required.find(
@@ -199,7 +238,10 @@ export const insertCourseSubCourse = async (req: Request, res: Response) => {
         .json({ error: `Missing required field: ${missing}` });
     }
 
-    const row = await CourseSubCourse.create(item);
+    const row = await CourseSubCourse.create({
+      course_id: item.course_id,
+      sub_course_id: item.sub_course_id,
+    });
     res.status(201).json(row);
   } catch (err) {
     console.error(err);

@@ -24,7 +24,7 @@ CourseSubCourse.init(
     sequelize,
     modelName: "CourseSubCourse",
     tableName: "course_sub_course",
-    timestamps: true,
+    timestamps: false,
     underscored: true, // if you prefer snake_case for column names
   }
 );
