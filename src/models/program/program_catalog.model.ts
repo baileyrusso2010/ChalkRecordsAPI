@@ -1,9 +1,9 @@
 import { Model, DataTypes } from "sequelize"
-import sequelize from "../database"
+import sequelize from "../../database"
 
-export class ProgramCatalog extends Model {}
+export class Program_Catalog extends Model {}
 
-ProgramCatalog.init(
+Program_Catalog.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -11,20 +11,23 @@ ProgramCatalog.init(
             allowNull: false,
             autoIncrement: true,
         },
-        code: {
-            type: DataTypes.STRING,
+        state_program_code: {
+            type: DataTypes.STRING(50),
             allowNull: false,
         },
-        name: {
-            type: DataTypes.STRING,
+        title: {
+            type: DataTypes.STRING(255),
             allowNull: false,
+        },
+        description: {
+            type: DataTypes.TEXT,
         },
     },
     {
         sequelize,
-        modelName: "ProgramCatalog",
+        modelName: "Program_Catalog",
         tableName: "program_catalog",
-        timestamps: false, // if you want createdAt and updatedAt fields
+        timestamps: false,
         underscored: true, // if you prefer snake_case for column names
     }
 )

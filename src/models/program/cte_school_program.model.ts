@@ -1,9 +1,10 @@
 import { Model, DataTypes } from "sequelize"
-import sequelize from "../database"
+import sequelize from "../../database"
 
-export class FlagParticipation extends Model {}
+//district level offering
+export class CTE_School_Program extends Model {}
 
-FlagParticipation.init(
+CTE_School_Program.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -11,44 +12,37 @@ FlagParticipation.init(
             allowNull: false,
             autoIncrement: true,
         },
-        studentId: {
+        cte_school_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "student",
+                model: "cte_school",
                 key: "id",
             },
-            onUpdate: "CASCADE",
-            onDelete: "RESTRICT",
         },
-        flagId: {
+        district_program_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "flag",
+                model: "cte_district_program",
                 key: "id",
             },
-            onUpdate: "CASCADE",
-            onDelete: "RESTRICT",
-        },
-        notes: {
-            type: DataTypes.STRING,
-            allowNull: true,
         },
         startDate: {
             type: DataTypes.DATE,
-            allowNull: true,
         },
         endDate: {
             type: DataTypes.DATE,
-            allowNull: true,
+        },
+        active: {
+            type: DataTypes.BOOLEAN,
         },
     },
     {
         sequelize,
-        modelName: "FlagParticipation",
-        tableName: "flag_participation",
-        timestamps: true,
-        underscored: true,
+        modelName: "CTE_School_Program",
+        tableName: "cte_school_program",
+        timestamps: false,
+        underscored: true, // if you prefer snake_case for column names
     }
 )

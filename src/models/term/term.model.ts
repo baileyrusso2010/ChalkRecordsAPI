@@ -1,5 +1,5 @@
 import { Model, DataTypes } from "sequelize"
-import sequelize from "../database"
+import sequelize from "../../database"
 
 export class Term extends Model {}
 
@@ -11,29 +11,28 @@ Term.init(
             allowNull: false,
             autoIncrement: true,
         },
-        schoolYearId: {
+        school_year_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
             references: {
                 model: "school_year",
                 key: "id",
             },
-
-            onUpdate: "CASCADE",
-            onDelete: "RESTRICT",
         },
         name: {
-            type: DataTypes.STRING,
-            allowNull: false,
+            type: DataTypes.STRING(50),
         },
-        startDate: { type: DataTypes.DATE, allowNull: false },
-        endDate: { type: DataTypes.DATE, allowNull: false },
+        startDate: {
+            type: DataTypes.DATE,
+        },
+        endDate: {
+            type: DataTypes.DATE,
+        },
     },
     {
         sequelize,
         modelName: "Term",
         tableName: "term",
-        timestamps: false, // if you want createdAt and updatedAt fields
+        timestamps: false,
         underscored: true, // if you prefer snake_case for column names
     }
 )

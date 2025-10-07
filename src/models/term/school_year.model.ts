@@ -1,9 +1,9 @@
 import { Model, DataTypes } from "sequelize"
-import sequelize from "../database"
+import sequelize from "../../database"
 
-export class SchoolYear extends Model {}
+export class School_Year extends Model {}
 
-SchoolYear.init(
+School_Year.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -11,26 +11,30 @@ SchoolYear.init(
             allowNull: false,
             autoIncrement: true,
         },
-        name: {
-            type: DataTypes.STRING,
+        district_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: "cte_district",
+                key: "id",
+            },
         },
         startDate: {
             type: DataTypes.DATE,
-            allowNull: false,
         },
         endDate: {
             type: DataTypes.DATE,
-            allowNull: false,
         },
-        active: {
-            type: DataTypes.BOOLEAN,
+        label: {
+            type: DataTypes.STRING(50),
         },
+
+        //credits maybe.. wait on this
     },
     {
         sequelize,
-        modelName: "SchoolYear",
+        modelName: "School_Year",
         tableName: "school_year",
-        timestamps: false, // if you want createdAt and updatedAt fields
+        timestamps: false,
         underscored: true, // if you prefer snake_case for column names
     }
 )

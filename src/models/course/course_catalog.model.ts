@@ -1,9 +1,9 @@
 import { Model, DataTypes } from "sequelize"
-import sequelize from "../database"
+import sequelize from "../../database"
 
-export class AttendanceType extends Model {}
+export class Course_Catalog extends Model {}
 
-AttendanceType.init(
+Course_Catalog.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -11,19 +11,22 @@ AttendanceType.init(
             allowNull: false,
             autoIncrement: true,
         },
-        code: {
-            type: DataTypes.STRING(20),
-            allowNull: false,
-        },
-        description: {
+        course_code: {
             type: DataTypes.STRING(50),
             allowNull: false,
         },
+        title: {
+            type: DataTypes.STRING(255),
+        },
+        description: {
+            type: DataTypes.TEXT,
+        },
+        //credits maybe.. wait on this
     },
     {
         sequelize,
-        modelName: "AttendanceType",
-        tableName: "attendance_type",
+        modelName: "Course_Catalog",
+        tableName: "course_catalog",
         timestamps: false,
         underscored: true, // if you prefer snake_case for column names
     }

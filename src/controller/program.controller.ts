@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { Op } from "sequelize"
-import { ProgramCatalog } from "../models/program_catalog.model"
+import { ProgramCatalog } from "../models/program/program_catalog.model"
 import { Program } from "../models/program.model"
 
 export const getAllProgamCatalog = async (req: Request, res: Response) => {
