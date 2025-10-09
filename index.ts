@@ -9,7 +9,8 @@ import express, {
     type NextFunction,
 } from "express"
 
-dotenv.config({ path: path.resolve(__dirname, "../.env") })
+// dotenv.config({ path: path.resolve(__dirname, "../.env") })
+dotenv.config()
 
 const IS_PROD = process.env.NODE_ENV === "production"
 
@@ -27,17 +28,12 @@ if (IS_PROD) {
 
 import sequelize from "./src/database"
 import "./src/models/associations"
-import generateFakeData from "./src/data/fake_data"
-
-import courseRoutes from "./src/routes/course.routes"
-import programRoutes from "./src/routes/program.routes"
-import userRoutes from "./src/routes/user.routes"
-import studentRoutes from "./src/routes/student.routes"
-import wblRoutes from "./src/routes/wbl.routes"
-import attendanceRoutes from "./src/routes/attendance.routes"
-import attendanceTypeRoutes from "./src/routes/attendance_type.routes"
-import uploadRoutes from "./src/routes/file_upload.routes"
-import schoolRoutes from "./src/routes/school.routes"
+import cteDistrictProgramRouter from "./src/routes/cte_district_program.routes"
+import programCatalogRouter from "./src/routes/program_catalog.routes"
+import courseInstanceRouter from "./src/routes/course_instance.routes"
+import cteDistrictRouter from "./src/routes/cte_district.routes"
+import cteSchoolRouter from "./src/routes/cte_school.routes"
+import homeSchoolRouter from "./src/routes/home_school.routes"
 
 const app = express()
 app.use(
@@ -81,16 +77,13 @@ if (IS_PROD) {
     app.use("/api", requireAuth)
 }
 
-// Unified API prefix; each router defines its own resource paths (e.g. /courses, /programs, /teachers, /classes/:id/students, /enrollments)
-app.use("/api", courseRoutes)
-app.use("/api", programRoutes)
-app.use("/api", userRoutes)
-app.use("/api", studentRoutes)
-app.use("/api", wblRoutes)
-app.use("/api", attendanceRoutes)
-app.use("/api", attendanceTypeRoutes)
-app.use("/api", uploadRoutes)
-app.use("/api", schoolRoutes)
+//put apis here
+app.use("/api/cte-district-programs", cteDistrictProgramRouter)
+app.use("/api/program-catalogs", programCatalogRouter)
+app.use("/api/course-instances", courseInstanceRouter)
+app.use("/api/cte-districts", cteDistrictRouter)
+app.use("/api/cte-schools", cteSchoolRouter)
+app.use("/api/home-schools", homeSchoolRouter)
 
 app.listen(PORT, async () => {
     await sequelize

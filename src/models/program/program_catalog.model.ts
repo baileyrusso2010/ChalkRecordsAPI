@@ -16,6 +16,7 @@ Program_Catalog.init(
             allowNull: false,
         },
         title: {
+            //not sure if needed since it has linkage
             type: DataTypes.STRING(255),
             allowNull: false,
         },

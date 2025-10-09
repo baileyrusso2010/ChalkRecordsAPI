@@ -1,7 +1,42 @@
-import { Model, DataTypes } from "sequelize"
+import { Model, DataTypes, Optional } from "sequelize"
 import sequelize from "../../database"
 
-export class Course_Instance extends Model {}
+export interface CourseInstanceAttributes {
+    id: number
+    cte_school_id?: number | null
+    program_catalog_id?: number | null
+    course_catalog_id?: number | null
+    instructorId?: number | null
+    alias?: string | null
+    start_date?: Date | null
+    end_date?: Date | null
+}
+
+export type CourseInstanceCreationAttributes = Optional<
+    CourseInstanceAttributes,
+    | "id"
+    | "cte_school_id"
+    | "program_catalog_id"
+    | "course_catalog_id"
+    | "alias"
+    | "instructorId"
+    | "start_date"
+    | "end_date"
+>
+
+export class Course_Instance
+    extends Model<CourseInstanceAttributes, CourseInstanceCreationAttributes>
+    implements CourseInstanceAttributes
+{
+    public id!: number
+    public cte_school_id?: number | null
+    public program_catalog_id?: number | null
+    public course_catalog_id?: number | null
+    public instructorId?: number | null
+    public start_date?: Date | null
+    public end_date?: Date | null
+    public alias?: string | null
+}
 
 Course_Instance.init(
     {
@@ -32,29 +67,27 @@ Course_Instance.init(
                 key: "id",
             },
         },
+        alias: {
+            type: DataTypes.STRING,
+        },
         instructorId: {
             type: DataTypes.INTEGER, //fill later
             allowNull: true,
         },
-        school_year_id: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: "school_year",
-                key: "id",
-            },
-        },
-        term_id: {
-            type: DataTypes.INTEGER,
-            references: {
-                model: "term",
-                key: "id",
-            },
-        },
-        startDate: {
+        // school_year_id: {
+        //     type: DataTypes.INTEGER,
+        //     references: {
+        //         model: "school_year",
+        //         key: "id",
+        //     },
+        // },
+        start_date: {
             type: DataTypes.DATE,
+            defaultValue: new Date(),
         },
-        endDate: {
+        end_date: {
             type: DataTypes.DATE,
+            allowNull: true,
         },
 
         //credits maybe.. wait on this

@@ -1,20 +1,20 @@
 // src/database.ts
-import { Sequelize } from "sequelize";
+import { Sequelize } from "sequelize"
 
 const sequelize = new Sequelize({
-  dialect: "postgres",
-  host: String(process.env.DB_HOST), // or 'localhost'
-  port: Number(process.env.DB_PORT),
-  database: String(process.env.DB_DATABASE),
-  username: String(process.env.DB_USERNAME),
-  password: String(process.env.DB_PASSWORD),
-  logging: false, // optional
-  dialectOptions: {
-    ssl: {
-      required: true,
-      rejectUnauthorized: false, // ⛔ Not for production
-    },
-  },
-});
+    dialect: "postgres",
+    host: String(process.env.DB_HOST), // or 'localhost'
+    port: Number(process.env.DB_PORT),
+    database: String(process.env.DB_DATABASE),
+    username: String(process.env.DB_USERNAME),
+    password: String(process.env.DB_PASSWORD),
+    logging: false, // optional
+    // dialectOptions: {
+    //     ssl: {
+    //         required: false,
+    //         rejectUnauthorized: false, // ⛔ Not for production
+    //     },
+    // },
+})
 
-export default sequelize;
+export default sequelize
