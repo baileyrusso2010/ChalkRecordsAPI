@@ -34,6 +34,9 @@ import courseInstanceRouter from "./src/routes/course_instance.routes"
 import cteDistrictRouter from "./src/routes/cte_district.routes"
 import cteSchoolRouter from "./src/routes/cte_school.routes"
 import homeSchoolRouter from "./src/routes/home_school.routes"
+import courseCatalogRouter from "./src/routes/course_catalog.routes"
+import wblCategoriesRouter from "./src/routes/wbl_catagories.routes"
+import wblStudentsRouter from "./src/routes/wbl_students.routes"
 
 const app = express()
 app.use(
@@ -80,10 +83,13 @@ if (IS_PROD) {
 //put apis here
 app.use("/api/cte-district-programs", cteDistrictProgramRouter)
 app.use("/api/program-catalogs", programCatalogRouter)
+app.use("/api/course-catalogs", courseCatalogRouter)
 app.use("/api/course-instances", courseInstanceRouter)
 app.use("/api/cte-districts", cteDistrictRouter)
 app.use("/api/cte-schools", cteSchoolRouter)
 app.use("/api/home-schools", homeSchoolRouter)
+app.use("/api/wbl-categories", wblCategoriesRouter)
+app.use("/api/wbl-students", wblStudentsRouter)
 
 app.listen(PORT, async () => {
     await sequelize

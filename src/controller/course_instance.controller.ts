@@ -22,7 +22,6 @@ export async function listCourseInstances(req: Request, res: Response) {
             include: [
                 { model: Course_Catalog, as: "course_catalog" },
                 { model: Program_Catalog, as: "program_catalog" },
-                { model: CTE_School, as: "cte_school" },
             ],
             order: [["id", "ASC"]],
         })
@@ -59,22 +58,16 @@ export async function getCourseInstance(req: Request, res: Response) {
 // POST /course-instances
 export async function createCourseInstance(req: Request, res: Response) {
     try {
-        const {
-            cte_school_id,
-            program_catalog_id,
-            course_catalog_id,
-            instructorId,
-            start_date,
-            end_date,
-        } = req.body
+        const { cte_school_id, program_catalog_id, course_catalog_id, instructorId, alias } =
+            req.body
 
         const created = await Course_Instance.create({
             cte_school_id,
             program_catalog_id,
             course_catalog_id,
             instructorId,
-            start_date: start_date ? new Date(start_date) : undefined,
-            end_date: end_date ? new Date(end_date) : undefined,
+            alias,
+            // start_date: start_date ? new Date(start_date) : undefined, end_date: end_date ? new Date(end_date) : undefined,
         })
 
         res.status(201).json(created)

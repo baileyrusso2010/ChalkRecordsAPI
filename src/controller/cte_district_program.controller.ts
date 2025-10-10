@@ -22,10 +22,7 @@ export async function listDistrictPrograms(req: Request, res: Response) {
 
         const results = await CTE_District_Program.findAll({
             where,
-            include: [
-                { model: Program_Catalog, as: "program_catalog" },
-                { model: CTE_District, as: "district" },
-            ],
+            include: [{ model: Program_Catalog, as: "program_catalog" }],
             order: [["id", "ASC"]],
         })
         res.json(results)

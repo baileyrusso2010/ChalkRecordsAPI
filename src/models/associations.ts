@@ -14,6 +14,9 @@ import { Program_Catalog } from "./program/program_catalog.model"
 import { School_Year } from "./term/school_year.model"
 import { Term } from "./term/term.model"
 
+import { Student } from "./student.model"
+import { Enrollment } from "./enrollment.model"
+
 // NOTE: Several controllers reference models (Program, Users, SubCourse, etc.) that
 // are not present in the current codebase snapshot. Their associations are therefore
 // omitted here. Add them later when those model definitions exist.
@@ -71,7 +74,14 @@ Course_Instance.belongsTo(School_Year, { foreignKey: "school_year_id", as: "scho
 Term.hasMany(Course_Instance, { foreignKey: "term_id", as: "course_instances" })
 Course_Instance.belongsTo(Term, { foreignKey: "term_id", as: "term" })
 
-// Export a function in case manual initialization is needed elsewhere
-export function initAssociations() {
-    return true
-}
+// Optional: Enrollment model to link Students to Course Instances
+Student.hasMany(Enrollment, { foreignKey: "student_id", as: "enrollments" })
+Enrollment.belongsTo(Student, { foreignKey: "student_id", as: "student" })
+
+Course_Instance.hasMany(Enrollment, { foreignKey: "course_instance_id", as: "enrollments" })
+Enrollment.belongsTo(Course_Instance, { foreignKey: "course_instance_id", as: "course_instance" })
+
+// // Export a function in case manual initialization is needed elsewhere
+// export function initAssociations() {
+//     return true
+// }

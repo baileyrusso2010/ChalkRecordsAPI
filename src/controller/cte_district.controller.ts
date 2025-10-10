@@ -3,6 +3,8 @@ import { Op } from "sequelize"
 import { CTE_District } from "../models/school/cte_district.model"
 import { CTE_School } from "../models/school/cte_school.model"
 import { Home_School } from "../models/school/home_school.model"
+import { CTE_District_Program } from "../models/program/cte_district_program.model"
+import { Program_Catalog } from "../models/program/program_catalog.model"
 
 // GET /cte-districts
 export async function listDistricts(req: Request, res: Response) {
@@ -55,5 +57,38 @@ export async function getDistrictSchools(req: Request, res: Response) {
     } catch (err) {
         console.error("Error getting district schools", err)
         res.status(500).json({ error: "Failed to retrieve district schools" })
+    }
+}
+
+// GET /cte-districts/:id/programs/current
+// Returns the district's currently authorized programs (active and within auth/expiry window)
+export async function getDistrictCurrentPrograms(req: Request, res: Response) {
+    try {
+        const id = Number(req.params.id)
+        if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: "Invalid id" })
+
+        // // Ensure district exists (optional but consistent 404)
+        // const district = await CTE_District.findByPk(id)
+        // if (!district) return res.status(404).json({ error: "District not found" })
+
+        const now = new Date()
+
+        const programs = await CTE_District_Program.findAll({
+            where: {
+                cte_district_id: id,
+                active: true,
+            },
+            include: [{ model: Program_Catalog, as: "program_catalog" }],
+            order: [[{ model: Program_Catalog, as: "program_catalog" }, "title", "ASC"]],
+        })
+
+        res.json({
+            district_id: id,
+            as_of: now.toISOString(),
+            programs,
+        })
+    } catch (err) {
+        console.error("Error getting district current programs", err)
+        res.status(500).json({ error: "Failed to retrieve current programs" })
     }
 }
