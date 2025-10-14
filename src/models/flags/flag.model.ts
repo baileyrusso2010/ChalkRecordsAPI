@@ -1,12 +1,12 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../../database";
 
-export class WBL_Catagories extends Model {
+export class Flag extends Model {
   public id!: number;
-  public name!: string;
+  public name!: string; // Unique name for the flag
 }
 
-WBL_Catagories.init(
+Flag.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -15,12 +15,14 @@ WBL_Catagories.init(
     },
     name: {
       type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
     },
   },
   {
     sequelize,
-    modelName: "WBL_Catagories",
-    tableName: "wbl_catagories",
+    modelName: "Flag",
+    tableName: "flags",
     timestamps: false,
     underscored: true,
   }
