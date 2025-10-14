@@ -1,7 +1,14 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../../database"
 
-export class CTE_School extends Model {}
+export class CTE_School extends Model {
+    public id!: number
+    public district_id!: number
+    public name!: string
+    public address!: string
+    public phone_number!: string
+    public website!: string
+}
 
 CTE_School.init(
     {

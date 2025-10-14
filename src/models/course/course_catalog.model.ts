@@ -1,7 +1,12 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../../database"
 
-export class Course_Catalog extends Model {}
+export class Course_Catalog extends Model {
+    public id!: number
+    public course_code!: string
+    public title!: string
+    public description!: string
+}
 
 Course_Catalog.init(
     {
