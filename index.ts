@@ -114,7 +114,8 @@ app.listen(PORT, async () => {
     await sequelize.sync({ alter: true }) // Use force: true only in development to drop and recreate tables
     // await createRandomStudents(100)
     // await createRandomFlags(50)
-    await createCourseInstances(10)
+    // await createCourseInstances(20)
+    // await createEnrollments(200)
 
     console.log(`Server is running on port ${PORT}`)
 })

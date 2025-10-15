@@ -8,6 +8,7 @@ import { CTE_District_Program } from "../models/program/cte_district_program.mod
 import { Course_Catalog } from "../models/course/course_catalog.model"
 import { Course_Instance } from "../models/course/course_instance.model"
 import { Enrollment } from "../models/enrollment.model"
+import { Staff } from "../models/staff.model"
 
 export function createRandomStudents(_count = 10) {
     const uniqueIds = new Set<string>() // Track unique student_id values
@@ -21,7 +22,7 @@ export function createRandomStudents(_count = 10) {
                 first_name: faker.person.firstName(),
                 last_name: faker.person.lastName(),
                 student_id: studentId,
-                grade: faker.helpers.arrayElement(["9", "10", "11", "12"]),
+                grade: faker.helpers.arrayElement(["11", "12"]),
                 age: faker.number.int({ min: 14, max: 19 }),
                 home_school_id: 1,
                 cte_school_id: 1,
@@ -67,18 +68,24 @@ export async function createCourseInstances(_count = 10) {
         const cteSchoolId = faker.helpers.arrayElement(cte_school).id
         const districtProgramId = faker.helpers.arrayElement(district_programs).id
         const courseCatalogId = faker.helpers.arrayElement(course_catalog).id
-        const schoolYearId = faker.helpers.arrayElement(school_year).id
-        const comboKey = `${cteSchoolId}-${districtProgramId}-${courseCatalogId}-${schoolYearId}`
+        // const schoolYearId = faker.helpers.arrayElement(school_year).id
 
-        if (!uniqueCombinations.has(comboKey)) {
-            uniqueCombinations.add(comboKey)
-            course_instances.push({
-                cte_school_id: cteSchoolId,
-                program_catalog_id: districtProgramId,
-                course_catalog_id: courseCatalogId,
-                alias: faker.lorem.words(2),
-                school_year_id: schoolYearId,
-            })
+        const instructorId = faker.helpers.arrayElement(await Staff.findAll()).id
+
+        //create the class for each school year
+        for (let i = 0; i < school_year.length; i++) {
+            const comboKey = `${cteSchoolId}-${districtProgramId}-${courseCatalogId}-${school_year[i].id}`
+            if (!uniqueCombinations.has(comboKey)) {
+                uniqueCombinations.add(comboKey)
+                course_instances.push({
+                    cte_school_id: cteSchoolId,
+                    district_program_id: districtProgramId,
+                    course_catalog_id: courseCatalogId,
+                    alias: faker.lorem.words(2),
+                    school_year_id: school_year[i].id,
+                    instructorId: instructorId,
+                })
+            }
         }
     }
 
@@ -95,7 +102,8 @@ export async function createEnrollments(_count = 10) {
     while (enrollments.length < _count) {
         const studentId = faker.helpers.arrayElement(students).id
         const courseInstanceId = faker.helpers.arrayElement(course_instances).id
-        const pairKey = `${studentId}-${courseInstanceId}`
+        const schoolYearId = faker.helpers.arrayElement(course_instances).school_year_id
+        const pairKey = `${studentId}-${courseInstanceId}-${schoolYearId}`
 
         if (!uniquePairs.has(pairKey)) {
             uniquePairs.add(pairKey)

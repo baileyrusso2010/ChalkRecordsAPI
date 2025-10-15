@@ -5,6 +5,7 @@ import {
     createCourseInstance,
     updateCourseInstance,
     deleteCourseInstance,
+    getCourseStats,
 } from "../controller/course_instance.controller"
 
 const router = Router()
@@ -14,5 +15,7 @@ router.get("/:id", getCourseInstance)
 router.post("/", createCourseInstance)
 router.put("/:id", updateCourseInstance)
 router.delete("/:id", deleteCourseInstance)
+
+router.get("/:id/stats", getCourseStats)
 
 export default router

@@ -32,7 +32,7 @@ export class Course_Instance
 {
     public id!: number
     public cte_school_id?: number | null
-    public program_catalog_id?: number | null
+    public district_program_id?: number | null
     public course_catalog_id?: number | null
     public instructorId?: number | null
     public school_year_id?: number | null
