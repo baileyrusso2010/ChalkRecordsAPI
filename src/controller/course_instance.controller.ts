@@ -12,6 +12,7 @@ import { Student } from "../models/student.model"
 import { WBL_Students } from "../models/wbl/wbl_students.model"
 import { StudentFlag } from "../models/flags/student_flags.model"
 import { Flag } from "../models/flags/flag.model"
+import { CTE_District_Program } from "../models/program/cte_district_program.model"
 
 // GET /course-instances
 // Query params: schoolId, programCatalogId, courseCatalogId, schoolYearId, termId, from, to
@@ -144,98 +145,115 @@ export async function getCourseStats(req: Request, res: Response) {
         const id = Number(req.params.id)
         if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: "Invalid id" })
 
-        type EnrollmentWithStudent = Enrollment & {
-            student: Student & {
-                student_flags: Array<StudentFlag & { Flag: Flag }>
-            }
-        }
+        //this is good because then you can filter by teacher
 
-        type CourseInstanceWithRelations = Course_Instance & {
-            enrollments: EnrollmentWithStudent[]
-            school_year: School_Year
-        }
-
-        const records = (await Course_Instance.findAll({
-            where: { course_catalog_id: id },
+        const records = await CTE_District_Program.findAll({
             include: [
                 {
-                    model: Enrollment,
-                    as: "enrollments",
+                    model: Course_Instance,
+                    as: "course_instances",
                     include: [
                         {
-                            model: Student,
-                            as: "student", // Assuming association name; adjust if different
-                            attributes: ["grade", "gender", "age"], // Include flags; add more attributes as needed
+                            model: Enrollment,
+                            as: "enrollments",
                             include: [
                                 {
-                                    model: StudentFlag,
-                                    as: "student_flags", // Assuming association name; adjust if different
-                                    association: "flags",
+                                    model: Student,
+                                    as: "student", // Assuming association name; adjust if different
+                                    attributes: ["grade", "gender", "age"], // Include flags; add more attributes as needed
                                     include: [
                                         {
-                                            model: Flag,
-                                            as: "Flag",
+                                            model: Flag, //date range for prev years
+                                            as: "flags",
+                                            through: { attributes: [] },
                                         },
                                     ],
                                 },
                             ],
                         },
+
+                        { model: School_Year, as: "school_year" }, // Include year for "each year" context
                     ],
                 },
-                { model: School_Year, as: "school_year" }, // Include year for "each year" context
             ],
-            order: [
-                ["school_year_id", "ASC"],
-                ["id", "ASC"],
-            ], // Order by year and instance
-        })) as CourseInstanceWithRelations[]
 
-        let _records: any[] = []
-
-        records.forEach((record) => {
-            let year = record.school_year_id
-            let totalEnrollments = record.enrollments.length
-            let genderCounts: Record<string, number> = {}
-            let gradeCounts: any = {}
-            let ageCounts: any = {}
-            let flagCounts: any = {}
-            record.enrollments.forEach((enrollment) => {
-                let student = enrollment.student
-
-                //gender count
-                const genderKey = student.gender ?? "Unknown"
-                genderCounts[genderKey] = (genderCounts[genderKey] || 0) + 1
-
-                // grade count
-                const gradeKey = (student.grade ?? "Unknown") as any
-                gradeCounts[gradeKey] = (gradeCounts[gradeKey] || 0) + 1
-
-                // age count
-                const ageKey = (student.age ?? "Unknown") as any
-                ageCounts[ageKey] = (ageCounts[ageKey] || 0) + 1
-
-                // flag count
-                if (Array.isArray(student.student_flags)) {
-                    for (const sf of student.student_flags) {
-                        const f = sf.Flag as any
-                        const flagKey = (f?.label ?? f?.name ?? f?.id ?? "Unknown") as any
-                        flagCounts[flagKey] = (flagCounts[flagKey] || 0) + 1
-                    }
-                }
-            })
-            _records.push({
-                year: record.school_year?.label || "Unknown",
-                totalEnrollments,
-                genderCounts,
-                gradeCounts,
-                ageCounts,
-                flagCounts,
-            })
+            where: { program_id: id },
         })
 
-        res.status(200).json(_records)
+        let totalStudentCount = 0
+        let totalFlags: { [key: string]: number } = {}
+        let totalGenders: { [key: string]: number } = {}
+
+        let byYear: {
+            [year: number]: {
+                totalStudents: number
+                totalFlags: { [key: string]: number }
+                totalGenders: { [key: string]: number }
+                byGrade: {
+                    [grade: string]: {
+                        students: number
+                        flags: { [key: string]: number }
+                        gender: { [key: string]: number }
+                    }
+                }
+            }
+        } = {}
+
+        ;(records[0] as any).course_instances.forEach((_records: any) => {
+            const year = _records.school_year.label.split("-")[1]
+
+            if (!byYear[year]) {
+                byYear[year] = {
+                    totalStudents: 0,
+                    totalFlags: {},
+                    totalGenders: {},
+                    byGrade: {},
+                }
+
+                _records.enrollments.forEach((record: any) => {
+                    totalStudentCount++
+                    byYear[year].totalStudents++
+                    const grade = record.student.grade
+
+                    if (!byYear[year].byGrade[grade]) {
+                        byYear[year].byGrade[grade] = { students: 0, flags: {}, gender: {} }
+                    }
+                    byYear[year].byGrade[grade].students++
+
+                    const _gender = record.student.gender
+                    if (_gender) {
+                        totalGenders[_gender] = (totalGenders[_gender] || 0) + 1
+                        byYear[year].byGrade[grade].gender[_gender] =
+                            (byYear[year].byGrade[grade].gender[_gender] || 0) + 1
+                        byYear[year].totalGenders[_gender] =
+                            (byYear[year].totalGenders[_gender] || 0) + 1
+                    }
+
+                    for (const flag of record.student.flags) {
+                        const flagName = flag.name
+                        totalFlags[flagName] = (totalFlags[flagName] || 0) + 1
+                        byYear[year].byGrade[grade].flags[flagName] =
+                            (byYear[year].byGrade[grade].flags[flagName] || 0) + 1
+
+                        byYear[year].totalFlags[flagName] =
+                            (byYear[year].totalFlags[flagName] || 0) + 1
+                    }
+                })
+            }
+        })
+
+        // res.status(200).json(records)
+
+        res.json({
+            totalStudentCount,
+            totalFlags,
+            totalGenders,
+            byYear,
+        })
     } catch (err) {
         console.error("Error get course instance", err)
         res.status(500).json({ error: "Failed to get course instance stats" })
     }
 }
+
+//graphql
