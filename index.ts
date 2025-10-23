@@ -38,6 +38,7 @@ import courseCatalogRouter from "./src/routes/course_catalog.routes"
 import wblCategoriesRouter from "./src/routes/wbl_catagories.routes"
 import wblStudentsRouter from "./src/routes/wbl_students.routes"
 import studentRouter from "./src/routes/student.routes"
+import staffRouter from "./src/routes/staff.routes"
 
 import {
     createRandomStudents,
@@ -100,6 +101,7 @@ app.use("/api/home-schools", homeSchoolRouter)
 app.use("/api/wbl-categories", wblCategoriesRouter)
 app.use("/api/wbl-students", wblStudentsRouter)
 app.use("/api/students", studentRouter)
+app.use("/api/staff", staffRouter)
 
 app.listen(PORT, async () => {
     await sequelize

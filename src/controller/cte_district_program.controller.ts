@@ -3,6 +3,8 @@ import { Op } from "sequelize"
 import { CTE_District_Program } from "../models/program/cte_district_program.model"
 import { Program_Catalog } from "../models/program/program_catalog.model"
 import { CTE_District } from "../models/school/cte_district.model"
+import { Course_Instance } from "../models/course/course_instance.model"
+import { Staff } from "../models/staff.model"
 
 // Helper to parse ID param safely
 function parseId(value: any): number | null {

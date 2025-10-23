@@ -179,6 +179,7 @@ export async function getCourseStats(req: Request, res: Response) {
 
             where: { program_id: id },
         })
+        console.log(records)
 
         let totalStudentCount = 0
         let totalFlags: { [key: string]: number } = {}
