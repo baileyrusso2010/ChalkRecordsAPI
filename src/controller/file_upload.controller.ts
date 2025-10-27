@@ -91,3 +91,31 @@ export const listClassFiles = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to list files" });
   }
 };
+
+export const getFile = async (req: Request, res: Response) => {
+  try {
+    const { fileName } = req.params;
+    console.log(fileName);
+
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `classes/${fileName}.pdf`,
+    });
+
+    const result = await s3.send(command);
+
+    // Set headers for PDF download
+    res.setHeader("Content-Type", result.ContentType || "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+
+    // Pipe the file stream to the response
+    if (result.Body) {
+      (result.Body as any).pipe(res);
+    } else {
+      res.status(404).json({ error: "File not found" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to get file" });
+  }
+};
