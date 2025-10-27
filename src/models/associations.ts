@@ -21,6 +21,7 @@ import { Flag } from "./flags/flag.model"
 import { StudentFlag } from "./flags/student_flags.model"
 
 import { Staff } from "./staff.model"
+import { Employability } from "./forms/employability.model"
 // NOTE: Several controllers reference models (Program, Users, SubCourse, etc.) that
 // are not present in the current codebase snapshot. Their associations are therefore
 // omitted here. Add them later when those model definitions exist.
@@ -172,7 +173,5 @@ StudentFlag.belongsTo(Student, { foreignKey: "student_id" })
 Flag.hasMany(StudentFlag, { foreignKey: "flag_id" })
 StudentFlag.belongsTo(Flag, { foreignKey: "flag_id" })
 
-// // Export a function in case manual initialization is needed elsewhere
-// export function initAssociations() {
-//     return true
-// }
+Student.hasOne(Employability, { foreignKey: "student_id", as: "employability" })
+Employability.belongsTo(Student, { foreignKey: "student_id", as: "student" })
