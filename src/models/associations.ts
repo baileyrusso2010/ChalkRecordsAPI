@@ -24,6 +24,7 @@ import { Staff } from "./staff.model"
 
 import { Skill } from "./skill.model"
 import { SkillCategory } from "./skill_category.model"
+import { SkillScore } from "./skill_score.model"
 
 // NOTE: Several controllers reference models (Program, Users, SubCourse, etc.) that
 // are not present in the current codebase snapshot. Their associations are therefore
@@ -181,3 +182,6 @@ Skill.belongsTo(SkillCategory, {
     foreignKey: "category_id",
     as: "skill_category",
 })
+
+Skill.hasMany(SkillScore, { foreignKey: "skill_id" })
+SkillScore.belongsTo(Skill, { foreignKey: "skill_id" })
