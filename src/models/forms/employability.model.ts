@@ -14,16 +14,11 @@ Employability.init(
             autoIncrement: true,
             primaryKey: true,
         },
-        student_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: "students",
-                key: "id",
-            },
+        title: {
+            type: DataTypes.STRING,
         },
-        form_data: {
-            type: DataTypes.JSONB,
+        description: {
+            type: DataTypes.STRING,
         },
     },
     {

@@ -9,8 +9,8 @@ import express, {
     type NextFunction,
 } from "express"
 
-dotenv.config({ path: path.resolve(__dirname, "../.env") })
-// dotenv.config()
+// dotenv.config({ path: path.resolve(__dirname, "../.env") })
+dotenv.config()
 
 const IS_PROD = process.env.NODE_ENV === "production"
 
@@ -39,9 +39,8 @@ import wblCategoriesRouter from "./src/routes/wbl_catagories.routes"
 import wblStudentsRouter from "./src/routes/wbl_students.routes"
 import studentRouter from "./src/routes/student.routes"
 import staffRouter from "./src/routes/staff.routes"
-import formRouter from "./src/routes/form.routes"
-import studentForm from "./src/routes/student_form.routes"
-import fileRouter from "./src/routes/file_upload.routes"
+import employabilityRouter from "./src/routes/employability.routes"
+import skillRouter from "./src/routes/skill.routes"
 
 import {
     createRandomStudents,
@@ -49,7 +48,6 @@ import {
     createCourseInstances,
     createEnrollments,
 } from "./src/utils/fake_date"
-import { create } from "domain"
 
 const app = express()
 app.use(
@@ -105,8 +103,8 @@ app.use("/api/wbl-categories", wblCategoriesRouter)
 app.use("/api/wbl-students", wblStudentsRouter)
 app.use("/api/students", studentRouter)
 app.use("/api/staff", staffRouter)
-app.use("/api/form", formRouter) //probabaly should consolidate
-app.use("/api/form", studentForm)
+app.use("/api/employability", employabilityRouter)
+app.use("/api/skill", skillRouter)
 // app.use("/api/file", fileRouter);
 
 app.listen(PORT, async () => {

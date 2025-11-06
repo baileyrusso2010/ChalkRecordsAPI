@@ -21,7 +21,10 @@ import { Flag } from "./flags/flag.model"
 import { StudentFlag } from "./flags/student_flags.model"
 
 import { Staff } from "./staff.model"
-import { Employability } from "./forms/employability.model"
+
+import { Skill } from "./skill.model"
+import { SkillCategory } from "./skill_category.model"
+
 // NOTE: Several controllers reference models (Program, Users, SubCourse, etc.) that
 // are not present in the current codebase snapshot. Their associations are therefore
 // omitted here. Add them later when those model definitions exist.
@@ -173,5 +176,8 @@ StudentFlag.belongsTo(Student, { foreignKey: "student_id" })
 Flag.hasMany(StudentFlag, { foreignKey: "flag_id" })
 StudentFlag.belongsTo(Flag, { foreignKey: "flag_id" })
 
-Student.hasOne(Employability, { foreignKey: "student_id", as: "employability" })
-Employability.belongsTo(Student, { foreignKey: "student_id", as: "student" })
+SkillCategory.hasMany(Skill, { foreignKey: "category_id", as: "skills" })
+Skill.belongsTo(SkillCategory, {
+    foreignKey: "category_id",
+    as: "skill_category",
+})
