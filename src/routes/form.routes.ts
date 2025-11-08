@@ -1,16 +1,24 @@
-import { Router } from "express"
+import { Router } from "express";
 import {
-    addOccupationalSkills,
-    deleteOccupationalSkill,
-    getForm,
-    updateOccupationalSkills,
-} from "../controller/form.controller"
+  createForm,
+  getForms,
+  getFormById,
+  updateForm,
+  deleteForm,
+} from "../controller/form.controller";
+import {
+  assignForms,
+  getStudentForms,
+} from "../controller/student_form.controller";
 
-const router = Router()
+const router = Router();
 
-router.get("/:id", getForm)
-router.post("/:id/occupational", addOccupationalSkills)
-router.put("/:id/occupational", updateOccupationalSkills)
-router.delete("/:id/occupational", deleteOccupationalSkill)
+router.post("/", createForm);
+router.get("/", getForms);
+router.get("/:id", getFormById);
+router.put("/:id", updateForm);
+router.delete("/:id", deleteForm);
+router.post("/assign", assignForms);
+router.get("/student/:studentId", getStudentForms);
 
-export default router
+export default router;

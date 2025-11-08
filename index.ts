@@ -39,8 +39,9 @@ import wblCategoriesRouter from "./src/routes/wbl_catagories.routes";
 import wblStudentsRouter from "./src/routes/wbl_students.routes";
 import studentRouter from "./src/routes/student.routes";
 import staffRouter from "./src/routes/staff.routes";
-import employabilityRouter from "./src/routes/employability.routes";
 import skillRouter from "./src/routes/skill.routes";
+import formRouter from "./src/routes/form.routes";
+import pdfRouter from "./src/routes/pdf.routes";
 
 import {
   createRandomStudents,
@@ -48,6 +49,7 @@ import {
   createCourseInstances,
   createEnrollments,
 } from "./src/utils/fake_date";
+import { fillForm } from "./src/utils/pdf/generate_test";
 
 const app = express();
 app.use(
@@ -107,8 +109,10 @@ app.use("/api/wbl-categories", wblCategoriesRouter);
 app.use("/api/wbl-students", wblStudentsRouter);
 app.use("/api/students", studentRouter);
 app.use("/api/staff", staffRouter);
-app.use("/api/employability", employabilityRouter);
 app.use("/api/skill", skillRouter);
+app.use("/api/forms", formRouter);
+app.use("/api/pdf", pdfRouter);
+
 // app.use("/api/file", fileRouter);
 
 app.listen(PORT, async () => {
@@ -122,6 +126,8 @@ app.listen(PORT, async () => {
     });
 
   await sequelize.sync({ alter: true }); // Use force: true only in development to drop and recreate tables
+
+  // await fillForm();V
 
   console.log(`Server is running on port ${PORT}`);
 });

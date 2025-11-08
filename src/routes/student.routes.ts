@@ -1,8 +1,14 @@
 import { Router } from "express";
-import { listStudents } from "../controller/student.controller";
+import {
+  listStudents,
+  getStudents,
+  getStudent,
+} from "../controller/student.controller";
 
 const router = Router();
 
-router.get("/", listStudents);
+router.get("/advanced", listStudents);
+router.get("/", getStudents);
+router.get("/:id", getStudent);
 
 export default router;

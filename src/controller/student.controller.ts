@@ -9,6 +9,29 @@ import { Flag } from "../models/flags/flag.model";
 
 // GET /program-catalogs
 
+export async function getStudent(req: Request, res: Response) {
+  try {
+    const id = req.params.id;
+
+    const data = await Student.findByPk(id);
+
+    res.json(data);
+  } catch (err) {
+    console.error("Error listing students", err);
+    res.status(500).json({ error: "Failed to list student catalogs" });
+  }
+}
+
+export async function getStudents(req: Request, res: Response) {
+  try {
+    const data = await Student.findAll({});
+    res.status(200).json(data);
+  } catch (err) {
+    console.error("Error listing students", err);
+    res.status(500).json({ error: "Failed to list student catalogs" });
+  }
+}
+
 export async function listStudents(req: Request, res: Response) {
   try {
     const { programId, flagId } = req.query as {

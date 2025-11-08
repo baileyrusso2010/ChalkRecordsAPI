@@ -1,18 +1,20 @@
-import { Router } from "express"
+import { Router } from "express";
 import {
-    bulkCreateOrUpdate,
-    getSkills,
-    getStudentSkills,
-    upsertSkill,
-    upsertSkillScores,
-} from "../controller/skill.controller"
+  bulkCreateOrUpdate,
+  getSkillCategory,
+  getSkills,
+  getStudentSkills,
+  upsertSkill,
+  upsertSkillScores,
+} from "../controller/skill.controller";
 
-const router = Router()
+const router = Router();
 
-router.get("/category/:category_id", getSkills)
-router.post("/", upsertSkill)
-router.post("/bulk", bulkCreateOrUpdate)
-router.get("/student/:category_id", getStudentSkills)
-router.post("/skillscore/bulk-upsert", upsertSkillScores)
+router.get("/category/:category_id", getSkills);
+router.get("/category", getSkillCategory);
+router.post("/", upsertSkill);
+router.post("/bulk", bulkCreateOrUpdate);
+router.get("/student/:category_id/:student_id", getStudentSkills);
+router.post("/skillscore/bulk-upsert/:student_id", upsertSkillScores);
 
-export default router
+export default router;

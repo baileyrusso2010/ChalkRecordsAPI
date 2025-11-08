@@ -1,28 +1,33 @@
-import { DataTypes, Model } from "sequelize"
-import sequelize from "../../database"
+import { DataTypes, Model } from "sequelize";
+import sequelize from "../../database";
 
 export class Form extends Model {
-    public id!: number
-    public form_data!: JSON
+  public id!: number;
+  public name!: string;
+  public description?: string;
 }
 
 Form.init(
-    {
-        id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true,
-        },
-        form_data: {
-            type: DataTypes.JSONB,
-        },
-        //class id later
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
     },
-    {
-        sequelize,
-        modelName: "Form",
-        tableName: "form",
-        timestamps: false,
-        underscored: true,
-    }
-)
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.STRING,
+    },
+    //class id later
+  },
+  {
+    sequelize,
+    modelName: "Form",
+    tableName: "form",
+    timestamps: true,
+    underscored: true,
+  }
+);
