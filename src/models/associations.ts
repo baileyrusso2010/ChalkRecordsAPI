@@ -1,239 +1,296 @@
+// Gradebook associations
+import { Grading_Categories } from "./gradebook/grading_categories.model"
+import { Assignments } from "./gradebook/assignments.model"
+import { Assignment_Score } from "./gradebook/assignment_score.model"
+import { Assignment_Questions } from "./gradebook/assignment_questions.model"
+import { Question_Scores } from "./gradebook/question_scores.model"
+
+// CourseInstance → hasMany GradingCategory
+Course_Instance.hasMany(Grading_Categories, {
+    foreignKey: "course_instance_id",
+    as: "grading_categories",
+})
+Grading_Categories.belongsTo(Course_Instance, {
+    foreignKey: "course_instance_id",
+    as: "course_instance",
+})
+
+// CourseInstance → hasMany Assignment
+Course_Instance.hasMany(Assignments, { foreignKey: "course_instance_id", as: "assignments" })
+Assignments.belongsTo(Course_Instance, { foreignKey: "course_instance_id", as: "course_instance" })
+
+// GradingCategory → hasMany Assignment
+Grading_Categories.hasMany(Assignments, { foreignKey: "grading_category_id", as: "assignments" })
+Assignments.belongsTo(Grading_Categories, {
+    foreignKey: "grading_category_id",
+    as: "grading_category",
+})
+
+// Assignment → hasMany AssignmentScore
+Assignments.hasMany(Assignment_Score, { foreignKey: "assignment_id", as: "assignment_scores" })
+Assignment_Score.belongsTo(Assignments, { foreignKey: "assignment_id", as: "assignment" })
+
+// Assignment → hasMany AssignmentQuestion
+Assignments.hasMany(Assignment_Questions, {
+    foreignKey: "assignment_id",
+    as: "assignment_questions",
+})
+Assignment_Questions.belongsTo(Assignments, { foreignKey: "assignment_id", as: "assignment" })
+
+// AssignmentScore → belongsTo Enrollment
+Assignment_Score.belongsTo(Enrollment, { foreignKey: "enrollment_id", as: "enrollment" })
+Enrollment.hasMany(Assignment_Score, { foreignKey: "enrollment_id", as: "assignment_scores" })
+
+// AssignmentQuestion → hasMany QuestionScore
+Assignment_Questions.hasMany(Question_Scores, {
+    foreignKey: "assignment_question_id",
+    as: "question_scores",
+})
+Question_Scores.belongsTo(Assignment_Questions, {
+    foreignKey: "assignment_question_id",
+    as: "assignment_question",
+})
+
+// QuestionScore → belongsTo Enrollment
+Question_Scores.belongsTo(Enrollment, { foreignKey: "enrollment_id", as: "enrollment" })
+Enrollment.hasMany(Question_Scores, { foreignKey: "enrollment_id", as: "question_scores" })
+
 // Central place to define Sequelize associations between models
 // This file is imported once in index.ts to ensure associations are registered
 
-import { Course_Catalog } from "./course/course_catalog.model";
-import { Course_Instance } from "./course/course_instance.model";
+import { Course_Catalog } from "./course/course_catalog.model"
+import { Course_Instance } from "./course/course_instance.model"
 
-import { CTE_District } from "./school/cte_district.model";
-import { CTE_School } from "./school/cte_school.model";
-import { Home_School } from "./school/home_school.model";
+import { CTE_District } from "./school/cte_district.model"
+import { CTE_School } from "./school/cte_school.model"
+import { Home_School } from "./school/home_school.model"
 
-import { CTE_District_Program } from "./program/cte_district_program.model";
-import { Program_Catalog } from "./program/program_catalog.model";
+import { CTE_District_Program } from "./program/cte_district_program.model"
+import { Program_Catalog } from "./program/program_catalog.model"
 
-import { School_Year } from "./term/school_year.model";
-import { Term } from "./term/term.model";
+import { School_Year } from "./term/school_year.model"
+import { Term } from "./term/term.model"
 
-import { Student } from "./student.model";
-import { Enrollment } from "./enrollment.model";
+import { Student } from "./student.model"
+import { Enrollment } from "./enrollment.model"
 
-import { Flag } from "./flags/flag.model";
-import { StudentFlag } from "./flags/student_flags.model";
+import { Flag } from "./flags/flag.model"
+import { StudentFlag } from "./flags/student_flags.model"
 
-import { Staff } from "./staff.model";
+import { Staff } from "./staff.model"
 
-import { Skill } from "./skill.model";
-import { SkillCategory } from "./skill_category.model";
-import { SkillScore } from "./skill_score.model";
+import { Skill } from "./skill.model"
+import { SkillCategory } from "./skill_category.model"
+import { SkillScore } from "./skill_score.model"
 
-import { Form } from "./forms/form.model";
-import { StudentForm } from "./student_form.model";
-import { StudentFormResponses } from "./forms/student_form_responses.model";
+import { Form } from "./forms/form.model"
+import { StudentForm } from "./student_form.model"
+import { StudentFormResponses } from "./forms/student_form_responses.model"
 
 // NOTE: Several controllers reference models (Program, Users, SubCourse, etc.) that
 // are not present in the current codebase snapshot. Their associations are therefore
 // omitted here. Add them later when those model definitions exist.
 
 // District 1:M School
-CTE_District.hasMany(CTE_School, { foreignKey: "district_id", as: "schools" });
+CTE_District.hasMany(CTE_School, { foreignKey: "district_id", as: "schools" })
 CTE_School.belongsTo(CTE_District, {
-  foreignKey: "district_id",
-  as: "district",
-});
+    foreignKey: "district_id",
+    as: "district",
+})
 
 // School 1:M Home_School (home feeder schools)
 CTE_School.hasMany(Home_School, {
-  foreignKey: "cte_school_id",
-  as: "home_schools",
-});
+    foreignKey: "cte_school_id",
+    as: "home_schools",
+})
 Home_School.belongsTo(CTE_School, {
-  foreignKey: "cte_school_id",
-  as: "cte_school",
-});
+    foreignKey: "cte_school_id",
+    as: "cte_school",
+})
 
 // District 1:M School Years
 CTE_District.hasMany(School_Year, {
-  foreignKey: "district_id",
-  as: "school_years",
-});
+    foreignKey: "district_id",
+    as: "school_years",
+})
 School_Year.belongsTo(CTE_District, {
-  foreignKey: "district_id",
-  as: "district",
-});
+    foreignKey: "district_id",
+    as: "district",
+})
 
 // School Year 1:M Terms
-School_Year.hasMany(Term, { foreignKey: "school_year_id", as: "terms" });
+School_Year.hasMany(Term, { foreignKey: "school_year_id", as: "terms" })
 Term.belongsTo(School_Year, {
-  foreignKey: "school_year_id",
-  as: "school_year",
-});
+    foreignKey: "school_year_id",
+    as: "school_year",
+})
 
 // Program Catalog 1:M District Programs (district offering of a catalog program)
 Program_Catalog.hasMany(CTE_District_Program, {
-  foreignKey: "program_id",
-  as: "district_programs",
-});
+    foreignKey: "program_id",
+    as: "district_programs",
+})
 CTE_District_Program.belongsTo(Program_Catalog, {
-  foreignKey: "program_id",
-  as: "program_catalog",
-});
+    foreignKey: "program_id",
+    as: "program_catalog",
+})
 
 // District 1:M District Programs
 CTE_District.hasMany(CTE_District_Program, {
-  foreignKey: "cte_district_id",
-  as: "district_programs",
-});
+    foreignKey: "cte_district_id",
+    as: "district_programs",
+})
 CTE_District_Program.belongsTo(CTE_District, {
-  foreignKey: "cte_district_id",
-  as: "district",
-});
+    foreignKey: "cte_district_id",
+    as: "district",
+})
 
 // Course Catalog 1:M Course Instances (planned vs. instance?)
 Course_Catalog.hasMany(Course_Instance, {
-  foreignKey: "course_catalog_id",
-  as: "course_instances",
-});
+    foreignKey: "course_catalog_id",
+    as: "course_instances",
+})
 Course_Instance.belongsTo(Course_Catalog, {
-  foreignKey: "course_catalog_id",
-  as: "course_catalog",
-});
+    foreignKey: "course_catalog_id",
+    as: "course_catalog",
+})
 CTE_District_Program.hasMany(Course_Instance, {
-  foreignKey: "district_program_id",
-  as: "course_instances",
-});
+    foreignKey: "district_program_id",
+    as: "course_instances",
+})
 Course_Instance.belongsTo(CTE_District_Program, {
-  foreignKey: "district_program_id",
-  as: "district_program",
-});
+    foreignKey: "district_program_id",
+    as: "district_program",
+})
 
 // Program Catalog 1:M Course Instances
 Program_Catalog.hasMany(Course_Instance, {
-  foreignKey: "district_program_id",
-  as: "course_instances",
-});
+    foreignKey: "district_program_id",
+    as: "course_instances",
+})
 Course_Instance.belongsTo(Program_Catalog, {
-  foreignKey: "district_program_id",
-  as: "program_catalog",
-});
+    foreignKey: "district_program_id",
+    as: "program_catalog",
+})
 
 Staff.hasMany(Course_Instance, {
-  foreignKey: "instructorId",
-  as: "instructed_courses",
-});
+    foreignKey: "instructorId",
+    as: "instructed_courses",
+})
 Course_Instance.belongsTo(Staff, {
-  foreignKey: "instructorId",
-  as: "instructor",
-});
+    foreignKey: "instructorId",
+    as: "instructor",
+})
 
 // School 1:M Course Instances
 CTE_School.hasMany(Course_Instance, {
-  foreignKey: "cte_school_id",
-  as: "course_instances",
-});
+    foreignKey: "cte_school_id",
+    as: "course_instances",
+})
 Course_Instance.belongsTo(CTE_School, {
-  foreignKey: "cte_school_id",
-  as: "cte_school",
-});
+    foreignKey: "cte_school_id",
+    as: "cte_school",
+})
 
 // School Year 1:M Course Instances
 School_Year.hasMany(Course_Instance, {
-  foreignKey: "school_year_id",
-  as: "course_instances",
-});
+    foreignKey: "school_year_id",
+    as: "course_instances",
+})
 Course_Instance.belongsTo(School_Year, {
-  foreignKey: "school_year_id",
-  as: "school_year",
-});
+    foreignKey: "school_year_id",
+    as: "school_year",
+})
 
 // Term 1:M Course Instances
 Term.hasMany(Course_Instance, {
-  foreignKey: "term_id",
-  as: "course_instances",
-});
-Course_Instance.belongsTo(Term, { foreignKey: "term_id", as: "term" });
+    foreignKey: "term_id",
+    as: "course_instances",
+})
+Course_Instance.belongsTo(Term, { foreignKey: "term_id", as: "term" })
 
 // Optional: Enrollment model to link Students to Course Instances
-Student.hasMany(Enrollment, { foreignKey: "student_id", as: "enrollments" });
-Enrollment.belongsTo(Student, { foreignKey: "student_id", as: "student" });
+Student.hasMany(Enrollment, { foreignKey: "student_id", as: "enrollments" })
+Enrollment.belongsTo(Student, { foreignKey: "student_id", as: "student" })
 
 Course_Instance.hasMany(Enrollment, {
-  foreignKey: "course_instance_id",
-  as: "enrollments",
-});
+    foreignKey: "course_instance_id",
+    as: "enrollments",
+})
 Enrollment.belongsTo(Course_Instance, {
-  foreignKey: "course_instance_id",
-  as: "course_instance",
-});
+    foreignKey: "course_instance_id",
+    as: "course_instance",
+})
 
 // Student M:N Flag through StudentFlag
 Student.belongsToMany(Flag, {
-  through: StudentFlag,
-  foreignKey: "student_id",
-  otherKey: "flag_id",
-  as: "flags",
-});
+    through: StudentFlag,
+    foreignKey: "student_id",
+    otherKey: "flag_id",
+    as: "flags",
+})
 Flag.belongsToMany(Student, {
-  through: StudentFlag,
-  foreignKey: "flag_id",
-  otherKey: "student_id",
-  as: "students",
-});
+    through: StudentFlag,
+    foreignKey: "flag_id",
+    otherKey: "student_id",
+    as: "students",
+})
 
 // Student 1:M StudentFlag
-Student.hasMany(StudentFlag, { foreignKey: "student_id" });
-StudentFlag.belongsTo(Student, { foreignKey: "student_id" });
+Student.hasMany(StudentFlag, { foreignKey: "student_id" })
+StudentFlag.belongsTo(Student, { foreignKey: "student_id" })
 
 // Flag 1:M StudentFlag
-Flag.hasMany(StudentFlag, { foreignKey: "flag_id" });
-StudentFlag.belongsTo(Flag, { foreignKey: "flag_id" });
+Flag.hasMany(StudentFlag, { foreignKey: "flag_id" })
+StudentFlag.belongsTo(Flag, { foreignKey: "flag_id" })
 
-SkillCategory.hasMany(Skill, { foreignKey: "category_id", as: "skills" });
+SkillCategory.hasMany(Skill, { foreignKey: "category_id", as: "skills" })
 Skill.belongsTo(SkillCategory, {
-  foreignKey: "category_id",
-  as: "skill_category",
-});
+    foreignKey: "category_id",
+    as: "skill_category",
+})
 
-Skill.hasMany(SkillScore, { foreignKey: "skill_id" });
-SkillScore.belongsTo(Skill, { foreignKey: "skill_id" });
+Skill.hasMany(SkillScore, { foreignKey: "skill_id" })
+SkillScore.belongsTo(Skill, { foreignKey: "skill_id" })
 
 // Student M:N Form through StudentForm
 Student.belongsToMany(Form, {
-  through: StudentForm,
-  foreignKey: "student_id",
-  otherKey: "form_id",
-  as: "forms",
-});
+    through: StudentForm,
+    foreignKey: "student_id",
+    otherKey: "form_id",
+    as: "forms",
+})
 Form.belongsToMany(Student, {
-  through: StudentForm,
-  foreignKey: "form_id",
-  otherKey: "student_id",
-  as: "students",
-});
+    through: StudentForm,
+    foreignKey: "form_id",
+    otherKey: "student_id",
+    as: "students",
+})
 
 // Student 1:M StudentForm
-Student.hasMany(StudentForm, { foreignKey: "student_id" });
-StudentForm.belongsTo(Student, { foreignKey: "student_id" });
+Student.hasMany(StudentForm, { foreignKey: "student_id" })
+StudentForm.belongsTo(Student, { foreignKey: "student_id" })
 
 // Form 1:M StudentForm
-Form.hasMany(StudentForm, { foreignKey: "form_id" });
-StudentForm.belongsTo(Form, { foreignKey: "form_id" });
+Form.hasMany(StudentForm, { foreignKey: "form_id" })
+StudentForm.belongsTo(Form, { foreignKey: "form_id" })
 
 // Student Form Responses 1:M StudentFormResponses
-StudentForm.hasMany(StudentFormResponses, { foreignKey: "student_form_id" });
-StudentFormResponses.belongsTo(StudentForm, { foreignKey: "student_form_id" });
+StudentForm.hasMany(StudentFormResponses, { foreignKey: "student_form_id" })
+StudentFormResponses.belongsTo(StudentForm, { foreignKey: "student_form_id" })
 
 // Form 1:M StudentFormResponses
-Form.hasMany(StudentFormResponses, { foreignKey: "form_id" });
-StudentFormResponses.belongsTo(Form, { foreignKey: "form_id" });
+Form.hasMany(StudentFormResponses, { foreignKey: "form_id" })
+StudentFormResponses.belongsTo(Form, { foreignKey: "form_id" })
 
 // Optional: Course Instance 1:M StudentFormResponses
 Course_Instance.hasMany(StudentFormResponses, {
-  foreignKey: "course_instance_id",
-});
+    foreignKey: "course_instance_id",
+})
 StudentFormResponses.belongsTo(Course_Instance, {
-  foreignKey: "course_instance_id",
-});
+    foreignKey: "course_instance_id",
+})
 
 // Optional: Student 1:M StudentFormResponses
-Student.hasMany(StudentFormResponses, { foreignKey: "student_id" });
-StudentFormResponses.belongsTo(Student, { foreignKey: "student_id" });
+Student.hasMany(StudentFormResponses, { foreignKey: "student_id" })
+StudentFormResponses.belongsTo(Student, { foreignKey: "student_id" })
