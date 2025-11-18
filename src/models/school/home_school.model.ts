@@ -1,40 +1,46 @@
-import { Model, DataTypes } from "sequelize"
-import sequelize from "../../database"
+import { Model, DataTypes } from "sequelize";
+import sequelize from "../../database";
 
-export class Home_School extends Model {}
+export class Home_School extends Model {
+  public id!: number;
+  public cte_school_id!: number;
+  public name!: string;
+  public address?: string;
+  public phone_number?: string;
+}
 
 Home_School.init(
-    {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            allowNull: false,
-            autoIncrement: true,
-        },
-        cte_school_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: "cte_school",
-                key: "id",
-            },
-        },
-        name: {
-            type: DataTypes.STRING(255),
-            allowNull: false,
-        },
-        address: {
-            type: DataTypes.TEXT,
-        },
-        phone_number: {
-            type: DataTypes.STRING(15),
-        },
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      autoIncrement: true,
     },
-    {
-        sequelize,
-        modelName: "Home_School",
-        tableName: "home_school",
-        timestamps: false,
-        underscored: true, // if you prefer snake_case for column names
-    }
-)
+    cte_school_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "cte_school",
+        key: "id",
+      },
+    },
+    name: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    address: {
+      type: DataTypes.TEXT,
+    },
+    phone_number: {
+      type: DataTypes.STRING(15),
+    },
+  },
+  {
+    sequelize,
+    modelName: "Home_School",
+    tableName: "home_school",
+    timestamps: false,
+    underscored: true, // if you prefer snake_case for column names
+  }
+);

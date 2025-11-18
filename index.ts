@@ -9,8 +9,8 @@ import express, {
   type NextFunction,
 } from "express";
 
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
-// dotenv.config();
+// dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config();
 
 const IS_PROD = process.env.NODE_ENV === "production";
 
@@ -43,12 +43,7 @@ import skillRouter from "./src/routes/skill.routes";
 import formRouter from "./src/routes/form.routes";
 import pdfRouter from "./src/routes/pdf.routes";
 
-import {
-  createRandomStudents,
-  createRandomFlags,
-  createCourseInstances,
-  createEnrollments,
-} from "./src/utils/fake_date";
+import { importFromCSV } from "./src/utils/fake_date";
 import { fillForm } from "./src/utils/pdf/generate_test";
 
 const app = express();
@@ -127,7 +122,16 @@ app.listen(PORT, async () => {
 
   await sequelize.sync({ alter: true }); // Use force: true only in development to drop and recreate tables
 
-  // await fillForm();V
+  // Read and parse CSV file instead of hardcoding
+  // const fs = require("fs");
+  // const parse = require("csv-parse/sync");
+  // const csvFilePath = path.resolve(__dirname, "data.csv"); // Change to your CSV filename
+  // const csvContent = fs.readFileSync(csvFilePath, "utf-8");
+  // const csvRows = parse.parse(csvContent, {
+  //   columns: true,
+  //   skip_empty_lines: true,
+  // });
+  // await importFromCSV(csvRows);
 
   console.log(`Server is running on port ${PORT}`);
 });
