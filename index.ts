@@ -42,6 +42,7 @@ import staffRouter from "./src/routes/staff.routes"
 import skillRouter from "./src/routes/skill.routes"
 import formRouter from "./src/routes/form.routes"
 import pdfRouter from "./src/routes/pdf.routes"
+import gradingRouter from "./src/routes/gradebook.routes"
 
 import { importFromCSV } from "./src/utils/fake_date"
 import { fillForm } from "./src/utils/pdf/generate_test"
@@ -103,6 +104,7 @@ app.use("/api/staff", staffRouter)
 app.use("/api/skill", skillRouter)
 app.use("/api/forms", formRouter)
 app.use("/api/pdf", pdfRouter)
+app.use("/api/gradebook", gradingRouter)
 
 // app.use("/api/file", fileRouter);
 

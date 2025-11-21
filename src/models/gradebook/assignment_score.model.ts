@@ -22,7 +22,7 @@ Assignment_Score.init(
             type: DataTypes.BIGINT,
             allowNull: false,
             references: {
-                model: "enrollment",
+                model: "enrollments",
                 key: "id",
             },
         },
