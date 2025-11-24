@@ -1,44 +1,49 @@
-import { DataTypes, Model } from "sequelize";
-import sequelize from "../../database";
+import { DataTypes, Model } from "sequelize"
+import sequelize from "../../database"
 
 export class Rubric_Sections extends Model {
-  public id!: number;
-  public name!: string;
-  public description?: string;
+    public id!: number
+    public name!: string
+    public description?: string
 }
 
 Rubric_Sections.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    form_id: {
-      type: DataTypes.INTEGER,
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
+        },
+        form_id: {
+            type: DataTypes.INTEGER,
 
-      allowNull: false,
-      references: {
-        model: "form",
-        key: "id",
-      },
+            allowNull: false,
+            references: {
+                model: "form",
+                key: "id",
+            },
+        },
+        name: {
+            type: DataTypes.STRING,
+        },
+        locked: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        period_applies: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            comment: "This will create Q1/Q2/S1/S2/Jr/Sr columns",
+        },
     },
-    name: {
-      type: DataTypes.STRING,
-    },
-    locked: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-  },
-  {
-    sequelize,
-    modelName: "Rubric_Sections",
-    tableName: "rubric_sections",
-    timestamps: false,
-    underscored: true,
-  }
-);
+    {
+        sequelize,
+        modelName: "Rubric_Sections",
+        tableName: "rubric_sections",
+        timestamps: false,
+        underscored: true,
+    }
+)
 // INSERT INTO form_static_fields (form_id, field_name, field_type) VALUES
 // (1, 'exam_date', 'date'),
 // (1, 'cut_score', 'number'),
