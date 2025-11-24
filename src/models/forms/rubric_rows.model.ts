@@ -27,6 +27,10 @@ Rubric_Rows.init(
     description: {
       type: DataTypes.STRING,
     },
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
   },
   {
     sequelize,

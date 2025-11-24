@@ -26,6 +26,10 @@ Rubric_Sections.init(
     name: {
       type: DataTypes.STRING,
     },
+    locked: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
   {
     sequelize,
