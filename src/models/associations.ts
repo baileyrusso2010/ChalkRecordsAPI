@@ -292,11 +292,14 @@ SkillScore.belongsTo(Skill, { foreignKey: "skill_id" });
 Form.hasMany(Rubric_Sections, { foreignKey: "form_id", as: "rubric_sections" });
 Rubric_Sections.belongsTo(Form, { foreignKey: "form_id", as: "form" });
 
-Form.hasMany(Form_Static_Fields, {
-  foreignKey: "form_id",
+Rubric_Sections.hasMany(Form_Static_Fields, {
+  foreignKey: "rubric_section_id",
   as: "static_fields",
 });
-Form_Static_Fields.belongsTo(Form, { foreignKey: "form_id", as: "form" });
+Form_Static_Fields.belongsTo(Rubric_Sections, {
+  foreignKey: "rubric_section_id",
+  as: "rubric_section",
+});
 
 // Form.belongsToMany(Student, {
 //   through: StudentForm,

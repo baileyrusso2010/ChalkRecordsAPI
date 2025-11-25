@@ -3,7 +3,7 @@ import sequelize from "../../database";
 
 export class Form_Static_Fields extends Model {
   public id!: number;
-  public form_id!: number;
+  public rubric_section_id!: number;
   public field_name!: string;
   public field_type!: string;
   public category?: string;
@@ -16,11 +16,11 @@ Form_Static_Fields.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    form_id: {
+    rubric_section_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "form",
+        model: "rubric_sections",
         key: "id",
       },
     },

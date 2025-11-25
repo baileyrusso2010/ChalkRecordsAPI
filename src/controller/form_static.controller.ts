@@ -1,13 +1,29 @@
 import { Request, Response } from "express";
 import Form_Static_Fields from "../models/forms/form_static_fields";
 import Form_Static_Values from "../models/forms/form_static_values";
+import { Rubric_Sections } from "../models/forms/rubric_sections.model";
+import { Student } from "../models/student.model";
 
 // List fields for a form
 export async function listStaticFields(req: Request, res: Response) {
   const { formId } = req.params;
+  const { studentId } = req.query;
+
   try {
     const fields = await Form_Static_Fields.findAll({
-      where: { form_id: formId },
+      include: [
+        {
+          model: Rubric_Sections,
+          as: "rubric_section",
+          where: { form_id: formId },
+        },
+        {
+          model: Form_Static_Values,
+          as: "static_values",
+          required: false,
+          where: studentId ? { student_id: studentId } : undefined,
+        },
+      ],
       order: [["id", "ASC"]],
     });
     res.json(fields);
@@ -23,7 +39,7 @@ export async function createStaticField(req: Request, res: Response) {
     const payload = Array.isArray(req.body) ? req.body : [req.body];
 
     const normalized = payload.map((item) => ({
-      form_id: item.form_id,
+      rubric_section_id: item.rubric_section_id,
       field_name: item.field_name,
       field_type: item.field_type,
       category: item.category,
@@ -31,8 +47,8 @@ export async function createStaticField(req: Request, res: Response) {
 
     const hasMissing = normalized.some(
       (field) =>
-        field.form_id === undefined ||
-        field.form_id === null ||
+        field.rubric_section_id === undefined ||
+        field.rubric_section_id === null ||
         !field.field_name ||
         !field.field_type
     );
@@ -40,7 +56,7 @@ export async function createStaticField(req: Request, res: Response) {
     if (hasMissing) {
       return res.status(400).json({
         error:
-          "Each field must include form_id, field_name, and field_type values.",
+          "Each field must include rubric_section_id, field_name, and field_type values.",
       });
     }
 
@@ -87,13 +103,30 @@ export async function deleteStaticField(req: Request, res: Response) {
 export async function saveStaticValues(req: Request, res: Response) {
   const { studentId } = req.params;
   const { values } = req.body; // array of { fieldId, value }
+
   try {
+    // Validate student exists
+    const student = await Student.findByPk(studentId);
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
     for (const v of values) {
-      await Form_Static_Values.upsert({
+      const whereClause = {
         form_static_field: v.field_id,
         student_id: studentId,
-        value: v.value,
-      });
+      };
+
+      const existing = await Form_Static_Values.findOne({ where: whereClause });
+
+      if (existing) {
+        await existing.update({ value: v.value });
+      } else {
+        await Form_Static_Values.create({
+          ...whereClause,
+          value: v.value,
+        });
+      }
     }
     res.json({ success: true });
   } catch (err) {
@@ -107,13 +140,13 @@ export async function seedStaticFields(req: Request, res: Response) {
   try {
     const sample = [
       {
-        form_id: 11,
+        rubric_section_id: 1, // Assuming section 1 exists
         field_name: "21st Century Exam Score",
         field_type: "number",
         category: "assessment",
       },
       {
-        form_id: 11,
+        rubric_section_id: 1,
         field_name: "21st Century Cut Score",
         field_type: "number",
         category: "assessment",
@@ -125,7 +158,7 @@ export async function seedStaticFields(req: Request, res: Response) {
     for (const record of sample) {
       const [instance] = await Form_Static_Fields.findOrCreate({
         where: {
-          form_id: record.form_id,
+          rubric_section_id: record.rubric_section_id,
           field_name: record.field_name,
         },
         defaults: record,
