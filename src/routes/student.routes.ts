@@ -1,14 +1,16 @@
-import { Router } from "express";
+import { Router } from "express"
 import {
-  listStudents,
-  getStudents,
-  getStudent,
-} from "../controller/student.controller";
+    listStudents,
+    getStudents,
+    getStudent,
+    getStudentDetail,
+} from "../controller/student.controller"
 
-const router = Router();
+const router = Router()
 
-router.get("/advanced", listStudents);
-router.get("/", getStudents);
-router.get("/:id", getStudent);
+router.get("/advanced", listStudents)
+router.get("/detail/:id", getStudentDetail)
+router.get("/", getStudents)
+router.get("/:id", getStudent)
 
-export default router;
+export default router
