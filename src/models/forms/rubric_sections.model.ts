@@ -30,11 +30,6 @@ Rubric_Sections.init(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    period_applies: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-      comment: "This will create Q1/Q2/S1/S2/Jr/Sr columns",
-    },
     show_comments: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
