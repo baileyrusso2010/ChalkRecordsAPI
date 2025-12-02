@@ -37,14 +37,14 @@ Student.init(
     },
     grade: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     gender: {
       type: DataTypes.STRING,
     },
     age: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     home_school_id: {
       type: DataTypes.INTEGER,

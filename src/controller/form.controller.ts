@@ -11,11 +11,13 @@ import { ClassFormAssignment } from "../models/forms/class_form_assignment.model
 // List all forms
 export async function listForms(req: Request, res: Response) {
   try {
-    const forms = await Form.findAll({ order: [["createdAt", "DESC"]] });
+    const forms = await Form.findAll({});
     res.json(forms);
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error listing forms", err);
-    res.status(500).json({ error: "Failed to list forms" });
+    res
+      .status(500)
+      .json({ error: "Failed to list forms", details: err.message });
   }
 }
 
