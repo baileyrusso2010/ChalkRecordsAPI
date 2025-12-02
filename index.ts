@@ -43,7 +43,7 @@ import skillRouter from "./src/routes/skill.routes";
 import pdfRouter from "./src/routes/pdf.routes";
 import gradingRouter from "./src/routes/gradebook.routes";
 import formroutes from "./src/routes/form.routes";
-import staticRoutes from "./src/routes/static_field.Routes";
+import staticRoutes from "./src/routes/static_field.routes";
 import rubricRoutes from "./src/routes/rubric_routes";
 import classFormAssignmentRouter from "./src/routes/class_form_assignment.routes";
 
