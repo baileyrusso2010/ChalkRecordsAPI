@@ -17,10 +17,10 @@ Form.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    course_id: {
-      type: DataTypes.STRING,
-      allowNull: true, //for now
-    },
+    // course_id: {
+    //   type: DataTypes.STRING,
+    //   allowNull: true, //for now
+    // },
     grading_period: {
       type: DataTypes.TEXT, //quarter semester year and make enum later
       allowNull: true,
