@@ -45,6 +45,8 @@ import { ClassFormAssignment } from "./forms/class_form_assignment.model"
 
 import { WBL_Hours } from "./wbl/wbl_hours.model"
 import { WBL_Catagories } from "./wbl/wbl_catagories.model"
+import { WBL_Deployment_Recipients } from "./wbl/wbl_deployment_recipients.model"
+import { WBL_Deployments } from "./wbl/wbl_deployments.model"
 
 // NOTE: Several controllers reference models (Program, Users, SubCourse, etc.) that
 // are not present in the current codebase snapshot. Their associations are therefore
@@ -432,4 +434,44 @@ WBL_Hours.belongsTo(Student, {
 Student.hasMany(WBL_Hours, {
     foreignKey: "student_id",
     as: "wbl_hours",
+})
+
+// ...existing WBL associations...
+
+// WBL Deployments Associations
+// WBL_Deployments.belongsTo(Staff, {
+//     foreignKey: "staff_id",
+//     as: "staff",
+// })
+// Staff.hasMany(WBL_Deployments, {
+//     foreignKey: "staff_id",
+//     as: "wbl_deployments",
+// })
+
+// WBL Deployment Recipients Associations
+WBL_Deployment_Recipients.belongsTo(WBL_Deployments, {
+    foreignKey: "deployment_id",
+    as: "deployment",
+})
+WBL_Deployments.hasMany(WBL_Deployment_Recipients, {
+    foreignKey: "deployment_id",
+    as: "recipients",
+})
+
+WBL_Deployment_Recipients.belongsTo(Student, {
+    foreignKey: "student_id",
+    as: "student",
+})
+Student.hasMany(WBL_Deployment_Recipients, {
+    foreignKey: "student_id",
+    as: "wbl_deployment_recipients",
+})
+// WBL Deployments Associations
+WBL_Deployments.belongsTo(Staff, {
+    foreignKey: "staff_id",
+    as: "staff",
+})
+Staff.hasMany(WBL_Deployments, {
+    foreignKey: "staff_id",
+    as: "wbl_deployments",
 })

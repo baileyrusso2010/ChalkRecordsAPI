@@ -1,18 +1,28 @@
-import { Router } from "express";
+import { Router } from "express"
 import {
-  listWblStudents,
-  getWblStudent,
-  createWblStudent,
-  updateWblStudent,
-  deleteWblStudent,
-} from "../controller/wbl_students.controller";
+    listWblStudents,
+    getWblStudent,
+    createWblStudent,
+    updateWblStudent,
+    deleteWblStudent,
+} from "../controller/wbl_students.controller"
 
-const router = Router();
+import {
+    createDeployment,
+    getDeployment,
+    updateHours,
+} from "../controller/wbl_deployment.controller"
 
-router.get("/", listWblStudents);
-router.get("/:id", getWblStudent);
-router.post("/", createWblStudent);
-router.put("/:id", updateWblStudent);
-router.delete("/:id", deleteWblStudent);
+const router = Router()
 
-export default router;
+router.get("/", listWblStudents)
+router.get("/:id", getWblStudent)
+router.post("/", createWblStudent)
+router.put("/:id", updateWblStudent)
+router.delete("/:id", deleteWblStudent)
+
+router.get("/deployment/:token", getDeployment)
+router.post("/deployment", createDeployment)
+router.post("/deployment/hours", updateHours)
+
+export default router
