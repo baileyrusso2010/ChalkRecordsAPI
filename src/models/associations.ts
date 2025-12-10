@@ -466,6 +466,50 @@ Student.hasMany(WBL_Deployment_Recipients, {
     foreignKey: "student_id",
     as: "wbl_deployment_recipients",
 })
+// ================= Assessments Associations =================
+import { Assessments } from "./assessments/assessments.model"
+import { Scoring_Bands } from "./assessments/scoring_bands.model"
+import { Student_Assessment_Results } from "./assessments/student_assessment_results.model"
+
+// Assessments 1:M Scoring_Bands
+Assessments.hasMany(Scoring_Bands, {
+    foreignKey: "assessment_id",
+    as: "scoring_bands",
+})
+Scoring_Bands.belongsTo(Assessments, {
+    foreignKey: "assessment_id",
+    as: "assessment",
+})
+
+// Assessments 1:M Student_Assessment_Results
+Assessments.hasMany(Student_Assessment_Results, {
+    foreignKey: "assessment_id",
+    as: "student_results",
+})
+Student_Assessment_Results.belongsTo(Assessments, {
+    foreignKey: "assessment_id",
+    as: "assessment",
+})
+
+// Student 1:M Student_Assessment_Results
+Student.hasMany(Student_Assessment_Results, {
+    foreignKey: "student_id",
+    as: "assessment_results",
+})
+Student_Assessment_Results.belongsTo(Student, {
+    foreignKey: "student_id",
+    as: "student",
+})
+
+// Scoring_Bands 1:M Student_Assessment_Results (optional, if band_id is used)
+Scoring_Bands.hasMany(Student_Assessment_Results, {
+    foreignKey: "band_id",
+    as: "student_results",
+})
+Student_Assessment_Results.belongsTo(Scoring_Bands, {
+    foreignKey: "band_id",
+    as: "scoring_band",
+})
 // WBL Deployments Associations
 WBL_Deployments.belongsTo(Staff, {
     foreignKey: "staff_id",

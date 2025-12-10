@@ -51,11 +51,11 @@ export async function getWblStudent(req: Request, res: Response) {
 } // POST /wbl-students
 export async function createWblStudent(req: Request, res: Response) {
     try {
-        const { student_id, hours, comments } = req.body
+        const { student_id, hours, comments, date, catagory_id } = req.body
         if (!student_id) return res.status(400).json({ error: "student_id is required" })
 
         // Optional: ensure referenced student exists
-        const created = await WBL_Hours.create({ student_id, hours, comments })
+        const created = await WBL_Hours.create({ student_id, hours, comments, date, catagory_id })
         res.status(201).json(created)
     } catch (err) {
         console.error("Error creating WBL student", err)
