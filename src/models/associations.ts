@@ -5,6 +5,11 @@ import { Assignment_Score } from "./gradebook/assignment_score.model"
 import { Assignment_Questions } from "./gradebook/assignment_questions.model"
 import { Question_Scores } from "./gradebook/question_scores.model"
 
+import { Assessments } from "./assessments/assessments.model"
+import { Scoring_Bands } from "./assessments/scoring_bands.model"
+import { Student_Assessment_Results } from "./assessments/student_assessment_results.model"
+import { Attendance } from "./attendance.model"
+
 // Central place to define Sequelize associations between models
 // This file is imported once in index.ts to ensure associations are registered
 
@@ -292,6 +297,10 @@ Home_School.hasMany(Student, { foreignKey: "home_school_id", as: "students" })
 Student.belongsTo(CTE_School, { foreignKey: "cte_school_id", as: "cte_school" })
 CTE_School.hasMany(Student, { foreignKey: "cte_school_id", as: "students" })
 
+// Student 1:M Attendance
+Student.hasMany(Attendance, { foreignKey: "student_id", as: "attendance" })
+Attendance.belongsTo(Student, { foreignKey: "student_id", as: "student" })
+
 SkillCategory.hasMany(Skill, { foreignKey: "category_id", as: "skills" })
 Skill.belongsTo(SkillCategory, {
     foreignKey: "category_id",
@@ -466,10 +475,6 @@ Student.hasMany(WBL_Deployment_Recipients, {
     foreignKey: "student_id",
     as: "wbl_deployment_recipients",
 })
-// ================= Assessments Associations =================
-import { Assessments } from "./assessments/assessments.model"
-import { Scoring_Bands } from "./assessments/scoring_bands.model"
-import { Student_Assessment_Results } from "./assessments/student_assessment_results.model"
 
 // Assessments 1:M Scoring_Bands
 Assessments.hasMany(Scoring_Bands, {

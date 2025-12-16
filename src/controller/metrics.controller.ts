@@ -1,75 +1,116 @@
 import { Request, Response } from "express"
 import { Op, Sequelize } from "sequelize"
+import { Student_Assessment_Results } from "../models/assessments/student_assessment_results.model"
+import { Student } from "../models/student.model"
 import { Attendance } from "../models/attendance.model"
-import { Score } from "../models/assessments/assessments.model"
-import { Intervention } from "../models/mtss.model" // Adjust path if needed
 
 export async function getMetrics(req: Request, res: Response) {
     try {
-        const { metric, level, filters = {}, startDate, endDate } = req.body
+        const { filters = {}, startDate, endDate, level = "school", metric } = req.body
         let model
-        let group: string[] = []
+        let group = []
         let where: any = {}
 
         // 1. Pick model
         switch (metric) {
+            case "assessment":
+                model = Student_Assessment_Results
+                break
             case "attendance":
                 model = Attendance
                 break
-            case "assessment":
-                model = Score
-                break
-            case "mtss":
-                model = Intervention
-                break
             default:
-                return res.status(400).json({ error: "Invalid metric" })
+                throw new Error("Invalid metric")
         }
 
-        // 2. Determine group by
         switch (level) {
             case "school":
-                group = ["schoolId"]
+                group = [
+                    Sequelize.col("student.cte_school_id"),
+                    Sequelize.col("student->cte_school.name"),
+                ]
                 break
             case "grade":
-                group = ["schoolId", "grade"]
+                group = [
+                    Sequelize.col("student.cte_school_id"),
+                    Sequelize.col("student->cte_school.name"),
+                    Sequelize.col("student.grade"),
+                ]
                 break
             case "class":
-                group = ["schoolId", "grade", "classId"]
-                break
+                //yet
+                throw new Error("Class level not supported")
             case "student":
-                group = ["studentId"]
+                group = [Sequelize.col("student_id"), Sequelize.col("student->cte_school.name")]
                 break
             default:
-                return res.status(400).json({ error: "Invalid level" })
+                throw new Error("Invalid level")
         }
 
-        // 3. Apply filters
-        if (filters.schoolId) where.schoolId = filters.schoolId
-        if (filters.grade) where.grade = filters.grade
-        if (filters.classId) where.classId = filters.classId
-        if (filters.studentId) where.studentId = filters.studentId
-        if (startDate && endDate) where.date = { [Op.between]: [startDate, endDate] }
+        // Adjust where based on metric
+        const studentWhere: any = {}
+        if (filters.cte_school_id && filters.cte_school_id !== "All Schools")
+            studentWhere.cte_school_id = filters.cte_school_id
+        if (filters.grade) studentWhere.grade = filters.grade
+        // class_id not supported
+        if (filters.student_id) where.student_id = filters.student_id
+        if (metric === "attendance") {
+            if (startDate && endDate) where.attendance_date = { [Op.between]: [startDate, endDate] }
+        } else if (metric === "assessment") {
+            if (startDate && endDate) where.taken_at = { [Op.between]: [startDate, endDate] }
+        }
 
         // 4. Define aggregation
-        let attributes
-        switch (metric) {
-            case "attendance":
-                attributes = [...group, [Sequelize.fn("AVG", Sequelize.col("percent")), "value"]]
+        let attributes: any[] = []
+        switch (level) {
+            case "school":
+                attributes.push([Sequelize.col("student.cte_school_id"), "cte_school_id"])
+                attributes.push([Sequelize.col("student->cte_school.name"), "cte_school_name"])
                 break
-            case "assessment":
-                attributes = [...group, [Sequelize.fn("AVG", Sequelize.col("score")), "value"]]
+            case "grade":
+                attributes.push([Sequelize.col("student.cte_school_id"), "cte_school_id"])
+                attributes.push([Sequelize.col("student->cte_school.name"), "cte_school_name"])
+                attributes.push([Sequelize.col("student.grade"), "grade"])
                 break
-            case "mtss":
-                attributes = [...group, [Sequelize.fn("COUNT", Sequelize.col("id")), "value"]]
+            case "student":
+                attributes.push([Sequelize.col("student.cte_school_id"), "cte_school_id"])
+                attributes.push([Sequelize.col("student->cte_school.name"), "cte_school_name"])
+                attributes.push([Sequelize.col("student_id"), "student_id"])
                 break
         }
+        if (metric === "attendance") {
+            // Calculate percent present based on code column: 'P' = present, 'A' = absent
+            attributes.push([
+                Sequelize.literal(
+                    '(SUM(CASE WHEN "Attendance".code = \'P\' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT("Attendance".id), 0))'
+                ),
+                "value",
+            ])
+        } else if (metric === "assessment") {
+            attributes.push([Sequelize.fn("AVG", Sequelize.col("percent_score")), "value"])
+        }
 
-        // 5. Query
         const results = await model.findAll({
             attributes,
             where,
             group,
+            include: [
+                {
+                    model: Student,
+                    as: "student",
+                    attributes: [],
+                    where: studentWhere,
+                    required: true,
+                    include: [
+                        {
+                            association: "cte_school",
+                            attributes: [],
+                            required: false,
+                        },
+                    ],
+                },
+            ],
+            raw: true,
         })
 
         res.json(results)

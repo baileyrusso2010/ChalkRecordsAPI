@@ -47,6 +47,7 @@ import staticRoutes from "./src/routes/static_field.routes"
 import rubricRoutes from "./src/routes/rubric_routes"
 import classFormAssignmentRouter from "./src/routes/class_form_assignment.routes"
 import assessmentRouter from "./src/routes/assessment.routes"
+import metricRotuer from "./src/routes/metric.routes"
 
 import { importFromCSV } from "./src/utils/fake_date"
 import { fillForm } from "./src/utils/pdf/generate_test"
@@ -108,6 +109,8 @@ app.use("/api/staff", staffRouter)
 app.use("/api/skill", skillRouter)
 app.use("/api/pdf", pdfRouter)
 app.use("/api/gradebook", gradingRouter)
+
+app.use("/api/metric", metricRotuer)
 
 //forms
 app.use("/api/forms", formroutes)
