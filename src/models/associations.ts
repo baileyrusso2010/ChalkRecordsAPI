@@ -1,3 +1,7 @@
+// Behavior and BehaviorType associations
+import { Behavior } from "./behavior/behavior.model"
+import { BehaviorType } from "./behavior/behavior_type.model"
+
 // Gradebook associations
 import { Grading_Categories } from "./gradebook/grading_categories.model"
 import { Assignments } from "./gradebook/assignments.model"
@@ -53,11 +57,25 @@ import { WBL_Catagories } from "./wbl/wbl_catagories.model"
 import { WBL_Deployment_Recipients } from "./wbl/wbl_deployment_recipients.model"
 import { WBL_Deployments } from "./wbl/wbl_deployments.model"
 
-// NOTE: Several controllers reference models (Program, Users, SubCourse, etc.) that
-// are not present in the current codebase snapshot. Their associations are therefore
-// omitted here. Add them later when those model definitions exist.
+Behavior.belongsTo(BehaviorType, {
+    foreignKey: "behavior_type_id",
+    as: "behavior_type",
+})
+BehaviorType.hasMany(Behavior, {
+    foreignKey: "behavior_type_id",
+    as: "behaviors",
+})
 
-// CourseInstance → hasMany GradingCategory
+// Behavior belongsTo Student association (for eager loading in metrics)
+Behavior.belongsTo(Student, {
+    foreignKey: "student_id",
+    as: "student",
+})
+Student.hasMany(Behavior, {
+    foreignKey: "student_id",
+    as: "behaviors",
+})
+
 Course_Instance.hasMany(Grading_Categories, {
     foreignKey: "course_instance_id",
     as: "grading_categories",
