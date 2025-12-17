@@ -8,7 +8,7 @@ if (node_env != "development") {
     dialectOptions = {
         ssl: {
             required: true,
-            rejectUnauthorized: false,
+            rejectUnauthorized: true, //make sure it works during prod
         },
     }
 } else {
