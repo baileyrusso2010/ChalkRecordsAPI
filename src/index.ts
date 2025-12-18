@@ -1,5 +1,6 @@
 const PORT = process.env.PORT || 3000
 import * as bodyParser from "body-parser"
+import path from "path"
 import cors from "cors"
 import dotenv from "dotenv"
 import express, {
@@ -8,8 +9,9 @@ import express, {
     type NextFunction,
 } from "express"
 
-// dotenv.config({ path: path.resolve(__dirname, "../.env") });
-dotenv.config()
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+import { createFakeData, createAttendance, createBehavior } from "./utils/fake_date"
+// dotenv.config()
 
 import { routes } from "./routes"
 const IS_PROD = process.env.NODE_ENV === "production"
@@ -86,6 +88,10 @@ app.listen(PORT, async () => {
         })
 
     await sequelize.sync({ alter: true }) // Use force: true only in development to drop and recreate tables
+
+    // await createAttendance()
+    // await createFakeData()
+    // await createBehavior()
 
     console.log(`Server is running on port ${PORT}`)
 })

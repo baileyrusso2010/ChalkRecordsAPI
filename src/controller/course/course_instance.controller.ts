@@ -3,7 +3,7 @@ import { Op } from "sequelize"
 import { Course_Instance } from "../../models/course/course_instance.model"
 import { Course_Catalog } from "../../models/course/course_catalog.model"
 import { Program_Catalog } from "../../models/program/program_catalog.model"
-import { CTE_School } from "../../models/school/cte_school.model"
+import { School } from "../../models/school/school.model"
 import { School_Year } from "../../models/term/school_year.model"
 import { Term } from "../../models/term/term.model"
 import { Staff } from "../../models/staff.model"
@@ -11,7 +11,7 @@ import { Enrollment } from "../../models/enrollment.model"
 import { Student } from "../../models/student.model"
 import { StudentFlag } from "../../models/flags/student_flags.model"
 import { Flag } from "../../models/flags/flag.model"
-import { CTE_District_Program } from "../../models/program/cte_district_program.model"
+import { District_Program } from "../../models/program/district_program.model"
 
 // GET /course-instances
 // Query params: schoolId, programCatalogId, courseCatalogId, schoolYearId, termId, from, to
@@ -19,7 +19,7 @@ export async function listCourseInstances(req: Request, res: Response) {
     try {
         const { schoolId, programCatalogId, courseCatalogId, schoolYearId } = req.query as any
         const where: any = {}
-        if (schoolId) where.cte_school_id = schoolId
+        if (schoolId) where.school_id = schoolId
         if (programCatalogId) where.district_program_id = programCatalogId
         if (courseCatalogId) where.course_catalog_id = courseCatalogId
         if (schoolYearId) where.school_year_id = schoolYearId
@@ -31,7 +31,7 @@ export async function listCourseInstances(req: Request, res: Response) {
                 { model: Program_Catalog, as: "program_catalog" },
                 { model: School_Year, as: "school_year" },
                 { model: Staff, as: "instructor" },
-                { model: CTE_School, as: "cte_school" },
+                { model: School, as: "School" },
                 { model: Enrollment, as: "enrollments" },
             ],
             order: [["id", "ASC"]],
@@ -70,7 +70,7 @@ export async function getCourseInstance(req: Request, res: Response) {
             include: [
                 { model: Course_Catalog, as: "course_catalog" },
                 { model: Program_Catalog, as: "program_catalog" },
-                { model: CTE_School, as: "cte_school" },
+                { model: School, as: "cte_school" },
                 {
                     model: Enrollment,
                     as: "enrollments",
@@ -90,11 +90,11 @@ export async function getCourseInstance(req: Request, res: Response) {
 // POST /course-instances
 export async function createCourseInstance(req: Request, res: Response) {
     try {
-        const { cte_school_id, program_catalog_id, course_catalog_id, instructorId, alias } =
+        const { school_id, program_catalog_id, course_catalog_id, instructorId, alias } =
             req.body
 
         const created = await Course_Instance.create({
-            cte_school_id,
+            school_id,
             district_program_id: program_catalog_id,
             course_catalog_id,
             instructorId,
@@ -128,7 +128,7 @@ export async function updateCourseInstance(req: Request, res: Response) {
         } = req.body
 
         await record.update({
-            cte_school_id: cte_school_id ?? record.cte_school_id,
+            school_id: cte_school_id ?? record.school_id,
             district_program_id: program_catalog_id ?? record.district_program_id,
             course_catalog_id: course_catalog_id ?? record.course_catalog_id,
             instructorId: instructorId ?? record.instructorId,
@@ -169,7 +169,7 @@ export async function getCourseStats(req: Request, res: Response) {
 
         //this is good because then you can filter by teacher
 
-        const records = await CTE_District_Program.findAll({
+        const records = await District_Program.findAll({
             include: [
                 {
                     model: Course_Instance,

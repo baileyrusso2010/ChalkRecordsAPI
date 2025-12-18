@@ -1,10 +1,10 @@
 import { Request, Response } from "express"
 import { Op } from "sequelize"
-import { CTE_District_Program } from "../../models/program/cte_district_program.model"
 import { Program_Catalog } from "../../models/program/program_catalog.model"
-import { CTE_District } from "../../models/school/cte_district.model"
+import { District } from "../../models/school/district.model"
 import { Course_Instance } from "../../models/course/course_instance.model"
 import { Staff } from "../../models/staff.model"
+import { District_Program } from "../../models/program/district_program.model"
 
 // Helper to parse ID param safely
 function parseId(value: any): number | null {
@@ -18,11 +18,11 @@ export async function listDistrictPrograms(req: Request, res: Response) {
         const { districtId, programId, active } = req.query
         const where: any = {}
 
-        if (districtId) where.cte_district_id = districtId
+        if (districtId) where.district_id = districtId
         if (programId) where.program_id = programId
         if (active !== undefined) where.active = active === "true"
 
-        const results = await CTE_District_Program.findAll({
+        const results = await District_Program.findAll({
             where,
             include: [{ model: Program_Catalog, as: "program_catalog" }],
             order: [["id", "ASC"]],
@@ -40,10 +40,10 @@ export async function getDistrictProgram(req: Request, res: Response) {
         const id = parseId(req.params.id)
         if (!id) return res.status(400).json({ error: "Invalid id" })
 
-        const record = await CTE_District_Program.findByPk(id, {
+        const record = await District_Program.findByPk(id, {
             include: [
                 { model: Program_Catalog, as: "program_catalog" },
-                { model: CTE_District, as: "district" },
+                { model: District, as: "district" },
             ],
         })
 
@@ -56,17 +56,17 @@ export async function getDistrictProgram(req: Request, res: Response) {
 }
 
 // POST /cte-district-programs
-export async function createDistrictProgram(req: Request, res: Response) {
+    export async function createDistrictProgram(req: Request, res: Response) {
     try {
-        const { cte_district_id, program_id, authorization_date, expiration_date, active } =
+        const { district_id, program_id, authorization_date, expiration_date, active } =
             req.body
 
-        if (!cte_district_id || !program_id) {
-            return res.status(400).json({ error: "cte_district_id and program_id are required" })
+        if (!district_id || !program_id) {
+            return res.status(400).json({ error: "district_id and program_id are required" })
         }
 
-        const created = await CTE_District_Program.create({
-            cte_district_id,
+        const created = await District_Program.create({
+            district_id,
             program_id,
             authorization_date: authorization_date ? new Date(authorization_date) : undefined,
             expiration_date: expiration_date ? new Date(expiration_date) : undefined,
@@ -86,14 +86,14 @@ export async function updateDistrictProgram(req: Request, res: Response) {
         const id = parseId(req.params.id)
         if (!id) return res.status(400).json({ error: "Invalid id" })
 
-        const record = await CTE_District_Program.findByPk(id)
+        const record = await District_Program.findByPk(id)
         if (!record) return res.status(404).json({ error: "Not found" })
 
-        const { cte_district_id, program_id, authorization_date, expiration_date, active } =
+        const { district_id, program_id, authorization_date, expiration_date, active } =
             req.body
 
         await record.update({
-            cte_district_id: cte_district_id ?? record.cte_district_id,
+            district_id: district_id ?? record.district_id,
             program_id: program_id ?? record.program_id,
             authorization_date:
                 authorization_date !== undefined
@@ -117,7 +117,7 @@ export async function deleteDistrictProgram(req: Request, res: Response) {
         const id = parseId(req.params.id)
         if (!id) return res.status(400).json({ error: "Invalid id" })
 
-        const record = await CTE_District_Program.findByPk(id)
+        const record = await District_Program.findByPk(id)
         if (!record) return res.status(404).json({ error: "Not found" })
 
         await record.destroy()

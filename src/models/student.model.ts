@@ -10,8 +10,7 @@ export class Student extends Model {
   public grade!: string;
   public gender?: string;
   public age!: number;
-  public home_school_id!: number;
-  public cte_school_id?: number;
+  public school_id!: number;
   public forms?: Form[];
 }
 
@@ -46,13 +45,13 @@ Student.init(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-    home_school_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true, //for now
-    },
-    cte_school_id: {
+    school_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+          model: "school",
+          key: "id",
+      },
     },
   },
   {

@@ -1,16 +1,16 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../../database"
 
-export class CTE_School extends Model {
+export class School extends Model {
     public id!: number
     public district_id!: number
     public name!: string
-    public address!: string
-    public phone_number!: string
-    public website!: string
+    public address?: string
+    public phone_number?: string
+    public website?: string
 }
 
-CTE_School.init(
+School.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -22,7 +22,7 @@ CTE_School.init(
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "cte_district",
+                model: "district",
                 key: "id",
             },
         },
@@ -32,18 +32,21 @@ CTE_School.init(
         },
         address: {
             type: DataTypes.TEXT,
+            allowNull: true,
         },
         phone_number: {
-            type: DataTypes.STRING(15),
+            type: DataTypes.STRING(50),
+            allowNull: true
         },
         website: {
             type: DataTypes.STRING(255),
+            allowNull: true
         },
     },
     {
         sequelize,
-        modelName: "CTE_School",
-        tableName: "cte_school",
+        modelName: "School",
+        tableName: "school",
         timestamps: false,
         underscored: true, // if you prefer snake_case for column names
     }

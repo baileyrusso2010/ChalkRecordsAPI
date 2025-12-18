@@ -3,7 +3,7 @@ import sequelize from "../../database";
 
 export interface CourseInstanceAttributes {
   id: number;
-  cte_school_id?: number | null;
+  school_id?: number | null;
   district_program_id?: number | null;
   course_catalog_id?: number | null;
   instructorId?: number | null;
@@ -16,7 +16,7 @@ export interface CourseInstanceAttributes {
 export type CourseInstanceCreationAttributes = Optional<
   CourseInstanceAttributes,
   | "id"
-  | "cte_school_id"
+  | "school_id"
   | "district_program_id"
   | "course_catalog_id"
   | "alias"
@@ -31,7 +31,7 @@ export class Course_Instance
   implements CourseInstanceAttributes
 {
   public id!: number;
-  public cte_school_id?: number | null;
+  public school_id?: number | null;
   public district_program_id?: number | null;
   public course_catalog_id?: number | null;
   public instructorId?: number | null;
@@ -49,19 +49,20 @@ Course_Instance.init(
       allowNull: false,
       autoIncrement: true,
     },
-    cte_school_id: {
+    school_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: "cte_school",
+        model: "school",
         key: "id",
       },
     },
     district_program_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: "cte_district_program",
+        model: "district_program",
         key: "id",
       },
+      allowNull: true
     },
     course_catalog_id: {
       type: DataTypes.INTEGER,
@@ -69,7 +70,7 @@ Course_Instance.init(
         model: "course_catalog",
         key: "id",
       },
-    },
+    },//this is needed
     alias: {
       type: DataTypes.STRING,
     },

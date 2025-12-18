@@ -268,3 +268,132 @@ export async function getDashboardSummary(req: Request, res: Response) {
         res.status(500).json({ error: "Failed to retrieve behavior grouping" })
     }
 }
+
+export async function getAttendanceMetrics(req: Request, res: Response) {
+    try {
+        const { startDate, endDate, level = "grade", filters = {} } = req.body
+
+        if (!startDate || !endDate) {
+            return res.status(400).json({ error: "startDate and endDate are required" })
+        }
+
+        // Build student where clause for filtering
+        const studentWhere: any = {}
+        if (filters.school_id && filters.school_id !== "All Schools") {
+            studentWhere.school_id = filters.school_id
+        }
+        if (filters.grade) {
+            studentWhere.grade = filters.grade
+        }
+        if (filters.student_id) {
+            studentWhere.id = filters.student_id
+        }
+
+        // Build attendance where clause for date filtering
+        const attendanceWhere: any = {
+            attendance_date: { [Op.between]: [startDate, endDate] }
+        }
+
+        // Build group by clause based on level
+        let group: any[] = []
+        let attributes: any[] = []
+
+        switch (level) {
+            case "school":
+                group = [
+                    Sequelize.col("student.school_id"),
+                    Sequelize.col("student->school.name")
+                ]
+                attributes.push([Sequelize.col("student.school_id"), "school_id"])
+                attributes.push([Sequelize.col("student->school.name"), "school_name"])
+                break
+            case "grade":
+                group = [
+                    Sequelize.col("student.school_id"),
+                    Sequelize.col("student->school.name"),
+                    Sequelize.col("student.grade")
+                ]
+                attributes.push([Sequelize.col("student.school_id"), "school_id"])
+                attributes.push([Sequelize.col("student->school.name"), "school_name"])
+                attributes.push([Sequelize.col("student.grade"), "grade"])
+                break
+            case "student":
+                group = [
+                    Sequelize.col("student_id"),
+                    Sequelize.col("student.first_name"),
+                    Sequelize.col("student.last_name"),
+                    Sequelize.col("student->school.name")
+                ]
+                attributes.push([Sequelize.col("student_id"), "student_id"])
+                attributes.push([Sequelize.col("student.first_name"), "first_name"])
+                attributes.push([Sequelize.col("student.last_name"), "last_name"])
+                attributes.push([Sequelize.col("student->school.name"), "school_name"])
+                break
+            default:
+                return res.status(400).json({ error: "Invalid level. Must be 'school', 'grade', or 'student'" })
+        }
+
+        // Add attendance metrics to attributes
+        attributes.push([Sequelize.fn("COUNT", Sequelize.col("Attendance.id")), "total_records"])
+        attributes.push([
+            Sequelize.literal('SUM(CASE WHEN "Attendance".code = \'P\' THEN 1 ELSE 0 END)'),
+            "present_count"
+        ])
+        attributes.push([
+            Sequelize.literal('SUM(CASE WHEN "Attendance".code = \'A\' THEN 1 ELSE 0 END)'),
+            "absent_count"
+        ])
+        attributes.push([
+            Sequelize.literal('SUM(CASE WHEN "Attendance".code = \'T\' THEN 1 ELSE 0 END)'),
+            "tardy_count"
+        ])
+        attributes.push([
+            Sequelize.literal(
+                '(SUM(CASE WHEN "Attendance".code = \'P\' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT("Attendance".id), 0))'
+            ),
+            "attendance_rate"
+        ])
+
+        const results = await Attendance.findAll({
+            attributes,
+            where: attendanceWhere,
+            group,
+            include: [
+                {
+                    model: Student,
+                    as: "student",
+                    attributes: [],
+                    where: studentWhere,
+                    required: true,
+                    include: [
+                        {
+                            association: "school",
+                            attributes: [],
+                            required: false
+                        }
+                    ]
+                }
+            ],
+            raw: true
+        })
+
+        res.json(results)
+    } catch (err) {
+        console.error("Error getting attendance metrics", err)
+        res.status(500).json({ error: "Failed to retrieve attendance metrics" })
+    }
+}
+
+
+export async function getBehaviorMetrics(req: Request, res: Response){
+
+    try{
+
+        
+
+
+    }catch(err){
+        console.error("Error getting behavior metrics", err)
+        res.status(500).json({ error: "Failed to retrieve behavior metrics" })
+    }
+}

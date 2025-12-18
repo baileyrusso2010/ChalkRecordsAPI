@@ -21,6 +21,7 @@ BehaviorType.init(
         },
         code: {
             type: DataTypes.STRING,
+            allowNull: true,//not srue if needed, maybe for internal?
         },
     },
     {

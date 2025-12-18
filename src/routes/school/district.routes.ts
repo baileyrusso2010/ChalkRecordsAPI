@@ -4,7 +4,7 @@ import {
     getDistrict,
     getDistrictSchools,
     getDistrictCurrentPrograms,
-} from "../../controller/cte/cte_district.controller"
+} from "../../controller/school/district.controller"
 
 const router = Router()
 

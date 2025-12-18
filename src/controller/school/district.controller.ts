@@ -1,11 +1,11 @@
 import { Request, Response } from "express"
 import { Op } from "sequelize"
 import { District } from "../../models/school/district.model"
-import { School } from "../../models/school/school"
+import { School } from "../../models/school/school.model"
 import { District_Program } from "../../models/program/district_program.model"
 import { Program_Catalog } from "../../models/program/program_catalog.model"
 
-// GET /cte-districts
+// GET /districts
 export async function listDistricts(req: Request, res: Response) {
     try {
         const { search } = req.query as { search?: string }
@@ -20,7 +20,7 @@ export async function listDistricts(req: Request, res: Response) {
     }
 }
 
-// GET /cte-districts/:id
+// GET /districts/:id
 export async function getDistrict(req: Request, res: Response) {
     try {
         const id = Number(req.params.id)
@@ -35,8 +35,8 @@ export async function getDistrict(req: Request, res: Response) {
     }
 }
 
-// GET /cte-districts/:id/schools
-// Returns schools for the district, each with its home_schools
+// GET /districts/:id/schools
+// Returns schools for the district
 export async function getDistrictSchools(req: Request, res: Response) {
     try {
         const id = Number(req.params.id)
@@ -58,16 +58,12 @@ export async function getDistrictSchools(req: Request, res: Response) {
     }
 }
 
-// GET /cte-districts/:id/programs/current
+// GET /districts/:id/programs/current
 // Returns the district's currently authorized programs (active and within auth/expiry window)
 export async function getDistrictCurrentPrograms(req: Request, res: Response) {
     try {
         const id = Number(req.params.id)
         if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: "Invalid id" })
-
-        // // Ensure district exists (optional but consistent 404)
-        // const district = await CTE_District.findByPk(id)
-        // if (!district) return res.status(404).json({ error: "District not found" })
 
         const now = new Date()
 

@@ -20,11 +20,10 @@ import { Attendance } from "./attendance.model"
 import { Course_Catalog } from "./course/course_catalog.model"
 import { Course_Instance } from "./course/course_instance.model"
 
-import { CTE_District } from "./school/cte_district.model"
-import { CTE_School } from "./school/cte_school.model"
-import { Home_School } from "./school/home_school.model"
+import {District} from "./school/district.model"
+import { School } from "./school/school.model"
 
-import { CTE_District_Program } from "./program/cte_district_program.model"
+import { District_Program } from "./program/district_program.model"
 import { Program_Catalog } from "./program/program_catalog.model"
 
 import { School_Year } from "./term/school_year.model"
@@ -155,57 +154,40 @@ Enrollment.hasMany(Question_Scores, {
     as: "question_scores",
 })
 
-// District 1:M School
-CTE_District.hasMany(CTE_School, { foreignKey: "district_id", as: "schools" })
-CTE_School.belongsTo(CTE_District, {
+// District and School Associations
+District.hasMany(School, { foreignKey: "district_id", as: "schools" })
+School.belongsTo(District, {
     foreignKey: "district_id",
     as: "district",
-})
-
-// School 1:M Home_School (home feeder schools)
-CTE_School.hasMany(Home_School, {
-    foreignKey: "cte_school_id",
-    as: "home_schools",
-})
-Home_School.belongsTo(CTE_School, {
-    foreignKey: "cte_school_id",
-    as: "cte_school",
 })
 
 // District 1:M School Years
-CTE_District.hasMany(School_Year, {
+District.hasMany(School_Year, {
     foreignKey: "district_id",
     as: "school_years",
 })
-School_Year.belongsTo(CTE_District, {
+School_Year.belongsTo(District, {
     foreignKey: "district_id",
     as: "district",
 })
 
-// School Year 1:M Terms
-School_Year.hasMany(Term, { foreignKey: "school_year_id", as: "terms" })
-Term.belongsTo(School_Year, {
-    foreignKey: "school_year_id",
-    as: "school_year",
-})
-
-// Program Catalog 1:M District Programs (district offering of a catalog program)
-Program_Catalog.hasMany(CTE_District_Program, {
+// Program Catalog 1:M District Programs
+Program_Catalog.hasMany(District_Program, {
     foreignKey: "program_id",
     as: "district_programs",
 })
-CTE_District_Program.belongsTo(Program_Catalog, {
+District_Program.belongsTo(Program_Catalog, {
     foreignKey: "program_id",
     as: "program_catalog",
 })
 
 // District 1:M District Programs
-CTE_District.hasMany(CTE_District_Program, {
-    foreignKey: "cte_district_id",
+District.hasMany(District_Program, {
+    foreignKey: "district_id",
     as: "district_programs",
 })
-CTE_District_Program.belongsTo(CTE_District, {
-    foreignKey: "cte_district_id",
+District_Program.belongsTo(District, {
+    foreignKey: "district_id",
     as: "district",
 })
 
@@ -218,11 +200,11 @@ Course_Instance.belongsTo(Course_Catalog, {
     foreignKey: "course_catalog_id",
     as: "course_catalog",
 })
-CTE_District_Program.hasMany(Course_Instance, {
+District_Program.hasMany(Course_Instance, {
     foreignKey: "district_program_id",
     as: "course_instances",
 })
-Course_Instance.belongsTo(CTE_District_Program, {
+Course_Instance.belongsTo(District_Program, {
     foreignKey: "district_program_id",
     as: "district_program",
 })
@@ -247,13 +229,13 @@ Course_Instance.belongsTo(Staff, {
 })
 
 // School 1:M Course Instances
-CTE_School.hasMany(Course_Instance, {
-    foreignKey: "cte_school_id",
+School.hasMany(Course_Instance, {
+    foreignKey: "school_id",
     as: "course_instances",
 })
-Course_Instance.belongsTo(CTE_School, {
-    foreignKey: "cte_school_id",
-    as: "cte_school",
+Course_Instance.belongsTo(School, {
+    foreignKey: "school_id",
+    as: "school",
 })
 
 // School Year 1:M Course Instances
@@ -308,12 +290,9 @@ StudentFlag.belongsTo(Student, { foreignKey: "student_id" })
 Flag.hasMany(StudentFlag, { foreignKey: "flag_id" })
 StudentFlag.belongsTo(Flag, { foreignKey: "flag_id" })
 
-// Student belongs to Home_School and CTE_School
-Student.belongsTo(Home_School, { foreignKey: "home_school_id", as: "home_school" })
-Home_School.hasMany(Student, { foreignKey: "home_school_id", as: "students" })
-
-Student.belongsTo(CTE_School, { foreignKey: "cte_school_id", as: "cte_school" })
-CTE_School.hasMany(Student, { foreignKey: "cte_school_id", as: "students" })
+// Student belongs to School
+Student.belongsTo(School, { foreignKey: "school_id", as: "school" })
+School.hasMany(Student, { foreignKey: "school_id", as: "students" })
 
 // Student 1:M Attendance
 Student.hasMany(Attendance, { foreignKey: "student_id", as: "attendance" })

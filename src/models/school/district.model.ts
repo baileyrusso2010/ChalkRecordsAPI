@@ -1,9 +1,15 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../../database"
 
-export class CTE_District extends Model {}
+export class District extends Model {
+    public id!: number;
+    public name!: string;
+    public address?: string;
+    public contact_email?: string;
+    public phone_number?: string;
+}
 
-CTE_District.init(
+District.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -22,13 +28,13 @@ CTE_District.init(
             type: DataTypes.STRING(100),
         },
         phone_number: {
-            type: DataTypes.STRING(15),
+            type: DataTypes.STRING(50),
         },
     },
     {
         sequelize,
-        modelName: "CTE_District",
-        tableName: "cte_district",
+        modelName: "District",
+        tableName: "district",
         timestamps: false,
         underscored: true, // if you prefer snake_case for column names
     }

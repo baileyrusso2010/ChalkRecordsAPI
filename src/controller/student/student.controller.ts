@@ -1,13 +1,12 @@
 import { Request, Response } from "express"
 import { Op } from "sequelize"
-import { CTE_District_Program } from "../../models/program/cte_district_program.model"
+import { District_Program } from "../../models/program/district_program.model"
 import { Course_Instance } from "../../models/course/course_instance.model"
 import { Enrollment } from "../../models/enrollment.model"
 import { Student } from "../../models/student.model"
 import { StudentFlag } from "../../models/flags/student_flags.model"
 import { Flag } from "../../models/flags/flag.model"
-import { Home_School } from "../../models/school/home_school.model"
-import { CTE_School } from "../../models/school/cte_school.model"
+import { School } from "../../models/school/school.model"
 import { Staff } from "../../models/staff.model"
 
 // GET /program-catalogs
@@ -32,12 +31,8 @@ export async function getStudentDetail(req: Request, res: Response) {
         const student = await Student.findByPk(id, {
             include: [
                 {
-                    model: Home_School,
-                    as: "home_school",
-                },
-                {
-                    model: CTE_School,
-                    as: "cte_school",
+                    model: School,
+                    as: "school",
                 },
                 {
                     model: Enrollment,
@@ -103,7 +98,7 @@ export async function listStudents(req: Request, res: Response) {
                             as: "course_instance",
                             include: [
                                 {
-                                    model: CTE_District_Program,
+                                    model: District_Program,
                                     as: "district_program",
                                     where: programId ? { id: programId } : undefined,
                                     required: !!programId,

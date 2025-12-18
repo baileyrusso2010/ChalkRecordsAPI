@@ -2,7 +2,7 @@ import { Request, Response } from "express"
 import { Op } from "sequelize"
 import { School } from "../../models/school/school.model"
 
-// GET /cte-schools
+// GET /schools
 export async function listSchools(req: Request, res: Response) {
     try {
         const { districtId, search } = req.query as { districtId?: string; search?: string }
@@ -18,7 +18,7 @@ export async function listSchools(req: Request, res: Response) {
     }
 }
 
-// GET /cte-schools/:id
+// GET /schools/:id
 export async function getSchool(req: Request, res: Response) {
     try {
         const id = Number(req.params.id)

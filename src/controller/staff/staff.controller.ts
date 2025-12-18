@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { CTE_District_Program } from "../../models/program/cte_district_program.model"
+import { District_Program } from "../../models/program/district_program.model"
 import { Course_Instance } from "../../models/course/course_instance.model"
 import { Staff } from "../../models/staff.model"
 import { Op, fn, col } from "sequelize"
@@ -26,7 +26,7 @@ export async function getTeachersByProgram(req: Request, res: Response) {
                     required: true,
                     include: [
                         {
-                            model: CTE_District_Program,
+                            model: District_Program,
                             as: "district_program",
                             attributes: [],
                             where: { id },

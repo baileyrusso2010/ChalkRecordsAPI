@@ -2,9 +2,8 @@ import cteDistrictProgramRouter from "./cte/cte_district_program.routes"
 import programCatalogRouter from "./program/program_catalog.routes"
 import courseCatalogRouter from "./course/course_catalog.routes"
 import courseInstanceRouter from "./course/course_instance.routes"
-import cteDistrictRouter from "./cte/cte_district.routes"
-import cteSchoolRouter from "./cte/cte_school.routes"
-import homeSchoolRouter from "./school/home_school.routes"
+import districtRouter from "./school/district.routes"
+import schoolRouter from "./school/school.routes"
 import wblCategoriesRouter from "./wbl/wbl_catagories.routes"
 import wblStudentsRouter from "./wbl/wbl_students.routes"
 import studentRouter from "./student/student.routes"
@@ -24,9 +23,8 @@ export const routes = [
     { path: "/api/program-catalogs", router: programCatalogRouter },
     { path: "/api/course-catalogs", router: courseCatalogRouter },
     { path: "/api/course-instances", router: courseInstanceRouter },
-    { path: "/api/cte-districts", router: cteDistrictRouter },
-    { path: "/api/cte-schools", router: cteSchoolRouter },
-    { path: "/api/home-schools", router: homeSchoolRouter },
+    { path: "/api/districts", router: districtRouter },
+    { path: "/api/schools", router: schoolRouter },
     { path: "/api/wbl-categories", router: wblCategoriesRouter },
     { path: "/api/wbl-students", router: wblStudentsRouter },
     { path: "/api/students", router: studentRouter },

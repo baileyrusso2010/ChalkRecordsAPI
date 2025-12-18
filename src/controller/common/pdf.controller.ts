@@ -4,8 +4,7 @@ import { PDFDocument, PDFForm } from "pdf-lib"
 import { Skill } from "../../models/skill.model"
 import { SkillScore } from "../../models/skill_score.model"
 import { Student } from "../../models/student.model"
-import { Home_School } from "../../models/school/home_school.model"
-import { CTE_School } from "../../models/school/cte_school.model"
+import { School } from "../../models/school/school.model"
 import { Enrollment } from "../../models/enrollment.model"
 import { Course_Instance } from "../../models/course/course_instance.model"
 import { Staff } from "../../models/staff.model"
@@ -108,8 +107,7 @@ async function fetchStudentData(studentId: number) {
     return await Student.findOne({
         where: { id: studentId },
         include: [
-            { model: Home_School, as: "home_school" },
-            { model: CTE_School, as: "cte_school" },
+            { model: School, as: "school" },
             {
                 model: Enrollment,
                 as: "enrollments",
@@ -120,6 +118,7 @@ async function fetchStudentData(studentId: number) {
                         include: [
                             { model: Staff, as: "instructor" },
                             { model: Course_Catalog, as: "course_catalog" },
+                            { model: School, as: "school" },
                         ],
                     },
                 ],
@@ -264,9 +263,9 @@ function fillStudentInfo(form: PDFForm, studentModel: any) {
     safeSetText(form, "student_name", `${student.first_name} ${student.last_name} `)
     safeSetText(form, "student_id", student.student_id)
     safeSetText(form, "cohort", COHORT_YEAR)
-    safeSetText(form, "school_district", student.home_school?.name)
+    safeSetText(form, "school_district", student.school?.name)
     safeSetText(form, "school_year", SCHOOL_YEARS)
-    safeSetText(form, "cte_school", student.cte_school?.name)
+    safeSetText(form, "cte_school", courseInstance?.school?.name)
 }
 
 function fillWBLData(form: PDFForm, wblRecords: any[]) {

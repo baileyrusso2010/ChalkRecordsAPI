@@ -19,10 +19,6 @@ School_Year.init(
         },
         district_id: {
             type: DataTypes.INTEGER,
-            references: {
-                model: "cte_district",
-                key: "id",
-            },
         },
         startDate: {
             type: DataTypes.DATE,
