@@ -1,9 +1,9 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../../database"
 
-export class Student_Scores extends Model {}
+export class Student_Term_Grades extends Model {}
 
-Student_Scores.init(
+Student_Term_Grades.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -29,6 +29,10 @@ Student_Scores.init(
             type: DataTypes.INTEGER,
             allowNull: true,
         },
+        letter_grade: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
         pass_fail: {
             type: DataTypes.BOOLEAN,
             allowNull: true,
@@ -36,8 +40,8 @@ Student_Scores.init(
     },
     {
         sequelize,
-        modelName: "Student_Scores",
-        tableName: "student_scores",
+        modelName: "Student_Term_Grades",
+        tableName: "student_term_grades",
         timestamps: true,
         underscored: true, // if you prefer snake_case for column names
         indexes: [

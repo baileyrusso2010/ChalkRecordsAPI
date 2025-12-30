@@ -186,6 +186,7 @@ def create_enrollment():
                         INSERT INTO enrollments 
                         (student_id, course_instance_id, term_id, enrollment_date, created_at, updated_at) 
                         VALUES (%s, %s, %s, %s, NOW(), NOW())
+                        ON CONFLICT (student_id, course_instance_id, term_id) DO NOTHING
                     """, (student_id, course_id, term_id, enrollment_date))
                     enrollment_count += 1
             
@@ -399,6 +400,16 @@ def import_program_catalog():
     else:
         print("No database connection available.")
 
+def create_wbl_types():
+    if connection:
+        with connection.cursor() as cursor:
+            cursor.execute("INSERT INTO wbl_catagories (name) VALUES('Internship')")
+            cursor.execute("INSERT INTO wbl_catagories (name) VALUES('Co-Op')")
+            cursor.execute("INSERT INTO wbl_catagories (name) VALUES('Job Shadow')")
+            connection.commit()
+            print("WBL types created successfully!")
+    else:
+        print("No database connection available.")
 
 def import_course_catalog():
 
@@ -416,13 +427,29 @@ def import_course_catalog():
     else:
         print("No database connection available.")
 
+
+def generate_tasks():
+    if connection:
+        with connection.cursor() as cursor:
+
+            cursor.execute("Select * FROM term")
+            term_rows = cursor.fetchall()
+
+            names = ["Interim", "Quarter", "Final"]
+
+            cursor.execute("INSERT INTO task (term_id, name) VALUES (%s, %s)", (term_rows[i][0], names[i]))
+            connection.commit()
+            print("Tasks generated successfully!")
+    else:
+        print("No database connection available.")
+
 # Example usage
 if __name__ == '__main__':
     connect_to_postgres()
     
     if connection:
-        # import_program_catalog()
-        # import_course_catalog()
+        import_program_catalog()
+        import_course_catalog()
         
         # Check if we need to seed data (basic check based on school existence)
         with connection.cursor() as cursor:
@@ -449,12 +476,13 @@ if __name__ == '__main__':
             create_staff(10)
 
         create_students(10)
-        # create_course(10)
-        # create_enrollment()
+        create_course(10)
+        create_enrollment()
         create_behavior()
 
-        # create_attendance_statuses()
-        # create_attendance()
+        create_attendance_statuses()
+        create_attendance()
+        create_wbl_types()
 
         connection.close()
         print("Connection closed.")

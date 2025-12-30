@@ -10,7 +10,6 @@ import express, {
 } from "express"
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") })
-import { createFakeData, createAttendance, createBehavior } from "./utils/fake_date"
 // dotenv.config()
 
 import { routes } from "./routes"
@@ -89,7 +88,7 @@ app.listen(PORT, async () => {
 
     let syncOptions
     if (!IS_PROD) {
-        syncOptions = { force: true }
+        syncOptions = { alter: true }
     } else {
         syncOptions = { alter: true } //double check this
     }
