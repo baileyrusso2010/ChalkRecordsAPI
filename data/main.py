@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from faker import Faker
 import csv
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -90,7 +91,6 @@ def create_task(term_id):
             print("Task created successfully!")
     else:
         print("No database connection available.")
-
 
 def create_staff(num):
     if connection:
@@ -197,6 +197,13 @@ def create_enrollment():
 def create_students(num):
     if connection:
         with connection.cursor() as cursor:
+            cursor.execute("SELECT id FROM school")
+            school_ids = [row[0] for row in cursor.fetchall()]
+
+            if not school_ids:
+                print("No schools found in the database. Please create a school first.")
+                return
+
             for i in range(num):
                 first_name = Faker().first_name()
                 last_name = Faker().last_name()
@@ -207,8 +214,6 @@ def create_students(num):
                 #grade can be random between 5 and 12
                 grade = age - 6
 
-                cursor.execute("SELECT id FROM school")
-                school_ids = [row[0] for row in cursor.fetchall()]
                 random_school_id = Faker().random_element(elements=school_ids)
                 
                 cursor.execute("INSERT INTO students (student_id, first_name, last_name, gender, age, grade, school_id) VALUES (%s, %s, %s, %s, %s, %s, %s)", (student_id, first_name, last_name, gender, age, grade, random_school_id))
@@ -277,11 +282,112 @@ def create_behavior():
     else:
         print("No database connection available.")
 
+def create_attendance_statuses():
+    if connection:
+        with connection.cursor() as cursor:
+
+            statuses = ["P", "A", "T"]
+
+            for status in statuses:
+                cursor.execute("INSERT INTO attendance_status (code) VALUES (%s)", (status,))
+            connection.commit()
+
+def create_attendance():
+    if connection:
+        with connection.cursor() as cursor:
+            fake = Faker()
+            
+            # Fetch Students
+            cursor.execute("SELECT id, school_id FROM students")
+            students = cursor.fetchall()
+            
+            # Fetch Attendance Statuses map
+            cursor.execute("SELECT code, id FROM attendance_status")
+            status_rows = cursor.fetchall()
+            status_map = {row[0]: row[1] for row in status_rows}
+            
+            # Create statuses if they don't exist
+            if not status_map:
+                create_attendance_statuses()
+                cursor.execute("SELECT code, id FROM attendance_status")
+                status_map = {row[0]: row[1] for row in cursor.fetchall()}
+            
+            status_ids_list = list(status_map.values())
+            
+            # Fetch Term dates
+            cursor.execute("SELECT start_date, end_date FROM term LIMIT 1")
+            term_data = cursor.fetchone()
+            
+            if not term_data:
+                print("No term found, using default date range.")
+                start_date = datetime(2025, 8, 1).date()
+                end_date = datetime(2025, 12, 18).date()
+            else:
+                start_date = term_data[0]
+                end_date = term_data[1]
+                
+            if isinstance(start_date, str):
+                start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            if isinstance(end_date, str):
+                end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            
+            print(f"Generating attendance from {start_date} to {end_date} for {len(students)} students...")
+            
+            records_to_insert = []
+            
+            p_id = status_map.get('P')
+            a_id = status_map.get('A')
+            t_id = status_map.get('T')
+            
+            current_date = start_date
+            while current_date <= end_date:
+                if current_date.weekday() < 5: 
+                    formatted_date = current_date.isoformat()
+                    
+                    for student_id, school_id in students:
+                        # Logic: 90% Present, 5% Absent, 5% Tardy
+                        if p_id and a_id and t_id:
+                            rand_val = fake.random_int(min=1, max=100)
+                            if rand_val <= 90:
+                                status_id = p_id
+                            elif rand_val <= 95:
+                                status_id = a_id
+                            else:
+                                status_id = t_id
+                        else:
+                            status_id = fake.random_element(elements=status_ids_list)
+                        
+                        records_to_insert.append((student_id, school_id, status_id, formatted_date, 'manual'))
+                        
+                current_date += timedelta(days=1)
+            
+            print(f"Inserting {len(records_to_insert)} attendance records...")
+            
+            batch_size = 5000
+            total_inserted = 0
+            
+            query = """
+                INSERT INTO attendance_daily 
+                (student_id, school_id, attendance_status_id, attendance_date, source, created_at, updated_at) 
+                VALUES (%s, %s, %s, %s, %s, NOW(), NOW())
+                ON CONFLICT (student_id, attendance_date) DO NOTHING
+            """
+            
+            for i in range(0, len(records_to_insert), batch_size):
+                batch = records_to_insert[i:i + batch_size]
+                cursor.executemany(query, batch)
+                connection.commit()
+                total_inserted += len(batch)
+                print(f"Inserted batch {i // batch_size + 1}...")
+
+            print(f"Attendance created successfully! Total records processed: {total_inserted}")
+    else:
+        print("No database connection available.")
 def import_program_catalog():
 
     if connection:
         with connection.cursor() as cursor:
-            with open("./data/program_catalog.csv") as file:
+            with open("./Program_Catalog.csv") as file:
                 reader = csv.reader(file)
                 next(reader)
                 for row in reader:
@@ -298,7 +404,7 @@ def import_course_catalog():
 
     if connection:
         with connection.cursor() as cursor:
-            with open("./data/course_catalog.csv") as file:
+            with open("./Course_Catalog.csv") as file:
                 reader = csv.reader(file)
                 next(reader)
                 for row in reader:
@@ -317,16 +423,38 @@ if __name__ == '__main__':
     if connection:
         # import_program_catalog()
         # import_course_catalog()
-        # district_id = create_district()        
-        # create_school(district_id)
-        # school_year_id = create_school_year(district_id)
-        # term_id = create_term(school_year_id)
-        # create_task(term_id)
-        # create_staff(10)
-        # create_students(10)
+        
+        # Check if we need to seed data (basic check based on school existence)
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT count(*) FROM school")
+            count = cursor.fetchone()[0]
+        
+        if count == 0:
+            print("Seeding initial data...")
+            district_id = create_district()        
+            create_school(district_id)
+            school_year_id = create_school_year(district_id)
+            term_id = create_term(school_year_id)
+            create_task(term_id)
+        else:
+            print("Initial data (Schools, etc) already exists. Skipping creation.")
+
+        # Ensure staff exists
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT count(*) FROM staff")
+            staff_count = cursor.fetchone()[0]
+        
+        if staff_count == 0:
+            print("Seeding staff...")
+            create_staff(10)
+
+        create_students(10)
         # create_course(10)
         # create_enrollment()
         create_behavior()
+
+        # create_attendance_statuses()
+        # create_attendance()
 
         connection.close()
         print("Connection closed.")
