@@ -22,7 +22,7 @@ Behavior.init(
         },
         staff_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true, //eventually make this required
             references: {
                 model: "staff",
                 key: "id",
@@ -43,9 +43,6 @@ Behavior.init(
             type: DataTypes.STRING,
         },
         event_description: {
-            type: DataTypes.STRING,
-        },
-        indicent_description: {
             type: DataTypes.STRING,
         },
         resolution_name: {

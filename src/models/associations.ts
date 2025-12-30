@@ -2,13 +2,6 @@
 import { Behavior } from "./behavior/behavior.model"
 import { BehaviorType } from "./behavior/behavior_type.model"
 
-// Gradebook associations
-import { Grading_Categories } from "./gradebook/grading_categories.model"
-import { Assignments } from "./gradebook/assignments.model"
-import { Assignment_Score } from "./gradebook/assignment_score.model"
-import { Assignment_Questions } from "./gradebook/assignment_questions.model"
-import { Question_Scores } from "./gradebook/question_scores.model"
-
 import { Assessments } from "./assessments/assessments.model"
 import { Scoring_Bands } from "./assessments/scoring_bands.model"
 import { Student_Assessment_Results } from "./assessments/student_assessment_results.model"
@@ -20,7 +13,7 @@ import { Attendance } from "./attendance.model"
 import { Course_Catalog } from "./course/course_catalog.model"
 import { Course_Instance } from "./course/course_instance.model"
 
-import {District} from "./school/district.model"
+import { District } from "./school/district.model"
 import { School } from "./school/school.model"
 
 import { District_Program } from "./program/district_program.model"
@@ -28,6 +21,11 @@ import { Program_Catalog } from "./program/program_catalog.model"
 
 import { School_Year } from "./term/school_year.model"
 import { Term } from "./term/term.model"
+import { Task } from "./term/task.model"
+
+import { Course_Instructors } from "./course/course_instructors.model"
+
+import { Student_Scores } from "./gradebook/student_scores.model"
 
 import { Student } from "./student.model"
 import { Enrollment } from "./enrollment.model"
@@ -73,85 +71,6 @@ Behavior.belongsTo(Student, {
 Student.hasMany(Behavior, {
     foreignKey: "student_id",
     as: "behaviors",
-})
-
-Course_Instance.hasMany(Grading_Categories, {
-    foreignKey: "course_instance_id",
-    as: "grading_categories",
-})
-Grading_Categories.belongsTo(Course_Instance, {
-    foreignKey: "course_instance_id",
-    as: "course_instance",
-})
-
-// CourseInstance → hasMany Assignment
-Course_Instance.hasMany(Assignments, {
-    foreignKey: "course_instance_id",
-    as: "assignments",
-})
-Assignments.belongsTo(Course_Instance, {
-    foreignKey: "course_instance_id",
-    as: "course_instance",
-})
-
-// GradingCategory → hasMany Assignment
-Grading_Categories.hasMany(Assignments, {
-    foreignKey: "grading_category_id",
-    as: "assignments",
-})
-Assignments.belongsTo(Grading_Categories, {
-    foreignKey: "grading_category_id",
-    as: "grading_category",
-})
-
-// Assignment → hasMany AssignmentScore
-Assignments.hasMany(Assignment_Score, {
-    foreignKey: "assignment_id",
-    as: "assignment_scores",
-})
-Assignment_Score.belongsTo(Assignments, {
-    foreignKey: "assignment_id",
-    as: "assignment",
-})
-
-// Assignment → hasMany AssignmentQuestion
-Assignments.hasMany(Assignment_Questions, {
-    foreignKey: "assignment_id",
-    as: "assignment_questions",
-})
-Assignment_Questions.belongsTo(Assignments, {
-    foreignKey: "assignment_id",
-    as: "assignment",
-})
-
-// AssignmentScore → belongsTo Enrollment
-Assignment_Score.belongsTo(Enrollment, {
-    foreignKey: "enrollment_id",
-    as: "enrollments",
-})
-Enrollment.hasMany(Assignment_Score, {
-    foreignKey: "enrollment_id",
-    as: "assignment_scores",
-})
-
-// AssignmentQuestion → hasMany QuestionScore
-Assignment_Questions.hasMany(Question_Scores, {
-    foreignKey: "assignment_question_id",
-    as: "question_scores",
-})
-Question_Scores.belongsTo(Assignment_Questions, {
-    foreignKey: "assignment_question_id",
-    as: "assignment_question",
-})
-
-// QuestionScore → belongsTo Enrollment
-Question_Scores.belongsTo(Enrollment, {
-    foreignKey: "enrollment_id",
-    as: "enrollments",
-})
-Enrollment.hasMany(Question_Scores, {
-    foreignKey: "enrollment_id",
-    as: "question_scores",
 })
 
 // District and School Associations
@@ -520,4 +439,59 @@ WBL_Deployments.belongsTo(Staff, {
 Staff.hasMany(WBL_Deployments, {
     foreignKey: "staff_id",
     as: "wbl_deployments",
+})
+
+// Student 1:M Student_Scores
+Student.hasMany(Student_Scores, {
+    foreignKey: "student_id",
+    as: "student_scores",
+})
+Student_Scores.belongsTo(Student, {
+    foreignKey: "student_id",
+    as: "students",
+})
+
+Course_Instance.hasMany(Student_Scores, {
+    foreignKey: "course_instance_id",
+    as: "student_scores",
+})
+Student_Scores.belongsTo(Course_Instance, {
+    foreignKey: "course_instance_id",
+    as: "course_instance",
+})
+
+Task.hasMany(Student_Scores, {
+    foreignKey: "task_id",
+    as: "student_scores",
+})
+Student_Scores.belongsTo(Task, {
+    foreignKey: "task_id",
+    as: "task",
+})
+
+Student_Scores.belongsTo(Enrollment, {
+    foreignKey: "enrollment_id",
+    as: "enrollments",
+})
+Enrollment.hasMany(Student_Scores, {
+    foreignKey: "enrollment_id",
+    as: "student_scores",
+})
+
+Course_Instance.hasMany(Course_Instructors, {
+    foreignKey: "course_instance_id",
+    as: "course_instructors",
+})
+Course_Instructors.belongsTo(Course_Instance, {
+    foreignKey: "course_instance_id",
+    as: "course_instance",
+})
+
+Staff.hasMany(Course_Instructors, {
+    foreignKey: "staff_id",
+    as: "course_instructors",
+})
+Course_Instructors.belongsTo(Staff, {
+    foreignKey: "staff_id",
+    as: "staff",
 })

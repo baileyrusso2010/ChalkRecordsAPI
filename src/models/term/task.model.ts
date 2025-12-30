@@ -1,9 +1,9 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../../database"
 
-export class Term extends Model {}
+export class Task extends Model {}
 
-Term.init(
+Task.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -11,27 +11,21 @@ Term.init(
             allowNull: false,
             autoIncrement: true,
         },
-        school_year_id: {
+        term_id: {
             type: DataTypes.INTEGER,
             references: {
-                model: "school_year",
+                model: "term",
                 key: "id",
             },
         },
         name: {
             type: DataTypes.STRING(50), //will be quarter 1, semester 1, etc
         },
-        startDate: {
-            type: DataTypes.DATE,
-        },
-        endDate: {
-            type: DataTypes.DATE,
-        },
     },
     {
         sequelize,
-        modelName: "Term",
-        tableName: "term",
+        modelName: "Task",
+        tableName: "task",
         timestamps: false,
         underscored: true, // if you prefer snake_case for column names
     }

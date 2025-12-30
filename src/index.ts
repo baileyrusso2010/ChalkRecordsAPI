@@ -9,7 +9,7 @@ import express, {
     type NextFunction,
 } from "express"
 
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config({ path: path.resolve(__dirname, "../.env") })
 import { createFakeData, createAttendance, createBehavior } from "./utils/fake_date"
 // dotenv.config()
 
@@ -87,7 +87,14 @@ app.listen(PORT, async () => {
             console.error("Unable to connect to the database:", error)
         })
 
-    await sequelize.sync({ alter: true }) // Use force: true only in development to drop and recreate tables
+    let syncOptions
+    if (!IS_PROD) {
+        syncOptions = { force: true }
+    } else {
+        syncOptions = { alter: true } //double check this
+    }
+
+    await sequelize.sync(syncOptions) // Use force: true only in development to drop and recreate tables
 
     // await createAttendance()
     // await createFakeData()

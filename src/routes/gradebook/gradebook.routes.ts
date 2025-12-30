@@ -1,14 +1,9 @@
 import { Router } from "express"
-import {
-    getGradingCategories,
-    insertGradingCategories,
-    updateGradingCategories,
-} from "../../controller/gradebook/gradebook.controller"
 
 const router = Router()
 
-router.post("/", insertGradingCategories)
-router.patch("/", updateGradingCategories)
-router.get("/:course_id", getGradingCategories)
+router.get("/", (req, res) => {
+    res.send("Gradebook")
+})
 
 export default router
