@@ -1,9 +1,8 @@
 import { Router } from "express"
+import { getStudentGrades } from "../../controller/gradebook/gradebook.controller"
 
 const router = Router()
 
-router.get("/", (req, res) => {
-    res.send("Gradebook")
-})
+router.get("/student-grades", getStudentGrades)
 
 export default router

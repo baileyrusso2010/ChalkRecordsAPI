@@ -18,8 +18,8 @@ import classFormAssignmentRouter from "./forms/class_form_assignment.routes"
 import assessmentRouter from "./assessments/assessment.routes"
 import metricRotuer from "./common/metric.routes"
 import behaviorRouter from "./behavior/behavior.routes"
-
 import attendanceRouter from "./attendance/attendance.routes"
+import rubricRouter from "./rubric/rubric.routes"
 
 export const routes = [
     { path: "/api/behaviors", router: behaviorRouter },
@@ -43,4 +43,5 @@ export const routes = [
     { path: "/api/rubric", router: rubricRoutes },
     { path: "/api/class-form-assignments", router: classFormAssignmentRouter },
     { path: "/api/assessment", router: assessmentRouter },
+    { path: "/api/rubrics", router: rubricRouter },
 ]

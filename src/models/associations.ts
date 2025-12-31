@@ -55,6 +55,19 @@ import { WBL_Catagories } from "./wbl/wbl_catagories.model"
 import { WBL_Deployment_Recipients } from "./wbl/wbl_deployment_recipients.model"
 import { WBL_Deployments } from "./wbl/wbl_deployments.model"
 
+import { Rubric } from "./rubric/rubric.model"
+import { Rubric_Entries } from "./rubric/rubric_entries.model"
+
+// Rubric associations
+Rubric.hasMany(Rubric_Entries, {
+    foreignKey: "rubric_id",
+    as: "entries",
+})
+Rubric_Entries.belongsTo(Rubric, {
+    foreignKey: "rubric_id",
+    as: "rubric",
+})
+
 Behavior.belongsTo(BehaviorType, {
     foreignKey: "behavior_type_id",
     as: "behavior_type",
