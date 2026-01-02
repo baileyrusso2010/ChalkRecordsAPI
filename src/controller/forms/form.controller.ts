@@ -1,12 +1,12 @@
 import { Request, Response } from "express"
 import { Op } from "sequelize"
 import { Form } from "../../models/forms/form.model"
-import { Rubric_Grades } from "../../models/forms/rubric_grades.model"
-import { Rubric_Rows } from "../../models/forms/rubric_rows.model"
-import { Rubric_Sections } from "../../models/forms/rubric_sections.model"
-import { Rubric_Columns } from "../../models/forms/rubric_columns.model"
 import { Enrollment } from "../../models/enrollment.model"
-import { ClassFormAssignment } from "../../models/forms/class_form_assignment.model"
+import { ClassForm } from "../../models/forms/class_forms.model"
+import { StudentFormSubmission } from "../../models/forms/student_form_submissions.model"
+import { StudentFormSubmissionData } from "../../models/forms/student_form_submission_data.model"
+import { FormSection } from "../../models/forms/form_sections.model"
+import { FormField } from "../../models/forms/form_fields.model"
 
 // List all forms
 export async function listForms(req: Request, res: Response) {
@@ -22,8 +22,24 @@ export async function listForms(req: Request, res: Response) {
 // Get single form
 export async function getForm(req: Request, res: Response) {
     const { formId } = req.params
+    const { advanced } = req.query
     try {
-        const form = await Form.findByPk(formId)
+        const form = await Form.findByPk(formId, {
+            include: advanced
+                ? [
+                      {
+                          model: FormSection,
+                          as: "form_sections",
+                          include: [
+                              {
+                                  model: FormField,
+                                  as: "form_fields",
+                              },
+                          ],
+                      },
+                  ]
+                : [],
+        })
         if (!form) return res.status(404).json({ error: "Form not found" })
         res.json(form)
     } catch (err) {
@@ -71,236 +87,73 @@ export async function deleteForm(req: Request, res: Response) {
     }
 }
 
-// Get form with full structure and grades
-export async function getFormWithGrades(req: Request, res: Response) {
-    const { formId } = req.params
-    const { studentId } = req.query
-
+export async function createClassForm(req: Request, res: Response) {
     try {
-        const form = await Form.findByPk(formId, {
-            include: [
-                {
-                    model: Rubric_Sections,
-                    as: "rubric_sections",
-                    include: [
-                        {
-                            model: Rubric_Rows,
-                            as: "rubric_rows",
-                            include: [
-                                {
-                                    model: Rubric_Grades,
-                                    as: "rubric_grades",
-                                    required: false,
-                                    where: studentId ? { student_id: studentId } : undefined,
-                                },
-                            ],
-                        },
-                        {
-                            model: Rubric_Columns,
-                            as: "rubric_columns",
-                        },
-                    ],
-                },
-            ],
-            order: [
-                [{ model: Rubric_Sections, as: "rubric_sections" }, "id", "ASC"],
-                [
-                    { model: Rubric_Sections, as: "rubric_sections" },
-                    { model: Rubric_Rows, as: "rubric_rows" },
-                    "id",
-                    "ASC",
-                ],
-                [
-                    { model: Rubric_Sections, as: "rubric_sections" },
-                    { model: Rubric_Columns, as: "rubric_columns" },
-                    "order",
-                    "ASC",
-                ],
-            ],
-        })
-
-        if (!form) return res.status(404).json({ error: "Form not found" })
-        res.json(form)
+        const classForm = await ClassForm.create(req.body)
+        res.status(201).json(classForm)
     } catch (err) {
-        console.error("Error fetching form with grades", err)
-        res.status(500).json({ error: "Failed to fetch form with grades" })
+        console.error("Error creating class form", err)
+        res.status(500).json({ error: "Failed to create class form" })
     }
 }
 
-// Get forms by course
-export async function getFormsByCourse(req: Request, res: Response) {
-    const { courseId } = req.params
+export async function getClassForms(req: Request, res: Response) {
     try {
-        const forms = await Form.findAll({
-            include: [
-                {
-                    model: ClassFormAssignment,
-                    as: "class_form_assignments",
-                    where: { class_id: courseId },
-                },
-            ],
-            order: [["createdAt", "DESC"]],
-        })
-        res.json(forms)
-    } catch (err) {
-        console.error("Error fetching forms by course", err)
-        res.status(500).json({ error: "Failed to fetch forms by course" })
+        //add where later
+        const classForms = await ClassForm.findAll({})
+        res.json(classForms)
+    } catch (err: any) {
+        console.error("Error listing class forms", err)
+        res.status(500).json({ error: "Failed to list class forms", details: err.message })
     }
 }
 
-// Get form with grades filtered by section and period
-export async function getSectionFormGrades(req: Request, res: Response) {
-    const { formId } = req.params
-    const { sectionId, period } = req.query
-
+export async function createStudentFormSubmission(req: Request, res: Response) {
     try {
-        let studentIds: number[] = []
-
-        // If section is provided, get students in that section
-        if (sectionId) {
-            const enrollments = await Enrollment.findAll({
-                where: { course_instance_id: sectionId },
-                attributes: ["student_id"],
-            })
-            studentIds = enrollments.map((e: any) => e.student_id)
-        }
-
-        const gradeWhere: any = {}
-
-        if (period) {
-            gradeWhere.period = period
-        }
-
-        if (sectionId) {
-            gradeWhere.student_id = { [Op.in]: studentIds }
-        }
-
-        const form = await Form.findByPk(formId, {
-            include: [
-                {
-                    model: Rubric_Sections,
-                    as: "rubric_sections",
-                    include: [
-                        {
-                            model: Rubric_Rows,
-                            as: "rubric_rows",
-                            include: [
-                                {
-                                    model: Rubric_Grades,
-                                    as: "rubric_grades",
-                                    required: false,
-                                    where:
-                                        Object.keys(gradeWhere).length > 0 ? gradeWhere : undefined,
-                                },
-                            ],
-                        },
-                        {
-                            model: Rubric_Columns,
-                            as: "rubric_columns",
-                        },
-                    ],
-                },
-            ],
-            order: [
-                [{ model: Rubric_Sections, as: "rubric_sections" }, "id", "ASC"],
-                [
-                    { model: Rubric_Sections, as: "rubric_sections" },
-                    { model: Rubric_Rows, as: "rubric_rows" },
-                    "id",
-                    "ASC",
-                ],
-                [
-                    { model: Rubric_Sections, as: "rubric_sections" },
-                    { model: Rubric_Columns, as: "rubric_columns" },
-                    "order",
-                    "ASC",
-                ],
-            ],
-        })
-
-        if (!form) return res.status(404).json({ error: "Form not found" })
-        res.json(form)
+        const studentFormSubmission = await StudentFormSubmission.create(req.body)
+        res.status(201).json(studentFormSubmission)
     } catch (err) {
-        console.error("Error fetching form with grades", err)
-        res.status(500).json({ error: "Failed to fetch form with grades" })
+        console.error("Error creating student form submission", err)
+        res.status(500).json({ error: "Failed to create student form submission" })
     }
 }
 
-// Get all forms with grades for a specific section and period
-export async function getFormsWithGradesForSection(req: Request, res: Response) {
-    const { sectionId, period } = req.query
-
-    if (!sectionId) {
-        return res.status(400).json({ error: "sectionId is required" })
-    }
+//get student form submission by id with related data
+export async function getStudentFormSubmission(req: Request, res: Response) {
+    const { formId, studentId } = req.params
 
     try {
-        // Get students in that section
-        const enrollments = await Enrollment.findAll({
-            where: { course_instance_id: sectionId },
-            attributes: ["student_id"],
-        })
-        const studentIds = enrollments.map((e: any) => e.student_id)
-
-        const gradeWhere: any = {}
-        if (period) {
-            gradeWhere.period = period
-        }
-        gradeWhere.student_id = { [Op.in]: studentIds }
-
-        const forms = await Form.findAll({
+        const studentFormSubmission = await StudentFormSubmission.findOne({
+            where: {
+                form_id: formId,
+                student_id: studentId,
+            },
             include: [
                 {
-                    model: ClassFormAssignment,
-                    as: "class_form_assignments",
-                    where: { class_id: sectionId },
-                    attributes: [],
+                    model: StudentFormSubmissionData,
+                    as: "data",
                 },
-                {
-                    model: Rubric_Sections,
-                    as: "rubric_sections",
-                    include: [
-                        {
-                            model: Rubric_Rows,
-                            as: "rubric_rows",
-                            include: [
-                                {
-                                    model: Rubric_Grades,
-                                    as: "rubric_grades",
-                                    required: false,
-                                    where:
-                                        Object.keys(gradeWhere).length > 0 ? gradeWhere : undefined,
-                                },
-                            ],
-                        },
-                        {
-                            model: Rubric_Columns,
-                            as: "rubric_columns",
-                        },
-                    ],
-                },
-            ],
-            order: [
-                ["createdAt", "DESC"],
-                [{ model: Rubric_Sections, as: "rubric_sections" }, "id", "ASC"],
-                [
-                    { model: Rubric_Sections, as: "rubric_sections" },
-                    { model: Rubric_Rows, as: "rubric_rows" },
-                    "id",
-                    "ASC",
-                ],
-                [
-                    { model: Rubric_Sections, as: "rubric_sections" },
-                    { model: Rubric_Columns, as: "rubric_columns" },
-                    "order",
-                    "ASC",
-                ],
             ],
         })
-
-        res.json(forms)
+        if (!studentFormSubmission)
+            return res.status(404).json({ error: "Student form submission not found" })
+        res.json(studentFormSubmission)
     } catch (err) {
-        console.error("Error fetching forms with grades for section", err)
-        res.status(500).json({ error: "Failed to fetch forms with grades for section" })
+        console.error("Error fetching student form submission", err)
+        res.status(500).json({ error: "Failed to fetch student form submission" })
+    }
+}
+
+export async function insertStudentFormSubmissionData(req: Request, res: Response) {
+    const { submissionId } = req.params
+    try {
+        const [studentFormSubmissionData] = await StudentFormSubmissionData.upsert({
+            ...req.body,
+            submission_id: submissionId,
+        })
+        res.status(200).json(studentFormSubmissionData)
+    } catch (err) {
+        console.error("Error upserting student form submission data", err)
+        res.status(500).json({ error: "Failed to upsert student form submission data" })
     }
 }

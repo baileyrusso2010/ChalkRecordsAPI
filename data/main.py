@@ -457,42 +457,42 @@ if __name__ == '__main__':
     connect_to_postgres()
     
     if connection:
-        # import_program_catalog()
-        # import_course_catalog()
+        import_program_catalog()
+        import_course_catalog()
         
-        # # Check if we need to seed data (basic check based on school existence)
-        # with connection.cursor() as cursor:
-        #     cursor.execute("SELECT count(*) FROM school")
-        #     count = cursor.fetchone()[0]
+        # Check if we need to seed data (basic check based on school existence)
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT count(*) FROM school")
+            count = cursor.fetchone()[0]
         
-        # if count == 0:
-        #     print("Seeding initial data...")
-        #     district_id = create_district()        
-        #     create_school(district_id)
-        #     school_year_id = create_school_year(district_id)
-        #     term_id = create_term(school_year_id)
-        #     create_task(term_id)
-        # else:
-        #     print("Initial data (Schools, etc) already exists. Skipping creation.")
+        if count == 0:
+            print("Seeding initial data...")
+            district_id = create_district()        
+            create_school(district_id)
+            school_year_id = create_school_year(district_id)
+            term_id = create_term(school_year_id)
+            create_task(term_id)
+        else:
+            print("Initial data (Schools, etc) already exists. Skipping creation.")
 
-        # # Ensure staff exists
-        # with connection.cursor() as cursor:
-        #     cursor.execute("SELECT count(*) FROM staff")
-        #     staff_count = cursor.fetchone()[0]
+        # Ensure staff exists
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT count(*) FROM staff")
+            staff_count = cursor.fetchone()[0]
         
-        # if staff_count == 0:
-        #     print("Seeding staff...")
-        #     create_staff(10)
+        if staff_count == 0:
+            print("Seeding staff...")
+            create_staff(10)
 
-        # create_students(10)
-        # create_course(10)
-        # create_enrollment()
-        # create_behavior()
+        create_students(10)
+        create_course(10)
+        create_enrollment()
+        create_behavior()
 
-        # create_attendance_statuses()
-        # create_attendance()
-        # create_wbl_types()
-        generate_student_term_scores()
+        create_attendance_statuses()
+        create_attendance()
+        create_wbl_types()
+        # generate_student_term_scores()
 
         connection.close()
         print("Connection closed.")

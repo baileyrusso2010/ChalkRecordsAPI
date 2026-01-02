@@ -9,12 +9,8 @@ import wblStudentsRouter from "./wbl/wbl_students.routes"
 import studentRouter from "./student/student.routes"
 import staffRouter from "./staff/staff.routes"
 import skillRouter from "./skill/skill.routes"
-import pdfRouter from "./common/pdf.routes"
 import gradingRouter from "./gradebook/gradebook.routes"
 import formroutes from "./forms/form.routes"
-import staticRoutes from "./forms/static_field.routes"
-import rubricRoutes from "./forms/rubric_routes.routes"
-import classFormAssignmentRouter from "./forms/class_form_assignment.routes"
 import assessmentRouter from "./assessments/assessment.routes"
 import metricRotuer from "./common/metric.routes"
 import behaviorRouter from "./behavior/behavior.routes"
@@ -35,13 +31,9 @@ export const routes = [
     { path: "/api/students", router: studentRouter },
     { path: "/api/staff", router: staffRouter },
     { path: "/api/skill", router: skillRouter },
-    { path: "/api/pdf", router: pdfRouter },
     { path: "/api/gradebook", router: gradingRouter },
     { path: "/api/metric", router: metricRotuer },
     { path: "/api/forms", router: formroutes },
-    { path: "/api/static-fields", router: staticRoutes },
-    { path: "/api/rubric", router: rubricRoutes },
-    { path: "/api/class-form-assignments", router: classFormAssignmentRouter },
     { path: "/api/assessment", router: assessmentRouter },
     { path: "/api/rubrics", router: rubricRouter },
 ]

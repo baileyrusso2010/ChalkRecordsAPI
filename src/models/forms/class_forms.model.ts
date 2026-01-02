@@ -1,23 +1,18 @@
 import { DataTypes, Model } from "sequelize"
 import sequelize from "../../database"
 
-export class ClassFormAssignment extends Model {
+export class ClassForm extends Model {
     public id!: number
-    public class_id!: number
-    public form_id!: number
-    public assigned_at!: Date
-    public due_date?: Date
-    public status!: string
 }
 
-ClassFormAssignment.init(
+ClassForm.init(
     {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
-        class_id: {
+        course_instance_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
@@ -33,25 +28,19 @@ ClassFormAssignment.init(
                 key: "id",
             },
         },
-        assigned_at: {
-            type: DataTypes.DATE,
+        rubric_id: {
+            type: DataTypes.INTEGER,
             allowNull: false,
-            defaultValue: DataTypes.NOW,
-        },
-        due_date: {
-            type: DataTypes.DATE,
-            allowNull: true,
-        },
-        status: {
-            type: DataTypes.STRING(50),
-            allowNull: false,
-            defaultValue: "active",
+            references: {
+                model: "rubric",
+                key: "id",
+            },
         },
     },
     {
         sequelize,
-        modelName: "ClassFormAssignment",
-        tableName: "class_form_assignment",
+        modelName: "ClassForm",
+        tableName: "class_forms",
         timestamps: true,
         underscored: true,
     }

@@ -31,7 +31,7 @@ export async function listCourseInstances(req: Request, res: Response) {
                 { model: Program_Catalog, as: "program_catalog" },
                 { model: School_Year, as: "school_year" },
                 { model: Staff, as: "instructor" },
-                { model: School, as: "School" },
+                { model: School, as: "school" },
                 { model: Enrollment, as: "enrollments" },
             ],
             order: [["id", "ASC"]],
@@ -40,7 +40,7 @@ export async function listCourseInstances(req: Request, res: Response) {
         const grouped: any = {}
 
         for (const course of results) {
-            const schoolName = (course as any).cte_school?.name || "Unknown"
+            const schoolName = (course as any).school?.name || "Unknown"
             const enrollmentCount = (course as any).enrollments?.length || 0
 
             // Convert to plain object and add enrollmentCount
@@ -70,7 +70,7 @@ export async function getCourseInstance(req: Request, res: Response) {
             include: [
                 { model: Course_Catalog, as: "course_catalog" },
                 { model: Program_Catalog, as: "program_catalog" },
-                { model: School, as: "cte_school" },
+                { model: School, as: "school" },
                 {
                     model: Enrollment,
                     as: "enrollments",
@@ -90,8 +90,7 @@ export async function getCourseInstance(req: Request, res: Response) {
 // POST /course-instances
 export async function createCourseInstance(req: Request, res: Response) {
     try {
-        const { school_id, program_catalog_id, course_catalog_id, instructorId, alias } =
-            req.body
+        const { school_id, program_catalog_id, course_catalog_id, instructorId, alias } = req.body
 
         const created = await Course_Instance.create({
             school_id,
