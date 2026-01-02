@@ -1,27 +1,28 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../../database";
 
-export class Form extends Model {
-  public id!: number;
-}
+export class Rubric_Evaluation extends Model {}
 
-Form.init(
+Rubric_Evaluation.init(
   {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    name: {
-      type: DataTypes.STRING,
+    rubric_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: "rubric",
+        key: "id",
+      },
     },
-    //add everything else later
   },
   {
     sequelize,
-    modelName: "Form",
-    tableName: "form",
+    modelName: "Rubric_Evaluation",
+    tableName: "rubric_evaluation",
     timestamps: true,
     underscored: true,
   }
