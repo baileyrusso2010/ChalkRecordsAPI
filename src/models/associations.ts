@@ -8,6 +8,17 @@ import { Student_Assessment_Results } from "./assessments/student_assessment_res
 import { Attendance_Daily } from "./attendance/attendance_daily.model"
 import { Attendance_Status } from "./attendance/attendance_status.model"
 
+import { MTSS_Domains } from "./mtss/mtss_domains.model"
+import { MTSS_Tiers } from "./mtss/mtss_tiers.model"
+import { MTSS_Student_Tiers } from "./mtss/mtss_student_tiers.model"
+import { Screenings } from "./mtss/screenings.model"
+import { Interventions } from "./mtss/interventions.model"
+import { Student_Interventions } from "./mtss/student_interventions.model"
+import { Progress_Monitoring } from "./mtss/progress_monitoring.model"
+import { MTSS_Meetings } from "./mtss/mtss_meetings.model"
+import { MTSS_Decisions } from "./mtss/mtss_decisions.model"
+import { Referrals } from "./mtss/referrals.model"
+
 // Central place to define Sequelize associations between models
 // This file is imported once in index.ts to ensure associations are registered
 
@@ -506,3 +517,44 @@ Form.hasMany(StudentFormSubmission, {
     foreignKey: "form_id",
     as: "form_submissions",
 })
+
+// MTSS Associations
+
+// Student Tiers
+MTSS_Student_Tiers.belongsTo(Student, { foreignKey: "student_id" })
+Student.hasMany(MTSS_Student_Tiers, { foreignKey: "student_id" })
+
+MTSS_Student_Tiers.belongsTo(MTSS_Domains, { foreignKey: "domain_id" })
+MTSS_Student_Tiers.belongsTo(MTSS_Tiers, { foreignKey: "tier_id" })
+
+// Screenings
+Screenings.belongsTo(Student, { foreignKey: "student_id" })
+Student.hasMany(Screenings, { foreignKey: "student_id" })
+Screenings.belongsTo(MTSS_Domains, { foreignKey: "domain_id" })
+
+// Interventions
+Interventions.belongsTo(MTSS_Domains, { foreignKey: "domain_id" })
+Interventions.belongsTo(MTSS_Tiers, { foreignKey: "tier_id" })
+
+// Student Interventions
+Student_Interventions.belongsTo(Student, { foreignKey: "student_id" })
+Student.hasMany(Student_Interventions, { foreignKey: "student_id" })
+
+Student_Interventions.belongsTo(Interventions, { foreignKey: "intervention_id" })
+Interventions.hasMany(Student_Interventions, { foreignKey: "intervention_id" })
+
+// Progress Monitoring
+Progress_Monitoring.belongsTo(Student_Interventions, { foreignKey: "student_intervention_id" })
+Student_Interventions.hasMany(Progress_Monitoring, { foreignKey: "student_intervention_id" })
+
+// Meetings
+MTSS_Meetings.belongsTo(Student, { foreignKey: "student_id" })
+Student.hasMany(MTSS_Meetings, { foreignKey: "student_id" })
+
+// Decisions
+MTSS_Decisions.belongsTo(MTSS_Meetings, { foreignKey: "meeting_id" })
+MTSS_Meetings.hasMany(MTSS_Decisions, { foreignKey: "meeting_id" })
+
+// Referrals
+Referrals.belongsTo(Student, { foreignKey: "student_id" })
+Student.hasMany(Referrals, { foreignKey: "student_id" })

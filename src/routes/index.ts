@@ -17,6 +17,18 @@ import behaviorRouter from "./behavior/behavior.routes"
 import attendanceRouter from "./attendance/attendance.routes"
 import rubricRouter from "./rubric/rubric.routes"
 
+import mtssDomainsRouter from "./mtss/mtss_domains.routes"
+import mtssTiersRouter from "./mtss/mtss_tiers.routes"
+import mtssStudentTiersRouter from "./mtss/mtss_student_tiers.routes"
+import screeningsRouter from "./mtss/screenings.routes"
+import interventionsRouter from "./mtss/interventions.routes"
+import studentInterventionsRouter from "./mtss/student_interventions.routes"
+import progressMonitoringRouter from "./mtss/progress_monitoring.routes"
+import mtssMeetingsRouter from "./mtss/mtss_meetings.routes"
+import mtssDecisionsRouter from "./mtss/mtss_decisions.routes"
+import referralsRouter from "./mtss/referrals.routes"
+import mtssTimelineRouter from "./mtss/mtss_timeline.routes"
+
 export const routes = [
     { path: "/api/behaviors", router: behaviorRouter },
     { path: "/api/attendance", router: attendanceRouter },
@@ -36,4 +48,15 @@ export const routes = [
     { path: "/api/forms", router: formroutes },
     { path: "/api/assessment", router: assessmentRouter },
     { path: "/api/rubrics", router: rubricRouter },
+    { path: "/api/mtss/domains", router: mtssDomainsRouter },
+    { path: "/api/mtss/tiers", router: mtssTiersRouter },
+    { path: "/api/mtss/student-tiers", router: mtssStudentTiersRouter },
+    { path: "/api/mtss/screenings", router: screeningsRouter },
+    { path: "/api/mtss/interventions", router: interventionsRouter },
+    { path: "/api/mtss/student-interventions", router: studentInterventionsRouter },
+    { path: "/api/mtss/progress-monitoring", router: progressMonitoringRouter },
+    { path: "/api/mtss/meetings", router: mtssMeetingsRouter },
+    { path: "/api/mtss/decisions", router: mtssDecisionsRouter },
+    { path: "/api/mtss/referrals", router: referralsRouter },
+    { path: "/api", router: mtssTimelineRouter },
 ]
