@@ -3,7 +3,7 @@ import sequelize from "../../database"
 
 export class MTSS_Domains extends Model {
     public id!: number
-    public domain_name!: string
+    public name!: string
 }
 
 MTSS_Domains.init(
@@ -13,7 +13,7 @@ MTSS_Domains.init(
             autoIncrement: true,
             primaryKey: true,
         },
-        domain_name: {
+        name: {
             type: DataTypes.STRING,
             allowNull: false,
         },
@@ -22,7 +22,7 @@ MTSS_Domains.init(
         sequelize,
         modelName: "MTSS_Domains",
         tableName: "mtss_domains",
-        timestamps: true,
+        timestamps: false,
         underscored: true,
     }
 )

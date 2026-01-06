@@ -55,7 +55,7 @@ Interventions.init(
         sequelize,
         modelName: "Interventions",
         tableName: "interventions",
-        timestamps: true,
+        timestamps: false,
         underscored: true,
     }
 )

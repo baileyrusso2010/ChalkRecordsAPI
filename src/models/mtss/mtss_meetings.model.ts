@@ -41,7 +41,7 @@ MTSS_Meetings.init(
         sequelize,
         modelName: "MTSS_Meetings",
         tableName: "mtss_meetings",
-        timestamps: true,
+        timestamps: false,
         underscored: true,
     }
 )

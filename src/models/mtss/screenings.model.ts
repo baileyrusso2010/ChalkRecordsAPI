@@ -56,7 +56,7 @@ Screenings.init(
         sequelize,
         modelName: "Screenings",
         tableName: "screenings",
-        timestamps: true,
+        timestamps: false,
         underscored: true,
     }
 )

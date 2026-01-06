@@ -3,8 +3,7 @@ import sequelize from "../../database"
 
 export class MTSS_Tiers extends Model {
     public id!: number
-    public tier_id!: number
-    public tier_name!: string
+    public name!: string
     public description!: string
 }
 
@@ -15,24 +14,20 @@ MTSS_Tiers.init(
             autoIncrement: true,
             primaryKey: true,
         },
-        tier_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        tier_name: {
+        name: {
             type: DataTypes.STRING,
             allowNull: false,
         },
         description: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
     },
     {
         sequelize,
         modelName: "MTSS_Tiers",
         tableName: "mtss_tiers",
-        timestamps: true,
+        timestamps: false,
         underscored: true,
     }
 )

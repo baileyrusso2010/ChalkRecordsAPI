@@ -46,7 +46,7 @@ Progress_Monitoring.init(
         sequelize,
         modelName: "Progress_Monitoring",
         tableName: "progress_monitoring",
-        timestamps: true,
+        timestamps: false,
         underscored: true,
     }
 )

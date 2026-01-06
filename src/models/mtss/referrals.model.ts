@@ -41,7 +41,7 @@ Referrals.init(
         sequelize,
         modelName: "Referrals",
         tableName: "referrals",
-        timestamps: true,
+        timestamps: false,
         underscored: true,
     }
 )

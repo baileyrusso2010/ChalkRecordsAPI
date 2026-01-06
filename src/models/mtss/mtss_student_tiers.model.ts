@@ -60,7 +60,7 @@ MTSS_Student_Tiers.init(
         sequelize,
         modelName: "MTSS_Student_Tiers",
         tableName: "mtss_student_tiers",
-        timestamps: true,
+        timestamps: false,
         underscored: true,
     }
 )

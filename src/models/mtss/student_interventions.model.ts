@@ -52,7 +52,7 @@ Student_Interventions.init(
         sequelize,
         modelName: "Student_Interventions",
         tableName: "student_interventions",
-        timestamps: true,
+        timestamps: false,
         underscored: true,
     }
 )

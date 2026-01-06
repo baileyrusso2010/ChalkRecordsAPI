@@ -41,7 +41,7 @@ MTSS_Decisions.init(
         sequelize,
         modelName: "MTSS_Decisions",
         tableName: "mtss_decisions",
-        timestamps: true,
+        timestamps: false,
         underscored: true,
     }
 )
