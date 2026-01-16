@@ -6,7 +6,7 @@ import { Program_Catalog } from "../../models/program/program_catalog.model"
 import { School } from "../../models/school/school.model"
 import { School_Year } from "../../models/term/school_year.model"
 import { Term } from "../../models/term/term.model"
-import { Staff } from "../../models/staff.model"
+import { Staff } from "../../models/users/staff.model"
 import { Enrollment } from "../../models/enrollment.model"
 import { Student } from "../../models/student.model"
 import { StudentFlag } from "../../models/flags/student_flags.model"
@@ -160,6 +160,40 @@ export async function deleteCourseInstance(req: Request, res: Response) {
 }
 
 //stats
+
+export async function getCourseSummary(req: Request, res: Response) {
+    try {
+        const records = await Course_Instance.findAll({
+            include: [
+                {
+                    model: Enrollment,
+                    as: "enrollments",
+                    include: [
+                        {
+                            model: Student,
+                            as: "student",
+                        },
+                    ],
+                },
+            ],
+            limit: 10,
+        })
+
+        const summary = records.map((record: any) => {
+            const data = record.toJSON()
+            const { enrollments, ...rest } = data
+            return {
+                ...rest,
+                students: enrollments ? enrollments.length : 0,
+            }
+        })
+
+        res.json(summary)
+    } catch (err) {
+        console.error("Error getting course summary", err)
+        res.status(500).json({ error: "Failed to get course summary" })
+    }
+}
 
 export async function getCourseStats(req: Request, res: Response) {
     try {

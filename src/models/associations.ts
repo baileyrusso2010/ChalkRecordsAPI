@@ -45,7 +45,7 @@ import { Enrollment } from "./enrollment.model"
 import { Flag } from "./flags/flag.model"
 import { StudentFlag } from "./flags/student_flags.model"
 
-import { Staff } from "./staff.model"
+import { Staff } from "./users/staff.model"
 
 import { Skill } from "./skill.model"
 import { SkillCategory } from "./skill_category.model"

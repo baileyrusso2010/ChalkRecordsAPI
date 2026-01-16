@@ -3,7 +3,7 @@ import { Op } from "sequelize"
 import { Program_Catalog } from "../../models/program/program_catalog.model"
 import { District } from "../../models/school/district.model"
 import { Course_Instance } from "../../models/course/course_instance.model"
-import { Staff } from "../../models/staff.model"
+import { Staff } from "../../models/users/staff.model"
 import { District_Program } from "../../models/program/district_program.model"
 
 // Helper to parse ID param safely
@@ -56,10 +56,9 @@ export async function getDistrictProgram(req: Request, res: Response) {
 }
 
 // POST /cte-district-programs
-    export async function createDistrictProgram(req: Request, res: Response) {
+export async function createDistrictProgram(req: Request, res: Response) {
     try {
-        const { district_id, program_id, authorization_date, expiration_date, active } =
-            req.body
+        const { district_id, program_id, authorization_date, expiration_date, active } = req.body
 
         if (!district_id || !program_id) {
             return res.status(400).json({ error: "district_id and program_id are required" })
@@ -89,8 +88,7 @@ export async function updateDistrictProgram(req: Request, res: Response) {
         const record = await District_Program.findByPk(id)
         if (!record) return res.status(404).json({ error: "Not found" })
 
-        const { district_id, program_id, authorization_date, expiration_date, active } =
-            req.body
+        const { district_id, program_id, authorization_date, expiration_date, active } = req.body
 
         await record.update({
             district_id: district_id ?? record.district_id,

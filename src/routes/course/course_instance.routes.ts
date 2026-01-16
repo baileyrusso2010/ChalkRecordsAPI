@@ -6,11 +6,13 @@ import {
     updateCourseInstance,
     deleteCourseInstance,
     getCourseStats,
+    getCourseSummary,
 } from "../../controller/course/course_instance.controller"
 
 const router = Router()
 
 router.get("/", listCourseInstances)
+router.get("/summary", getCourseSummary)
 router.get("/:id", getCourseInstance)
 router.post("/", createCourseInstance)
 router.put("/:id", updateCourseInstance)

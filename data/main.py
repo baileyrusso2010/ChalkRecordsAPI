@@ -96,6 +96,7 @@ def create_task(term_id):
 
 def create_staff(num):
     if connection:
+        district_id = 1
         with connection.cursor() as cursor:
 
             for i in range(num):
@@ -103,7 +104,7 @@ def create_staff(num):
                 first_name = fake.first_name()
                 staff_id = fake.random_number(digits=5)
 
-                cursor.execute("INSERT INTO staff (staff_id, first_name, last_name) VALUES (%s, %s, %s)", (staff_id, first_name, last_name))
+                cursor.execute("INSERT INTO staff (staff_id, district_id, first_name, last_name) VALUES (%s, %s, %s, %s)", (staff_id, district_id, first_name, last_name))
             connection.commit()
             print("Staff created successfully!")
     else:

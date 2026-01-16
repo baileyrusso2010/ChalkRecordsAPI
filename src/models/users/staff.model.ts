@@ -1,9 +1,13 @@
 import { DataTypes, Model } from "sequelize"
-import sequelize from "../database"
+import sequelize from "../../database"
 
 export class Staff extends Model {
     public id!: number
-    public name!: string // Unique name for the flag
+    public staff_id?: string
+    public district_id!: number
+    public first_name!: string
+    public last_name!: string
+    public email?: string
 }
 
 Staff.init(
@@ -15,6 +19,14 @@ Staff.init(
         },
         staff_id: {
             type: DataTypes.STRING,
+        },
+        district_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: "district",
+                key: "id",
+            },
         },
         first_name: {
             type: DataTypes.STRING,
@@ -37,5 +49,15 @@ Staff.init(
         tableName: "staff",
         timestamps: false,
         underscored: true,
+        indexes: [
+            {
+                unique: true,
+                fields: ["district_id", "staff_id"],
+            },
+            {
+                unique: true,
+                fields: ["district_id", "email"],
+            },
+        ],
     }
 )
