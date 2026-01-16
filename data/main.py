@@ -200,6 +200,27 @@ def create_enrollment():
     else:
         print("No database connection available.")
 
+def create_term_grades():
+    if connection: 
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT id FROM enrollments")
+            enrollment_ids = [row[0] for row in cursor.fetchall()]
+
+            cursor.execute("SELECT id FROM task")
+            task_ids = [row[0] for row in cursor.fetchall()]
+
+            for enrollment_id in enrollment_ids:
+                for task_id in task_ids:
+                    numeric_score = fake.random_int(min=0, max=100)
+                    letter_grade = fake.random_element(elements=["A", "B", "C", "D", "F"])
+                    pass_fail = fake.boolean(chance_of_getting_true=70)
+
+                    cursor.execute("INSERT INTO student_term_grades (enrollment_id, task_id, numeric_score, letter_grade, pass_fail, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, NOW(), NOW())", (enrollment_id, task_id, numeric_score, letter_grade, pass_fail))
+            connection.commit()
+            print("Term grades created successfully!")
+    else:
+        print("No database connection available.")
+
 def create_students(num):
     if connection:
         with connection.cursor() as cursor:
@@ -457,6 +478,125 @@ def import_course_catalog():
             connection.commit()
             print("Course catalog imported successfully!")
 
+def create_risk_signals():
+    if connection:
+        with connection.cursor() as cursor:
+            print("Generating Risk Signals...")
+            
+            # Clear existing signals
+            cursor.execute("TRUNCATE student_risk_signals RESTART IDENTITY CASCADE;")
+
+            # 1. Fetch Students
+            cursor.execute("SELECT id FROM students")
+            student_ids = [row[0] for row in cursor.fetchall()]
+
+            # 2. Behavior Data
+            # Map student_id -> incident_count
+            cursor.execute("SELECT student_id, COUNT(*) FROM behavior GROUP BY student_id")
+            behavior_counts = {row[0]: row[1] for row in cursor.fetchall()}
+
+            # 3. Attendance Data
+            # Map student_id -> {total: x, present: y}
+            cursor.execute("SELECT id, code FROM attendance_status")
+            status_map = {row[0]: row[1] for row in cursor.fetchall()} # ID -> Code
+
+            cursor.execute("SELECT student_id, attendance_status_id, COUNT(*) FROM attendance_daily GROUP BY student_id, attendance_status_id")
+            attendance_data = {}
+            for sid, status_id, count in cursor.fetchall():
+                if sid not in attendance_data:
+                    attendance_data[sid] = {'total': 0, 'present': 0}
+                
+                attendance_data[sid]['total'] += count
+                if status_map.get(status_id) == 'P':
+                    attendance_data[sid]['present'] += count
+
+            # 4. Grades Data
+            # Map student_id -> avg_grade
+            cursor.execute("""
+                SELECT e.student_id, AVG(g.numeric_score) 
+                FROM student_term_grades g 
+                JOIN enrollments e ON g.enrollment_id = e.id 
+                GROUP BY e.student_id
+            """)
+            grades_data = {row[0]: float(row[1]) for row in cursor.fetchall()}
+
+            # Map student_id -> fail_count
+            cursor.execute("""
+                SELECT e.student_id, COUNT(*) 
+                FROM student_term_grades g 
+                JOIN enrollments e ON g.enrollment_id = e.id 
+                WHERE g.pass_fail = false
+                GROUP BY e.student_id
+            """)
+            failures_data = {row[0]: row[1] for row in cursor.fetchall()}
+
+            # 5. Generate Signals
+            signals_to_insert = []
+            model_version = "v1.0"
+            calculated_at = datetime.now()
+
+            for sid in student_ids:
+                # --- Behavior ---
+                # Score: 100 - (5 per incident). Min 0.
+                incidents = behavior_counts.get(sid, 0)
+                beh_score = max(0, 100 - (incidents * 10)) 
+                # Trend: Random for now, correlated with score
+                beh_trend = 0
+                if beh_score < 70: beh_trend = -1
+                elif beh_score > 90: beh_trend = 1
+                
+                signals_to_insert.append((sid, 'Behavior', beh_score, beh_trend, model_version, calculated_at))
+
+                # --- Attendance ---
+                att_stats = attendance_data.get(sid, {'total': 0, 'present': 0})
+                if att_stats['total'] > 0:
+                    att_pct = (att_stats['present'] / att_stats['total']) * 100
+                    att_score = int(att_pct)
+                else:
+                    att_score = 100 # No data = perfect?
+                
+                att_trend = 0
+                if att_score < 85: att_trend = -1
+                elif att_score > 95: att_trend = 1
+                
+                signals_to_insert.append((sid, 'Attendance', att_score, att_trend, model_version, calculated_at))
+
+                # --- Grades ---
+                # --- Grades ---
+                grade_avg = grades_data.get(sid, None)
+                fail_count = failures_data.get(sid, 0)
+
+                if grade_avg is not None:
+                    # Start with average, penalize for failures
+                    base_score = int(grade_avg)
+                    penalty = fail_count * 10
+                    acad_score = max(0, base_score - penalty)
+                else:
+                    acad_score = 100 # Default
+                
+                acad_trend = 0
+                if acad_score < 70: acad_trend = -1
+                elif acad_score > 85: acad_trend = 1
+                
+                signals_to_insert.append((sid, 'Academics', acad_score, acad_trend, model_version, calculated_at))
+
+            # Batch Insert
+            batch_size = 5000
+            query = """
+                INSERT INTO student_risk_signals 
+                (student_id, driver, score, trend, model_version, calculated_at) 
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """
+            
+            for i in range(0, len(signals_to_insert), batch_size):
+                batch = signals_to_insert[i:i + batch_size]
+                cursor.executemany(query, batch)
+                connection.commit()
+
+            print(f"Risk Signals created successfully! Total signals: {len(signals_to_insert)}")
+    else:
+        print("No database connection available.")
+
 def mtss_tiers_and_domains():
     if connection:
         with connection.cursor() as cursor:
@@ -673,10 +813,14 @@ if __name__ == '__main__':
         # Helper calls
         create_course(15)
         create_enrollment()
+        create_term_grades()
         create_behavior()
         create_attendance_statuses()
         create_attendance()
         create_wbl_types()
+        
+        # Risk Signals
+        create_risk_signals()
         
         # MTSS
         mtss_tiers_and_domains()
@@ -687,6 +831,8 @@ if __name__ == '__main__':
             connection.commit()
             
         generate_mtss_data()
+
+        create_risk_signals()
 
         connection.close()
         print("Connection closed.")
