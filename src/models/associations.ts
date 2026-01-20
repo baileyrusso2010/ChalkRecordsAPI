@@ -62,6 +62,33 @@ import { WBL_Deployments } from "./wbl/wbl_deployments.model"
 import { Rubric } from "./rubric/rubric.model"
 import { Rubric_Criteria } from "./rubric/rubric_criteria.model"
 
+import { Roles } from "./users/roles.model"
+import { Staff_Roles } from "./users/staff_roles.model"
+import { Permissions } from "./users/permissions.model"
+import { RolePermissions } from "./users/role_permissions.model"
+
+Roles.belongsToMany(Staff, {
+    through: Staff_Roles,
+    foreignKey: "role_id",
+    as: "staff",
+})
+Staff.belongsToMany(Roles, {
+    through: Staff_Roles,
+    foreignKey: "staff_id",
+    as: "roles",
+})
+
+Roles.belongsToMany(Permissions, {
+    through: RolePermissions,
+    foreignKey: "role_id",
+    as: "permissions",
+})
+Permissions.belongsToMany(Roles, {
+    through: RolePermissions,
+    foreignKey: "permission_id",
+    as: "roles",
+})
+
 Behavior.belongsTo(BehaviorType, {
     foreignKey: "behavior_type_id",
     as: "behavior_type",
@@ -238,7 +265,7 @@ Student.hasMany(Attendance_Daily, {
 })
 Attendance_Daily.belongsTo(Student, {
     foreignKey: "student_id",
-    as: "students",
+    as: "student",
 })
 
 SkillCategory.hasMany(Skill, { foreignKey: "category_id", as: "skills" })

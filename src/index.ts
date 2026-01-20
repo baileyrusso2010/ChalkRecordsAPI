@@ -29,13 +29,17 @@ if (IS_PROD) {
 
 import sequelize from "./database"
 import "./models/associations"
+import { Staff } from "./models/users/staff.model"
+import { Roles } from "./models/users/roles.model"
+
+import { Permissions } from "./models/users/permissions.model"
 
 const app = express()
 app.use(
     cors({
         allowedHeaders: ["Content-Type", "Authorization"],
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    })
+    }),
 )
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -44,6 +48,7 @@ declare global {
     namespace Express {
         interface Request {
             user?: any
+            staff?: Staff // Add staff to request type
         }
     }
 }
@@ -62,8 +67,29 @@ async function requireAuth(req: ExpressRequest, res: ExpressResponse, next: Next
         const token = authHeader.split(" ")[1] // Bearer <token>
         const payload = await verifier.verify(token)
 
+        const staff = await Staff.findOne({
+            where: { staff_id: payload.sub },
+            include: [
+                {
+                    model: Roles,
+                    as: "roles",
+                    include: [
+                        {
+                            model: Permissions,
+                            as: "permissions",
+                        },
+                    ],
+                },
+            ],
+        })
+
+        if (!staff) {
+            return res.status(401).json({ message: "Unauthorized: Staff member not found" })
+        }
+
         // Attach user info to request for use in route handlers
         req.user = payload
+        req.staff = staff // Attach full staff object with permissions
         next() // pass control to the next middleware/route
     } catch (err: any) {
         res.status(401).send("Unauthorized: " + err.message)
@@ -94,7 +120,7 @@ app.listen(PORT, async () => {
 
     let syncOptions
     if (!IS_PROD) {
-        syncOptions = { alter: true }
+        syncOptions = { force: true }
     } else {
         syncOptions = { alter: true } //double check this
     }

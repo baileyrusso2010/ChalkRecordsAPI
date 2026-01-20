@@ -16,6 +16,8 @@ import metricRotuer from "./common/metric.routes"
 import behaviorRouter from "./behavior/behavior.routes"
 import attendanceRouter from "./attendance/attendance.routes"
 import rubricRouter from "./rubric/rubric.routes"
+import permissionsRouter from "./permissions.routes"
+import rolesRouter from "./roles.routes"
 
 import mtssDomainsRouter from "./mtss/mtss_domains.routes"
 import mtssTiersRouter from "./mtss/mtss_tiers.routes"
@@ -59,4 +61,6 @@ export const routes = [
     { path: "/api/mtss/decisions", router: mtssDecisionsRouter },
     { path: "/api/mtss/referrals", router: referralsRouter },
     { path: "/api", router: mtssTimelineRouter },
+    { path: "/api/permissions", router: permissionsRouter },
+    { path: "/api/roles", router: rolesRouter },
 ]

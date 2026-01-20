@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize"
 import sequelize from "../../database"
+import { getTenant } from "../../utils/tenant.context"
 
 export class Staff extends Model {
     public id!: number
@@ -42,6 +43,7 @@ Staff.init(
         },
         //roll later
         //add more later, just for testing
+        //external sso id
     },
     {
         sequelize,
@@ -59,5 +61,28 @@ Staff.init(
                 fields: ["district_id", "email"],
             },
         ],
-    }
+        hooks: {
+            beforeFind: (options) => {
+                const districtId = getTenant()
+                if (districtId) {
+                    options.where = {
+                        ...options.where,
+                        district_id: districtId,
+                    }
+                }
+            },
+            beforeValidate: (instance) => {
+                const districtId = getTenant()
+                if (districtId) {
+                    instance.district_id = districtId
+                }
+            },
+            beforeCreate: (instance) => {
+                const districtId = getTenant()
+                if (districtId) {
+                    instance.district_id = districtId
+                }
+            },
+        },
+    },
 )

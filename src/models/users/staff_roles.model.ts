@@ -24,6 +24,14 @@ Staff_Roles.init(
                 key: "id",
             },
         },
+        scope_type: {
+            type: DataTypes.ENUM("district", "school", "system"),
+            allowNull: false,
+        },
+        scope_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        }, //null when scope_type is system
     },
     {
         sequelize,
@@ -37,5 +45,6 @@ Staff_Roles.init(
                 fields: ["staff_id", "role_id"],
             },
         ],
-    }
+    },
 )
+// staff ─── staff_roles ─── roles ─── role_permissions ─── permissions
