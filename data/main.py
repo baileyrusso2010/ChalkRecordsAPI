@@ -243,8 +243,9 @@ def create_students(num):
                 grade = age - 6
 
                 random_school_id = fake.random_element(elements=school_ids)
+                district_id = 1
                 
-                cursor.execute("INSERT INTO students (student_id, first_name, last_name, gender, age, grade, school_id) VALUES (%s, %s, %s, %s, %s, %s, %s)", (student_id, first_name, last_name, gender, age, grade, random_school_id))
+                cursor.execute("INSERT INTO students (student_id, first_name, last_name, gender, age, grade, school_id, district_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (student_id, first_name, last_name, gender, age, grade, random_school_id, district_id))
             connection.commit()
             print("Students created successfully!")
     else:
@@ -819,9 +820,6 @@ if __name__ == '__main__':
         create_attendance()
         create_wbl_types()
         
-        # Risk Signals
-        create_risk_signals()
-        
         # MTSS
         mtss_tiers_and_domains()
         # Clear old MTSS data to prevent duplicates stacking on top of old bad data
@@ -832,7 +830,6 @@ if __name__ == '__main__':
             
         generate_mtss_data()
 
-        create_risk_signals()
 
         connection.close()
         print("Connection closed.")

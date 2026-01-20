@@ -53,12 +53,6 @@ declare global {
     }
 }
 
-/*
-
-TODO: MAKE TENANT AUTH AND REFRACTOR DATABSE FOR TENANT SCHEMA
-
-*/
-
 async function requireAuth(req: ExpressRequest, res: ExpressResponse, next: NextFunction) {
     try {
         const authHeader = req.headers.authorization
