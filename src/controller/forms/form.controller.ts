@@ -1,159 +1,590 @@
 import { Request, Response } from "express"
-import { Op } from "sequelize"
-import { Form } from "../../models/forms/form.model"
-import { Enrollment } from "../../models/enrollment.model"
-import { ClassForm } from "../../models/forms/class_forms.model"
-import { StudentFormSubmission } from "../../models/forms/student_form_submissions.model"
-import { StudentFormSubmissionData } from "../../models/forms/student_form_submission_data.model"
-import { FormSection } from "../../models/forms/form_sections.model"
-import { FormField } from "../../models/forms/form_fields.model"
+import { Evaluation_Document } from "../../models/forms/evaluation_document.model"
+import { Evaluation_Section } from "../../models/forms/evaluation_sections.model"
+import { Evaluation_Section_Rows } from "../../models/forms/evaluation_section_rows.model"
+import { Evaluation_Section_Columns } from "../../models/forms/evaluation_section_columns.model"
+import { Evaluation_Cells } from "../../models/forms/evaluation_cells.model"
+import { Student } from "../../models/student.model"
+import sequelize from "../../database"
 
-// List all forms
-export async function listForms(req: Request, res: Response) {
+export const getEvaluationForm = async (req: Request, res: Response) => {
     try {
-        const forms = await Form.findAll({})
-        res.json(forms)
-    } catch (err: any) {
-        console.error("Error listing forms", err)
-        res.status(500).json({ error: "Failed to list forms", details: err.message })
-    }
-}
+        const { id } = req.params
 
-// Get single form
-export async function getForm(req: Request, res: Response) {
-    const { formId } = req.params
-    const { advanced } = req.query
-    try {
-        const form = await Form.findByPk(formId, {
-            include: advanced
-                ? [
-                      {
-                          model: FormSection,
-                          as: "form_sections",
-                          include: [
-                              {
-                                  model: FormField,
-                                  as: "form_fields",
-                              },
-                          ],
-                      },
-                  ]
-                : [],
-        })
-        if (!form) return res.status(404).json({ error: "Form not found" })
-        res.json(form)
-    } catch (err) {
-        console.error("Error fetching form", err)
-        res.status(500).json({ error: "Failed to fetch form" })
-    }
-}
-
-// Create new form
-export async function createForm(req: Request, res: Response) {
-    try {
-        const form = await Form.create(req.body)
-        res.status(201).json(form)
-    } catch (err) {
-        console.error("Error creating form", err)
-        res.status(500).json({ error: "Failed to create form" })
-    }
-}
-
-// Update form
-export async function updateForm(req: Request, res: Response) {
-    const { formId } = req.params
-    try {
-        const form = await Form.findByPk(formId)
-        if (!form) return res.status(404).json({ error: "Form not found" })
-        await form.update(req.body)
-        res.json(form)
-    } catch (err) {
-        console.error("Error updating form", err)
-        res.status(500).json({ error: "Failed to update form" })
-    }
-}
-
-// Delete form
-export async function deleteForm(req: Request, res: Response) {
-    const { formId } = req.params
-    try {
-        const form = await Form.findByPk(formId)
-        if (!form) return res.status(404).json({ error: "Form not found" })
-        await form.destroy()
-        res.json({ success: true })
-    } catch (err) {
-        console.error("Error deleting form", err)
-        res.status(500).json({ error: "Failed to delete form" })
-    }
-}
-
-export async function createClassForm(req: Request, res: Response) {
-    try {
-        const classForm = await ClassForm.create(req.body)
-        res.status(201).json(classForm)
-    } catch (err) {
-        console.error("Error creating class form", err)
-        res.status(500).json({ error: "Failed to create class form" })
-    }
-}
-
-export async function getClassForms(req: Request, res: Response) {
-    try {
-        //add where later
-        const classForms = await ClassForm.findAll({})
-        res.json(classForms)
-    } catch (err: any) {
-        console.error("Error listing class forms", err)
-        res.status(500).json({ error: "Failed to list class forms", details: err.message })
-    }
-}
-
-export async function createStudentFormSubmission(req: Request, res: Response) {
-    try {
-        const studentFormSubmission = await StudentFormSubmission.create(req.body)
-        res.status(201).json(studentFormSubmission)
-    } catch (err) {
-        console.error("Error creating student form submission", err)
-        res.status(500).json({ error: "Failed to create student form submission" })
-    }
-}
-
-//get student form submission by id with related data
-export async function getStudentFormSubmission(req: Request, res: Response) {
-    const { formId, studentId } = req.params
-
-    try {
-        const studentFormSubmission = await StudentFormSubmission.findOne({
-            where: {
-                form_id: formId,
-                student_id: studentId,
-            },
+        /** 1️⃣ Load form + schema */
+        const form = await Evaluation_Document.findByPk(id, {
             include: [
                 {
-                    model: StudentFormSubmissionData,
-                    as: "data",
+                    model: Evaluation_Section,
+                    as: "sections",
+                    include: [
+                        { model: Evaluation_Section_Rows, as: "rows" },
+                        { model: Evaluation_Section_Columns, as: "columns" },
+                    ],
                 },
             ],
         })
-        if (!studentFormSubmission)
-            return res.status(404).json({ error: "Student form submission not found" })
-        res.json(studentFormSubmission)
-    } catch (err) {
-        console.error("Error fetching student form submission", err)
-        res.status(500).json({ error: "Failed to fetch student form submission" })
+
+        if (!form) {
+            return res.status(404).json({ error: "Form not found" })
+        }
+
+        /** 2️⃣ Load cells */
+        const cells = await Evaluation_Cells.findAll({
+            where: { document_id: id },
+        })
+
+        /** 3️⃣ Build lookup maps (ID → key) */
+        const sectionById = new Map<number, any>()
+        const rowById = new Map<number, any>()
+        const columnById = new Map<number, any>()
+
+        form.sections?.forEach((section: any) => {
+            sectionById.set(section.id, section)
+            section.rows.forEach((row: any) => rowById.set(row.id, row))
+            section.columns.forEach((col: any) => columnById.set(col.id, col))
+        })
+
+        /** 4️⃣ Shape form (keys only) */
+        const shapedForm = {
+            id: form.id,
+            class_id: form.class_id,
+            name: form.name,
+            sections:
+                form.sections?.map((section: any) => ({
+                    key: section.key,
+                    label: section.label,
+                    rows: section.rows.map((row: any) => ({
+                        key: row.key,
+                        label: row.label,
+                        description: row.description,
+                        row_type: row.row_type,
+                    })),
+                    columns: section.columns.map((col: any) => ({
+                        key: col.key,
+                        label: col.label,
+                        valueType: col.value_type,
+                        config: col.config,
+                    })),
+                })) || [],
+        }
+
+        /** 5️⃣ Shape cells → key-based */
+        const shapedCells: Record<string, any> = {}
+
+        for (const cell of cells) {
+            const section = sectionById.get(cell.section_id)
+            const row = rowById.get(cell.row_id)
+            const col = columnById.get(cell.column_id)
+
+            if (!section || !row || !col) continue
+
+            const studentKey = String(cell.student_id)
+
+            shapedCells[studentKey] ??= {}
+            shapedCells[studentKey][section.key] ??= {}
+            shapedCells[studentKey][section.key][row.key] ??= {}
+
+            let value: any = null
+            if (col.value_type === "number") value = cell.value_number
+            if (col.value_type === "boolean") value = cell.value_boolean
+            if (col.value_type === "text") value = cell.value_text
+
+            shapedCells[studentKey][section.key][row.key][col.key] = value
+        }
+
+        /** 6️⃣ Final response */
+        res.json({
+            form: shapedForm,
+            cells: shapedCells,
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: "Error fetching evaluation form" })
     }
 }
 
-export async function insertStudentFormSubmissionData(req: Request, res: Response) {
-    const { submissionId } = req.params
+export const createEvaluationForm = async (req: Request, res: Response) => {
     try {
-        const [studentFormSubmissionData] = await StudentFormSubmissionData.upsert({
-            ...req.body,
-            submission_id: submissionId,
+        const { classId } = req.params
+
+        const form = await Evaluation_Document.create({
+            class_id: classId,
+            name: req.body.name,
         })
-        res.status(200).json(studentFormSubmissionData)
-    } catch (err) {
-        console.error("Error upserting student form submission data", err)
-        res.status(500).json({ error: "Failed to upsert student form submission data" })
+
+        res.status(200).json(form)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error creating evaluation form" })
+    }
+}
+
+export const updateEvaluationForm = async (req: Request, res: Response) => {}
+
+export const deleteEvaluationForm = async (req: Request, res: Response) => {}
+
+export const createEvaluationSection = async (req: Request, res: Response) => {
+    try {
+        const { documentId } = req.params
+
+        const section = await Evaluation_Section.create({
+            document_id: documentId,
+            name: req.body.name,
+        })
+
+        res.status(200).json(section)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error creating evaluation section" })
+    }
+}
+
+export const getEvaluationSections = async (req: Request, res: Response) => {
+    try {
+        const { documentId } = req.params
+
+        const sections = await Evaluation_Section.findAll({
+            where: {
+                document_id: documentId,
+            },
+        })
+
+        res.status(200).json(sections)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error fetching evaluation sections" })
+    }
+}
+
+export const updateEvaluationSection = async (req: Request, res: Response) => {
+    try {
+        const { sectionId } = req.params
+
+        const section = await Evaluation_Section.findByPk(sectionId)
+
+        if (!section) {
+            return res.status(404).json({ error: "Evaluation section not found" })
+        }
+
+        //update key and label
+        section.key = req.body.key
+        section.label = req.body.label
+
+        await section.save()
+
+        res.status(200).json(section)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error updating evaluation section" })
+    }
+}
+
+export const deleteEvaluationSection = async (req: Request, res: Response) => {
+    try {
+        const { sectionId } = req.params
+
+        const section = await Evaluation_Section.findByPk(sectionId)
+
+        if (!section) {
+            return res.status(404).json({ error: "Evaluation section not found" })
+        }
+
+        await section.destroy()
+
+        res.status(200).json({ message: "Evaluation section deleted" })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error deleting evaluation section" })
+    }
+}
+
+export const createEvaluationSectionRow = async (req: Request, res: Response) => {
+    try {
+        const { sectionId } = req.params
+
+        const section = await Evaluation_Section.findByPk(sectionId)
+
+        if (!section) {
+            return res.status(404).json({ error: "Evaluation section not found" })
+        }
+
+        const row = await Evaluation_Section_Rows.create({
+            section_id: sectionId,
+            key: req.body.key,
+            label: req.body.label,
+            description: req.body.description,
+            row_type: req.body.row_type,
+        })
+
+        res.status(200).json(row)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error creating evaluation section row" })
+    }
+}
+
+export const updateEvaluationSectionRow = async (req: Request, res: Response) => {
+    try {
+        const { sectionId, rowId } = req.params
+
+        const row = await Evaluation_Section_Rows.findByPk(rowId)
+
+        if (!row) {
+            return res.status(404).json({ error: "Evaluation section row not found" })
+        }
+
+        //update key and label
+        row.key = req.body.key
+        row.label = req.body.label
+        row.description = req.body.description
+        row.row_type = req.body.row_type
+
+        await row.save()
+
+        res.status(200).json(row)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error updating evaluation section row" })
+    }
+}
+
+export const getEvaluationSectionRows = async (req: Request, res: Response) => {
+    try {
+        const { sectionId } = req.params
+
+        const rows = await Evaluation_Section_Rows.findAll({
+            where: {
+                section_id: sectionId,
+            },
+        })
+
+        res.status(200).json(rows)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error fetching evaluation section rows" })
+    }
+}
+
+export const deleteEvaluationSectionRow = async (req: Request, res: Response) => {
+    try {
+        const { rowId } = req.params
+
+        const row = await Evaluation_Section_Rows.findByPk(rowId)
+
+        if (!row) {
+            return res.status(404).json({ error: "Evaluation section row not found" })
+        }
+
+        await row.destroy()
+
+        res.status(200).json({ message: "Evaluation section row deleted" })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error deleting evaluation section row" })
+    }
+}
+
+//column
+
+export const createEvaluationSectionColumn = async (req: Request, res: Response) => {
+    try {
+        const { sectionId } = req.params
+
+        const column = await Evaluation_Section_Columns.create({
+            section_id: sectionId,
+            key: req.body.key,
+            label: req.body.label,
+            value_type: req.body.value_type,
+            config: req.body.config,
+        })
+
+        res.status(200).json(column)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error creating evaluation section column" })
+    }
+}
+
+export const updateEvaluationSectionColumn = async (req: Request, res: Response) => {
+    try {
+        const { columnId } = req.params
+
+        const column = await Evaluation_Section_Columns.findByPk(columnId)
+
+        if (!column) {
+            return res.status(404).json({ error: "Evaluation section column not found" })
+        }
+
+        //update key and label
+        column.key = req.body.key
+        column.label = req.body.label
+        column.value_type = req.body.value_type
+        column.config = req.body.config
+
+        await column.save()
+
+        res.status(200).json(column)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error updating evaluation section column" })
+    }
+}
+
+export const deleteEvaluationSectionColumn = async (req: Request, res: Response) => {
+    try {
+        const { columnId } = req.params
+
+        const column = await Evaluation_Section_Columns.findByPk(columnId)
+
+        if (!column) {
+            return res.status(404).json({ error: "Evaluation section column not found" })
+        }
+
+        await column.destroy()
+
+        res.status(200).json({ message: "Evaluation section column deleted" })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error deleting evaluation section column" })
+    }
+}
+
+export const getEvaluationSectionColumns = async (req: Request, res: Response) => {
+    try {
+        const { sectionId } = req.params
+
+        const columns = await Evaluation_Section_Columns.findAll({
+            where: {
+                section_id: sectionId,
+            },
+        })
+
+        res.status(200).json(columns)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error fetching evaluation section columns" })
+    }
+}
+
+//cells
+
+export const createEvaluationCell = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+
+        const cell = await Evaluation_Cells.create({
+            section_id: id,
+            row_id: req.body.row_id,
+            column_id: req.body.column_id,
+            student_id: req.body.student_id,
+            value_number: req.body.value_number,
+            value_text: req.body.value_text,
+            value_boolean: req.body.value_boolean,
+        })
+
+        res.status(200).json(cell)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error creating evaluation cell" })
+    }
+}
+
+export const updateEvaluationCell = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+
+        const cell = await Evaluation_Cells.findByPk(id)
+
+        if (!cell) {
+            return res.status(404).json({ error: "Evaluation cell not found" })
+        }
+
+        cell.row_id = req.body.row_id
+        cell.column_id = req.body.column_id
+        cell.student_id = req.body.student_id
+        cell.value_number = req.body.value_number
+        cell.value_text = req.body.value_text
+        cell.value_boolean = req.body.value_boolean
+
+        await cell.save()
+
+        res.status(200).json(cell)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error updating evaluation cell" })
+    }
+}
+
+export const deleteEvaluationCell = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+
+        const cell = await Evaluation_Cells.findByPk(id)
+
+        if (!cell) {
+            return res.status(404).json({ error: "Evaluation cell not found" })
+        }
+
+        await cell.destroy()
+
+        res.status(200).json({ message: "Evaluation cell deleted" })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error deleting evaluation cell" })
+    }
+}
+
+export const getEvaluationCells = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+
+        const cells = await Evaluation_Cells.findAll({
+            where: {
+                section_id: id,
+            },
+        })
+
+        res.status(200).json(cells)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Error fetching evaluation cells" })
+    }
+}
+
+export const bulkUpsertEvaluationCells = async (req: Request, res: Response) => {
+    const transaction = await sequelize.transaction()
+    try {
+        const { documentId } = req.params
+        const { changes } = req.body
+
+        if (!Array.isArray(changes) || changes.length === 0) {
+            await transaction.rollback()
+            return res.status(400).json({ error: "Changes must be a non-empty array" })
+        }
+
+        // 1️⃣ Fetch Metadata
+        const sections = await Evaluation_Section.findAll({
+            where: { document_id: documentId },
+            include: [
+                { model: Evaluation_Section_Rows, as: "rows" },
+                { model: Evaluation_Section_Columns, as: "columns" },
+            ],
+        })
+
+        const sectionMap = new Map<string, Evaluation_Section>()
+        const rowMap = new Map<string, Map<string, Evaluation_Section_Rows>>()
+        const colMap = new Map<string, Map<string, Evaluation_Section_Columns>>()
+
+        sections.forEach((section) => {
+            sectionMap.set(section.key, section)
+
+            const rows = new Map<string, Evaluation_Section_Rows>()
+            // @ts-ignore
+            section.rows?.forEach((row: Evaluation_Section_Rows) => {
+                rows.set(row.key, row)
+            })
+            rowMap.set(section.id.toString(), rows)
+
+            const cols = new Map<string, Evaluation_Section_Columns>()
+            // @ts-ignore
+            section.columns?.forEach((col: Evaluation_Section_Columns) => {
+                cols.set(col.key, col)
+            })
+            colMap.set(section.id.toString(), cols)
+        })
+
+        // 2️⃣ Fetch Students
+        const studentIdsFromChanges = [...new Set(changes.map((c: any) => c.studentId))]
+        const students = await Student.findAll({
+            where: { id: studentIdsFromChanges },
+        })
+
+        const studentMap = new Map<string, number>()
+        students.forEach((s) => studentMap.set(String(s.id), s.id))
+
+        // 3️⃣ Fetch Existing Cells
+        const existingCells = await Evaluation_Cells.findAll({
+            where: { document_id: documentId },
+        })
+
+        const cellMap = new Map<string, Evaluation_Cells>()
+        existingCells.forEach((cell) => {
+            const key = `${cell.section_id}-${cell.row_id}-${cell.column_id}-${cell.student_id}`
+            cellMap.set(key, cell)
+        })
+
+        const toCreate: any[] = []
+        const toUpdate: Evaluation_Cells[] = []
+
+        // 4️⃣ Process Changes
+        for (const change of changes) {
+            const { studentId, sectionKey, rowKey, columnKey, value } = change
+
+            const section = sectionMap.get(sectionKey)
+            const row = section ? rowMap.get(section.id.toString())?.get(rowKey) : undefined
+            const col = section ? colMap.get(section.id.toString())?.get(columnKey) : undefined
+            const studentPk = studentMap.get(String(studentId))
+
+            if (!section || !row || !col || !studentPk) {
+                // Skip invalid entries
+                continue
+            }
+
+            const cellKey = `${section.id}-${row.id}-${col.id}-${studentPk}`
+            const existing = cellMap.get(cellKey)
+
+            let valNum: number | null = null
+            let valText: string | null = null
+            let valBool: boolean | null = null
+
+            if (col.value_type === "number") valNum = Number(value)
+            else if (col.value_type === "boolean") valBool = Boolean(value)
+            else valText = String(value)
+
+            if (existing) {
+                // Update only if changed
+                let changed = false
+                if (existing.value_number !== valNum) {
+                    existing.value_number = valNum
+                    changed = true
+                }
+                if (existing.value_text !== valText) {
+                    existing.value_text = valText
+                    changed = true
+                }
+                if (existing.value_boolean !== valBool) {
+                    existing.value_boolean = valBool
+                    changed = true
+                }
+
+                if (changed) toUpdate.push(existing)
+            } else {
+                toCreate.push({
+                    document_id: documentId,
+                    section_id: section.id,
+                    row_id: row.id,
+                    column_id: col.id,
+                    student_id: studentPk,
+                    value_number: valNum,
+                    value_text: valText,
+                    value_boolean: valBool,
+                })
+            }
+        }
+
+        // 5️⃣ Execute DB Changes in Transaction
+        if (toCreate.length > 0) {
+            await Evaluation_Cells.bulkCreate(toCreate, { transaction })
+        }
+
+        await Promise.all(toUpdate.map((cell) => cell.save({ transaction })))
+
+        await transaction.commit()
+        res.status(200).json({ success: true, created: toCreate.length, updated: toUpdate.length })
+    } catch (error) {
+        await transaction.rollback()
+        console.error(error)
+        res.status(500).json({ error: "Error processing bulk upsert" })
     }
 }

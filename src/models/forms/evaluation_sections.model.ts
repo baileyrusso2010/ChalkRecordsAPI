@@ -1,43 +1,45 @@
 import { DataTypes, Model } from "sequelize"
 import sequelize from "../../database"
 
-export class FormSection extends Model {
+export class Evaluation_Section extends Model {
     public id!: number
-    public form_id!: number
-    public name!: string
-    public description!: string
+    public document_id!: string
+    public key!: string
+    public label!: string
+    public order!: number
 }
 
-FormSection.init(
+Evaluation_Section.init(
     {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
-        form_id: {
+        document_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "form",
+                model: "evaluation_documents",
                 key: "id",
             },
         },
-        name: {
+        key: {
+            // "cdos_performances, cdoes_technical, assessments"
             type: DataTypes.STRING,
             allowNull: false,
         },
-        description: {
+        label: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: false,
         },
-        //add everything else later
+        //order
     },
     {
         sequelize,
-        modelName: "FormSection",
-        tableName: "form_sections",
-        timestamps: true,
+        modelName: "Evaluation_Section",
+        tableName: "evaluation_sections",
+        timestamps: false,
         underscored: true,
-    }
+    },
 )

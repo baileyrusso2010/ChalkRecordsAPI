@@ -19,6 +19,12 @@ import { MTSS_Meetings } from "./mtss/mtss_meetings.model"
 import { MTSS_Decisions } from "./mtss/mtss_decisions.model"
 import { Referrals } from "./mtss/referrals.model"
 
+import { Evaluation_Document } from "./forms/evaluation_document.model"
+import { Evaluation_Section } from "./forms/evaluation_sections.model"
+import { Evaluation_Section_Rows } from "./forms/evaluation_section_rows.model"
+import { Evaluation_Section_Columns } from "./forms/evaluation_section_columns.model"
+import { Evaluation_Cells } from "./forms/evaluation_cells.model"
+
 // Central place to define Sequelize associations between models
 // This file is imported once in index.ts to ensure associations are registered
 
@@ -51,9 +57,6 @@ import { Skill } from "./skill.model"
 import { SkillCategory } from "./skill_category.model"
 import { SkillScore } from "./skill_score.model"
 
-import { Form } from "./forms/form.model"
-import { StudentForm } from "./forms/student_form.model"
-
 import { WBL_Hours } from "./wbl/wbl_hours.model"
 import { WBL_Catagories } from "./wbl/wbl_catagories.model"
 import { WBL_Deployment_Recipients } from "./wbl/wbl_deployment_recipients.model"
@@ -66,6 +69,60 @@ import { Roles } from "./users/roles.model"
 import { Staff_Roles } from "./users/staff_roles.model"
 import { Permissions } from "./users/permissions.model"
 import { RolePermissions } from "./users/role_permissions.model"
+
+Evaluation_Document.hasMany(Evaluation_Section, {
+    foreignKey: "document_id",
+    as: "sections",
+})
+
+Evaluation_Document.belongsTo(Course_Instance, {
+    foreignKey: "class_id",
+    as: "course_instance",
+})
+Course_Instance.hasMany(Evaluation_Document, {
+    foreignKey: "class_id",
+    as: "evaluation_documents",
+})
+Evaluation_Section.belongsTo(Evaluation_Document, {
+    foreignKey: "document_id",
+    as: "document",
+})
+
+Evaluation_Section.hasMany(Evaluation_Section_Rows, {
+    foreignKey: "section_id",
+    as: "rows",
+})
+Evaluation_Section_Rows.belongsTo(Evaluation_Section, {
+    foreignKey: "section_id",
+    as: "section",
+})
+
+Evaluation_Section.hasMany(Evaluation_Section_Columns, {
+    foreignKey: "section_id",
+    as: "columns",
+})
+Evaluation_Section_Columns.belongsTo(Evaluation_Section, {
+    foreignKey: "section_id",
+    as: "section",
+})
+
+Evaluation_Section_Columns.hasMany(Evaluation_Cells, {
+    foreignKey: "column_id",
+    as: "cells",
+})
+Evaluation_Cells.belongsTo(Evaluation_Section_Columns, {
+    foreignKey: "column_id",
+    as: "column",
+})
+
+Evaluation_Cells.hasMany(Evaluation_Cells, {
+    foreignKey: "cell_id",
+    as: "cells",
+})
+Evaluation_Cells.belongsTo(Evaluation_Cells, {
+    foreignKey: "cell_id",
+    as: "cell",
+})
 
 Roles.belongsToMany(Staff, {
     through: Staff_Roles,
@@ -278,20 +335,6 @@ Skill.hasMany(SkillScore, { foreignKey: "skill_id" })
 SkillScore.belongsTo(Skill, { foreignKey: "skill_id" })
 
 // Form Associations
-StudentForm.belongsTo(Form, { foreignKey: "form_id", as: "form" })
-Form.hasMany(StudentForm, { foreignKey: "form_id", as: "student_forms" })
-
-Form.belongsToMany(Student, {
-    through: StudentForm,
-    foreignKey: "form_id",
-    as: "students",
-})
-Student.belongsToMany(Form, {
-    through: StudentForm,
-    foreignKey: "student_id",
-    as: "forms",
-})
-
 // WBL Associations
 WBL_Catagories.hasMany(WBL_Hours, {
     foreignKey: "catagory_id",
@@ -464,12 +507,6 @@ Attendance_Status.hasMany(Attendance_Daily, {
     as: "attendance",
 })
 
-import { ClassForm } from "./forms/class_forms.model"
-import { FormField } from "./forms/form_fields.model"
-import { FormSection } from "./forms/form_sections.model"
-import { StudentFormSubmission } from "./forms/student_form_submissions.model"
-import { StudentFormSubmissionData } from "./forms/student_form_submission_data.model"
-
 // Rubric associations
 Rubric.hasMany(Rubric_Criteria, {
     foreignKey: "rubric_id",
@@ -478,71 +515,6 @@ Rubric.hasMany(Rubric_Criteria, {
 Rubric_Criteria.belongsTo(Rubric, {
     foreignKey: "rubric_id",
     as: "rubric",
-})
-
-// Form associations
-Form.hasMany(FormField, {
-    foreignKey: "form_id",
-    as: "form_fields",
-})
-FormField.belongsTo(Form, {
-    foreignKey: "form_id",
-    as: "form",
-})
-
-Form.hasMany(FormSection, {
-    foreignKey: "form_id",
-    as: "form_sections",
-})
-FormSection.belongsTo(Form, {
-    foreignKey: "form_id",
-    as: "form",
-})
-
-FormSection.hasMany(FormField, {
-    foreignKey: "section_id",
-    as: "form_fields",
-})
-FormField.belongsTo(FormSection, {
-    foreignKey: "section_id",
-    as: "form_section",
-})
-
-// ClassForm associations
-ClassForm.belongsTo(Form, {
-    foreignKey: "form_id",
-    as: "form",
-})
-Form.hasMany(ClassForm, {
-    foreignKey: "form_id",
-    as: "class_forms",
-})
-
-Student_Assessment_Results.belongsTo(StudentFormSubmission, {
-    foreignKey: "submission_id",
-    as: "submission",
-})
-StudentFormSubmission.hasOne(Student_Assessment_Results, {
-    foreignKey: "submission_id",
-    as: "results",
-})
-
-StudentFormSubmission.belongsTo(Student, {
-    foreignKey: "student_id",
-    as: "student",
-})
-Student.hasMany(StudentFormSubmission, {
-    foreignKey: "student_id",
-    as: "form_submissions",
-})
-
-StudentFormSubmission.belongsTo(Form, {
-    foreignKey: "form_id",
-    as: "form",
-})
-Form.hasMany(StudentFormSubmission, {
-    foreignKey: "form_id",
-    as: "form_submissions",
 })
 
 // MTSS Associations

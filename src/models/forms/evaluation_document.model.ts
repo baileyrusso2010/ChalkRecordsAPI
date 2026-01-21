@@ -1,22 +1,28 @@
 import { DataTypes, Model } from "sequelize"
 import sequelize from "../../database"
 
-export class FormField extends Model {
+import { Evaluation_Section } from "./evaluation_sections.model"
+
+export class Evaluation_Document extends Model {
     public id!: number
+    public class_id!: string
+    public name!: string
+
+    public sections?: Evaluation_Section[]
 }
 
-FormField.init(
+Evaluation_Document.init(
     {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
-        section_id: {
+        class_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "form_sections",
+                model: "course_instance",
                 key: "id",
             },
         },
@@ -24,24 +30,13 @@ FormField.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        label: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        type: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        config: {
-            type: DataTypes.JSON,
-            allowNull: true,
-        },
+        //othe rattributes like school_year, term, created by, locked, etc, tenant
     },
     {
         sequelize,
-        modelName: "FormField",
-        tableName: "form_fields",
-        timestamps: true,
+        modelName: "Evaluation_Document",
+        tableName: "evaluation_documents",
+        timestamps: false,
         underscored: true,
-    }
+    },
 )
