@@ -7,12 +7,13 @@ import { Student } from "../../models/student.model"
 
 export const getAttendanceAnalytics = async (req: Request, res: Response) => {
     try {
-        const { groupBy, startDate, endDate, studentId } = req.query
+        const { groupBy, startDate, endDate, studentId, schoolId, grade } = req.query
 
         const whereClause: any = {}
 
         // 1. Add Filters
         if (studentId) whereClause.student_id = studentId
+        if (schoolId) whereClause.school_id = schoolId
         if (startDate && endDate) {
             whereClause.attendance_date = {
                 [Op.between]: [new Date(startDate as string), new Date(endDate as string)],
@@ -121,11 +122,26 @@ export const getAttendanceAnalytics = async (req: Request, res: Response) => {
                 return res.status(400).json({ error: "Invalid or missing groupBy parameter" })
         }
 
+        // Add Grade Filter Logic
+        if (grade) {
+            const studentInclude = include.find((i: any) => i.as === "student")
+            if (studentInclude) {
+                studentInclude.where = { ...studentInclude.where, grade }
+            } else {
+                include.push({
+                    model: Student,
+                    as: "student",
+                    attributes: [],
+                    where: { grade },
+                })
+            }
+        }
+
         const attributes: any[] = [
             [
                 sequelize.cast(
                     sequelize.fn("COUNT", sequelize.col("Attendance_Daily.id")),
-                    "integer"
+                    "integer",
                 ),
                 "count",
             ],

@@ -96,6 +96,7 @@ def create_task(term_id):
 
 def create_staff(num):
     if connection:
+        district_id = 1
         with connection.cursor() as cursor:
 
             for i in range(num):
@@ -103,7 +104,7 @@ def create_staff(num):
                 first_name = fake.first_name()
                 staff_id = fake.random_number(digits=5)
 
-                cursor.execute("INSERT INTO staff (staff_id, first_name, last_name) VALUES (%s, %s, %s)", (staff_id, first_name, last_name))
+                cursor.execute("INSERT INTO staff (staff_id, district_id, first_name, last_name) VALUES (%s, %s, %s, %s)", (staff_id, district_id, first_name, last_name))
             connection.commit()
             print("Staff created successfully!")
     else:
@@ -242,8 +243,9 @@ def create_students(num):
                 grade = age - 6
 
                 random_school_id = fake.random_element(elements=school_ids)
+                district_id = 1
                 
-                cursor.execute("INSERT INTO students (student_id, first_name, last_name, gender, age, grade, school_id) VALUES (%s, %s, %s, %s, %s, %s, %s)", (student_id, first_name, last_name, gender, age, grade, random_school_id))
+                cursor.execute("INSERT INTO students (student_id, first_name, last_name, gender, age, grade, school_id, district_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (student_id, first_name, last_name, gender, age, grade, random_school_id, district_id))
             connection.commit()
             print("Students created successfully!")
     else:
@@ -818,9 +820,6 @@ if __name__ == '__main__':
         create_attendance()
         create_wbl_types()
         
-        # Risk Signals
-        create_risk_signals()
-        
         # MTSS
         mtss_tiers_and_domains()
         # Clear old MTSS data to prevent duplicates stacking on top of old bad data
@@ -831,7 +830,6 @@ if __name__ == '__main__':
             
         generate_mtss_data()
 
-        create_risk_signals()
 
         connection.close()
         print("Connection closed.")

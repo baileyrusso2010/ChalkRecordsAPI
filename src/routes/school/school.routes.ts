@@ -1,9 +1,9 @@
 import { Router } from "express"
-import { listSchools, getSchool } from "../../controller/school/school.controller"
+import { getSchoolDistrict, getSchools } from "../../controller/school/school.controller"
 
 const router = Router()
 
-router.get("/", listSchools)
-router.get("/:id", getSchool)
+router.get("/:district_id", getSchoolDistrict)
+router.get("/district/:district_id", getSchools)
 
 export default router

@@ -4,7 +4,7 @@ import sequelize from "../../database"
 import { Behavior } from "../../models/behavior/behavior.model"
 import { BehaviorType } from "../../models/behavior/behavior_type.model"
 import { Student } from "../../models/student.model"
-import { Staff } from "../../models/staff.model"
+import { Staff } from "../../models/users/staff.model"
 
 export const getAllBehaviors = async (req: Request, res: Response) => {
     try {

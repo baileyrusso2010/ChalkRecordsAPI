@@ -2,11 +2,11 @@ import { Model, DataTypes } from "sequelize"
 import sequelize from "../../database"
 
 export class District extends Model {
-    public id!: number;
-    public name!: string;
-    public address?: string;
-    public contact_email?: string;
-    public phone_number?: string;
+    public id!: number
+    public name!: string
+    public address?: string
+    public contact_email?: string
+    public phone_number?: string
 }
 
 District.init(
@@ -20,6 +20,9 @@ District.init(
         name: {
             type: DataTypes.STRING(100),
             allowNull: false,
+        },
+        state: {
+            type: DataTypes.STRING(2),
         },
         address: {
             type: DataTypes.TEXT,

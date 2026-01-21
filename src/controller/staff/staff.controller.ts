@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { District_Program } from "../../models/program/district_program.model"
 import { Course_Instance } from "../../models/course/course_instance.model"
-import { Staff } from "../../models/staff.model"
+import { Staff } from "../../models/users/staff.model"
 import { Op, fn, col } from "sequelize"
 
 export async function getTeachersByProgram(req: Request, res: Response) {

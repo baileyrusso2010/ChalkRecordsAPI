@@ -36,11 +36,11 @@ School.init(
         },
         phone_number: {
             type: DataTypes.STRING(50),
-            allowNull: true
+            allowNull: true,
         },
         website: {
             type: DataTypes.STRING(255),
-            allowNull: true
+            allowNull: true,
         },
     },
     {

@@ -7,7 +7,7 @@ import { Student } from "../../models/student.model"
 import { StudentFlag } from "../../models/flags/student_flags.model"
 import { Flag } from "../../models/flags/flag.model"
 import { School } from "../../models/school/school.model"
-import { Staff } from "../../models/staff.model"
+import { Staff } from "../../models/users/staff.model"
 
 // GET /program-catalogs
 
@@ -126,5 +126,35 @@ export async function listStudents(req: Request, res: Response) {
     } catch (err) {
         console.error("Error listing students", err)
         res.status(500).json({ error: "Failed to list student catalogs" })
+    }
+}
+
+export async function searchStudents(req: Request, res: Response) {
+    try {
+        const search = (req.query.q as string) || ""
+        const limit = Number(req.query.limit) || 10
+
+        if (isNaN(limit)) {
+            return res.status(400).json({ error: "Invalid limit" })
+        }
+
+        if (search.includes("'") || search.includes("--") || search.includes(";")) {
+            return res.status(400).json({ error: "Invalid search" })
+        }
+
+        const results = await Student.findAll({
+            where: {
+                [Op.or]: [
+                    { first_name: { [Op.iLike]: `%${search}%` } },
+                    { last_name: { [Op.iLike]: `%${search}%` } },
+                ],
+            },
+            limit: limit,
+        })
+
+        res.json(results)
+    } catch (err) {
+        console.error("Error listing students", err)
+        res.status(500).json({ error: "Failed to list student" })
     }
 }
