@@ -70,6 +70,38 @@ import { Staff_Roles } from "./users/staff_roles.model"
 import { Permissions } from "./users/permissions.model"
 import { RolePermissions } from "./users/role_permissions.model"
 
+import { Form_Template } from "./forms/template/form_template.model"
+import { Template_Section } from "./forms/template/template_section.model"
+import { Template_Row } from "./forms/template/template_row.model"
+import { Template_Column } from "./forms/template/template_column.model"
+
+Form_Template.hasMany(Template_Section, {
+    foreignKey: "template_id",
+    as: "sections",
+})
+Template_Section.belongsTo(Form_Template, {
+    foreignKey: "template_id",
+    as: "template",
+})
+
+Template_Section.hasMany(Template_Row, {
+    foreignKey: "section_id",
+    as: "rows",
+})
+Template_Row.belongsTo(Template_Section, {
+    foreignKey: "section_id",
+    as: "section",
+})
+
+Template_Row.hasMany(Template_Column, {
+    foreignKey: "row_id",
+    as: "columns",
+})
+Template_Column.belongsTo(Template_Row, {
+    foreignKey: "row_id",
+    as: "row",
+})
+
 Evaluation_Document.hasMany(Evaluation_Section, {
     foreignKey: "document_id",
     as: "sections",

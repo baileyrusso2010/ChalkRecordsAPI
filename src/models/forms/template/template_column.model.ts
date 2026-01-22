@@ -1,7 +1,7 @@
 import { DataTypes, Model } from "sequelize"
-import sequelize from "../../database"
+import sequelize from "../../../database"
 
-export class Evaluation_Section_Columns extends Model {
+export class Template_Column extends Model {
     public id!: number
     public section_id!: number
     public key!: string
@@ -10,7 +10,7 @@ export class Evaluation_Section_Columns extends Model {
     public config!: any
 }
 
-Evaluation_Section_Columns.init(
+Template_Column.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -21,7 +21,7 @@ Evaluation_Section_Columns.init(
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "evaluation_sections",
+                model: "template_sections",
                 key: "id",
             },
         },
@@ -45,8 +45,8 @@ Evaluation_Section_Columns.init(
     },
     {
         sequelize,
-        modelName: "Evaluation_Section_Columns",
-        tableName: "evaluation_section_columns",
+        modelName: "Template_Column",
+        tableName: "template_columns",
         timestamps: false,
         underscored: true,
     },

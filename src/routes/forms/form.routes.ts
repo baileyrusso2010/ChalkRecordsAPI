@@ -19,6 +19,18 @@ import {
     deleteEvaluationSectionColumn,
 } from "../../controller/forms/form.controller"
 
+import {
+    createTemplateForm,
+    getTemplates,
+    getTemplate,
+    createTemplateSection,
+    getTemplateSections,
+    createRow,
+    getTemplateRows,
+    createColumn,
+    getTemplateColumns,
+} from "../../controller/forms/template_form.controller"
+
 const router = Router()
 
 //documents
@@ -47,5 +59,24 @@ router.delete("/:documentId/sections/:sectionId/columns/:columnId", deleteEvalua
 
 //cells
 router.post("/:documentId/cells", bulkUpsertEvaluationCells)
+
+//TEMPLATES
+
+//documents
+router.get("/templates", getTemplates)
+router.post("/templates", createTemplateForm)
+router.get("/templates/:id", getTemplate)
+
+//sections
+router.get("/templates/:templateId/sections", getTemplateSections)
+router.post("/templates/:templateId/sections", createTemplateSection)
+
+//rows
+router.get("/templates/:templateId/sections/:sectionId/rows", getTemplateRows)
+router.post("/templates/:templateId/sections/:sectionId/rows", createRow)
+
+//columns
+router.get("/templates/:templateId/sections/:sectionId/columns", getTemplateColumns)
+router.post("/templates/:templateId/sections/:sectionId/columns", createColumn)
 
 export default router

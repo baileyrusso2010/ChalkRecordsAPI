@@ -1,16 +1,16 @@
 import { DataTypes, Model } from "sequelize"
-import sequelize from "../../database"
+import sequelize from "../../../database"
 
-export class Evaluation_Section_Columns extends Model {
+export class Template_Row extends Model {
     public id!: number
     public section_id!: number
     public key!: string
     public label!: string
-    public value_type!: string
-    public config!: any
+    public description!: string
+    public row_type!: string
 }
 
-Evaluation_Section_Columns.init(
+Template_Row.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -21,7 +21,7 @@ Evaluation_Section_Columns.init(
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "evaluation_sections",
+                model: "template_sections",
                 key: "id",
             },
         },
@@ -34,19 +34,21 @@ Evaluation_Section_Columns.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        value_type: {
-            type: DataTypes.STRING, //boolean, number, string
-            allowNull: false,
-        },
-        config: {
-            type: DataTypes.JSONB, //validation/options
+        description: {
+            type: DataTypes.STRING,
             allowNull: true,
         },
+        row_type: {
+            type: DataTypes.STRING, //skill, exam
+            allowNull: false,
+        },
+        //sort
+        //order
     },
     {
         sequelize,
-        modelName: "Evaluation_Section_Columns",
-        tableName: "evaluation_section_columns",
+        modelName: "Template_Row",
+        tableName: "template_rows",
         timestamps: false,
         underscored: true,
     },

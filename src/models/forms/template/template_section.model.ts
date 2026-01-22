@@ -1,27 +1,26 @@
 import { DataTypes, Model } from "sequelize"
-import sequelize from "../../database"
+import sequelize from "../../../database"
 
-export class Evaluation_Section_Columns extends Model {
+export class Template_Section extends Model {
     public id!: number
-    public section_id!: number
+    public template_id!: number
     public key!: string
     public label!: string
-    public value_type!: string
-    public config!: any
+    public order!: number
 }
 
-Evaluation_Section_Columns.init(
+Template_Section.init(
     {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
-        section_id: {
+        template_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "evaluation_sections",
+                model: "form_templates",
                 key: "id",
             },
         },
@@ -34,19 +33,12 @@ Evaluation_Section_Columns.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        value_type: {
-            type: DataTypes.STRING, //boolean, number, string
-            allowNull: false,
-        },
-        config: {
-            type: DataTypes.JSONB, //validation/options
-            allowNull: true,
-        },
+        //order
     },
     {
         sequelize,
-        modelName: "Evaluation_Section_Columns",
-        tableName: "evaluation_section_columns",
+        modelName: "Template_Section",
+        tableName: "template_sections",
         timestamps: false,
         underscored: true,
     },
