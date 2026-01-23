@@ -52,6 +52,7 @@ export const getEvaluationForm = async (req: Request, res: Response) => {
             name: form.name,
             sections:
                 form.sections?.map((section: any) => ({
+                    id: section.id,
                     key: section.key,
                     label: section.label,
                     rows: section.rows.map((row: any) => ({
@@ -130,7 +131,8 @@ export const createEvaluationSection = async (req: Request, res: Response) => {
 
         const section = await Evaluation_Section.create({
             document_id: documentId,
-            name: req.body.name,
+            key: req.body.label.toLowerCase().replace(/\s/g, "_"),
+            label: req.body.label,
         })
 
         res.status(200).json(section)

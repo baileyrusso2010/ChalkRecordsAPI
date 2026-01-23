@@ -29,23 +29,77 @@ export const getTemplates = async (req: Request, res: Response) => {
 export const getTemplate = async (req: Request, res: Response) => {
     try {
         const { id } = req.params
-        const template = await Form_Template.findByPk(id)
-        res.json(template)
+
+        /** 1️⃣ Load form + schema */
+        const form = await Form_Template.findByPk(id, {
+            include: [
+                {
+                    model: Template_Section,
+                    as: "sections",
+                    include: [
+                        { model: Template_Row, as: "rows" },
+                        { model: Template_Column, as: "columns" },
+                    ],
+                },
+            ],
+        })
+
+        if (!form) {
+            return res.status(404).json({ error: "Form not found" })
+        }
+
+        /** 3️⃣ Build lookup maps (ID → key) */
+        const sectionById = new Map<number, any>()
+        const rowById = new Map<number, any>()
+        const columnById = new Map<number, any>()
+
+        form.sections?.forEach((section: any) => {
+            sectionById.set(section.id, section)
+            section.rows.forEach((row: any) => rowById.set(row.id, row))
+            section.columns.forEach((col: any) => columnById.set(col.id, col))
+        })
+
+        /** 4️⃣ Shape form (keys only) */
+        const shapedForm = {
+            id: form.id,
+            name: form.name,
+            sections:
+                form.sections?.map((section: any) => ({
+                    id: section.id,
+                    key: section.key,
+                    label: section.label,
+                    rows: section.rows.map((row: any) => ({
+                        key: row.key,
+                        label: row.label,
+                        description: row.description,
+                        row_type: row.row_type,
+                    })),
+                    columns: section.columns.map((col: any) => ({
+                        key: col.key,
+                        label: col.label,
+                        valueType: col.value_type,
+                        config: col.config,
+                    })),
+                })) || [],
+        }
+
+        res.json({
+            form: shapedForm,
+        })
     } catch (error) {
         console.error(error)
-        res.status(500).json({ message: "Error fetching template" })
+        res.status(500).json({ error: "Error fetching template form" })
     }
 }
 
 export const createTemplateSection = async (req: Request, res: Response) => {
     try {
         const { templateId } = req.params
-        const { name, label } = req.body
+        const { label } = req.body
         const section = await Template_Section.create({
             template_id: templateId,
-            name,
             label,
-            key: name.toLowerCase().replace(" ", "_"),
+            key: label.toLowerCase().replace(" ", "_"),
         })
         res.json(section)
     } catch (error) {

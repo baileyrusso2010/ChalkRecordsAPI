@@ -1,9 +1,13 @@
 import { DataTypes, Model } from "sequelize"
 import sequelize from "../../../database"
 
+import { Template_Section } from "./template_section.model"
+
 export class Form_Template extends Model {
     public id!: number
     public name!: string
+
+    public sections?: Template_Section[]
 }
 
 Form_Template.init(

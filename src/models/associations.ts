@@ -102,6 +102,16 @@ Template_Column.belongsTo(Template_Row, {
     as: "row",
 })
 
+Template_Column.belongsTo(Template_Section, {
+    foreignKey: "section_id",
+    as: "section",
+})
+
+Template_Section.hasMany(Template_Column, {
+    foreignKey: "section_id",
+    as: "columns",
+})
+
 Evaluation_Document.hasMany(Evaluation_Section, {
     foreignKey: "document_id",
     as: "sections",
