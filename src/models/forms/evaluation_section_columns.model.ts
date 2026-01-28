@@ -38,8 +38,13 @@ Evaluation_Section_Columns.init(
             type: DataTypes.STRING, //boolean, number, string
             allowNull: false,
         },
+        use_rubric: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
         config: {
-            type: DataTypes.JSONB, //validation/options
+            type: DataTypes.JSONB, //validation/options//maybe not needed
             allowNull: true,
         },
     },

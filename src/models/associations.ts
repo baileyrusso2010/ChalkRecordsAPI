@@ -63,7 +63,7 @@ import { WBL_Deployment_Recipients } from "./wbl/wbl_deployment_recipients.model
 import { WBL_Deployments } from "./wbl/wbl_deployments.model"
 
 import { Rubric } from "./rubric/rubric.model"
-import { Rubric_Criteria } from "./rubric/rubric_criteria.model"
+import { Rubric_Levels } from "./rubric/rubric_levels.model"
 
 import { Roles } from "./users/roles.model"
 import { Staff_Roles } from "./users/staff_roles.model"
@@ -550,11 +550,11 @@ Attendance_Status.hasMany(Attendance_Daily, {
 })
 
 // Rubric associations
-Rubric.hasMany(Rubric_Criteria, {
+Rubric.hasMany(Rubric_Levels, {
     foreignKey: "rubric_id",
-    as: "criteria",
+    as: "rubric_levels",
 })
-Rubric_Criteria.belongsTo(Rubric, {
+Rubric_Levels.belongsTo(Rubric, {
     foreignKey: "rubric_id",
     as: "rubric",
 })

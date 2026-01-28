@@ -33,7 +33,18 @@ Evaluation_Section.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        //order
+        sort_order: {
+            type: DataTypes.INTEGER,
+            allowNull: true, //doesnt have to be required
+        },
+        rubric_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true, //doesnt have to be required
+            references: {
+                model: "rubric",
+                key: "id",
+            },
+        },
     },
     {
         sequelize,
