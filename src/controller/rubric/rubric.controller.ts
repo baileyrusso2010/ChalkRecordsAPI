@@ -69,3 +69,25 @@ export async function createRubricEntry(req: Request, res: Response) {
         res.status(500).json({ message: "Error creating rubric entry" })
     }
 }
+
+export async function upsertRubricEntry(req: Request, res: Response) {
+    try {
+        const { id, rubric_id, value, label, description, sort_order } = req.body
+
+        const entry = await Rubric_Levels.upsert({
+            id,
+            rubric_id,
+            value,
+            label,
+            description,
+            sort_order,
+        })
+
+        if (!entry) return res.status(400).json({ error: "Failed to create rubric entry" })
+
+        res.status(201).json(entry)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: "Error creating rubric entry" })
+    }
+}
