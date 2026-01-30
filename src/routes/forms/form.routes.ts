@@ -82,7 +82,7 @@ router.put("/:documentId/sections/:sectionId/columns/:columnId", updateEvaluatio
 router.delete("/:documentId/sections/:sectionId/columns/:columnId", deleteEvaluationSectionColumn)
 
 //cells
-router.post("/:documentId/cells", bulkUpsertEvaluationCells)
+router.post("/:documentId/students/:studentId/cells", bulkUpsertEvaluationCells)
 
 //convert template to form
 router.post("/:templateId/convert", convertTemplateToForm)

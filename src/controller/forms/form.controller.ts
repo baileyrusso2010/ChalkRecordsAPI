@@ -423,24 +423,21 @@ export const createEvaluationCell = async (req: Request, res: Response) => {
     }
 }
 
-export const updateEvaluationCell = async (req: Request, res: Response) => {
+//can we make this into upsert?
+export const upsertEvaluationCell = async (req: Request, res: Response) => {
     try {
         const { id } = req.params
 
-        const cell = await Evaluation_Cells.findByPk(id)
-
-        if (!cell) {
-            return res.status(404).json({ error: "Evaluation cell not found" })
-        }
-
-        cell.row_id = req.body.row_id
-        cell.column_id = req.body.column_id
-        cell.student_id = req.body.student_id
-        cell.value_number = req.body.value_number
-        cell.value_text = req.body.value_text
-        cell.value_boolean = req.body.value_boolean
-
-        await cell.save()
+        const cell = await Evaluation_Cells.upsert({
+            id,
+            section_id: id,
+            row_id: req.body.row_id,
+            column_id: req.body.column_id,
+            student_id: req.body.student_id,
+            value_number: req.body.value_number,
+            value_text: req.body.value_text,
+            value_boolean: req.body.value_boolean,
+        })
 
         res.status(200).json(cell)
     } catch (error) {
@@ -488,12 +485,19 @@ export const getEvaluationCells = async (req: Request, res: Response) => {
 export const bulkUpsertEvaluationCells = async (req: Request, res: Response) => {
     const transaction = await sequelize.transaction()
     try {
-        const { documentId } = req.params
+        const { documentId, studentId } = req.params
         const { changes } = req.body
 
         if (!Array.isArray(changes) || changes.length === 0) {
             await transaction.rollback()
             return res.status(400).json({ error: "Changes must be a non-empty array" })
+        }
+
+        // Validate Student
+        const student = await Student.findByPk(studentId)
+        if (!student) {
+            await transaction.rollback()
+            return res.status(404).json({ error: "Student not found" })
         }
 
         // 1️⃣ Fetch Metadata
@@ -527,18 +531,9 @@ export const bulkUpsertEvaluationCells = async (req: Request, res: Response) => 
             colMap.set(section.id.toString(), cols)
         })
 
-        // 2️⃣ Fetch Students
-        const studentIdsFromChanges = [...new Set(changes.map((c: any) => c.studentId))]
-        const students = await Student.findAll({
-            where: { id: studentIdsFromChanges },
-        })
-
-        const studentMap = new Map<string, number>()
-        students.forEach((s) => studentMap.set(String(s.id), s.id))
-
         // 3️⃣ Fetch Existing Cells
         const existingCells = await Evaluation_Cells.findAll({
-            where: { document_id: documentId },
+            where: { document_id: documentId, student_id: studentId },
         })
 
         const cellMap = new Map<string, Evaluation_Cells>()
@@ -552,19 +547,18 @@ export const bulkUpsertEvaluationCells = async (req: Request, res: Response) => 
 
         // 4️⃣ Process Changes
         for (const change of changes) {
-            const { studentId, sectionKey, rowKey, columnKey, value } = change
+            const { sectionKey, rowKey, columnKey, value } = change
 
             const section = sectionMap.get(sectionKey)
             const row = section ? rowMap.get(section.id.toString())?.get(rowKey) : undefined
             const col = section ? colMap.get(section.id.toString())?.get(columnKey) : undefined
-            const studentPk = studentMap.get(String(studentId))
 
-            if (!section || !row || !col || !studentPk) {
+            if (!section || !row || !col) {
                 // Skip invalid entries
                 continue
             }
 
-            const cellKey = `${section.id}-${row.id}-${col.id}-${studentPk}`
+            const cellKey = `${section.id}-${row.id}-${col.id}-${student.id}`
             const existing = cellMap.get(cellKey)
 
             let valNum: number | null = null
@@ -598,7 +592,7 @@ export const bulkUpsertEvaluationCells = async (req: Request, res: Response) => 
                     section_id: section.id,
                     row_id: row.id,
                     column_id: col.id,
-                    student_id: studentPk,
+                    student_id: student.id,
                     value_number: valNum,
                     value_text: valText,
                     value_boolean: valBool,
