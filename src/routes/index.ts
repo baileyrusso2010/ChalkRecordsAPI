@@ -62,5 +62,5 @@ export const routes = [
     { path: "/api/mtss/referrals", router: referralsRouter },
     { path: "/api/permissions", router: permissionsRouter },
     { path: "/api/roles", router: rolesRouter },
-    // { path: "/api", router: mtssTimelineRouter },
+    { path: "/api/mtss", router: mtssTimelineRouter },
 ]
