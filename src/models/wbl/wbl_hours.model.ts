@@ -4,7 +4,9 @@ import sequelize from "../../database"
 export class WBL_Hours extends Model {
     public id!: number
     public student_id!: number // Foreign key to Student
+    public catagory_id!: number
     public hours!: number
+    public date!: string
     public comments!: string
 }
 
@@ -48,5 +50,5 @@ WBL_Hours.init(
         tableName: "wbl_hours",
         timestamps: false,
         underscored: true,
-    }
+    },
 )

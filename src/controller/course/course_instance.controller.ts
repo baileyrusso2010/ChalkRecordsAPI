@@ -13,6 +13,7 @@ import { StudentFlag } from "../../models/flags/student_flags.model"
 import { Flag } from "../../models/flags/flag.model"
 import { District_Program } from "../../models/program/district_program.model"
 import { attribute } from "@sequelize/core/lib/expression-builders/attribute"
+import { WBL_Hours } from "../../models/wbl/wbl_hours.model"
 
 // GET /course-instances
 // Query params: schoolId, programCatalogId, courseCatalogId, schoolYearId, termId, from, to
@@ -80,6 +81,13 @@ export async function getCourseInstance(req: Request, res: Response) {
                         model: Student,
                         as: "student",
                         attributes: ["id", "first_name", "last_name", "student_id"],
+                        //include wbl
+                        include: [
+                            {
+                                model: WBL_Hours,
+                                as: "wbl_hours",
+                            },
+                        ],
                     },
                 ],
             })

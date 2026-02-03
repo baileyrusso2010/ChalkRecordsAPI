@@ -68,6 +68,8 @@ export const getTemplate = async (req: Request, res: Response) => {
                     id: section.id,
                     key: section.key,
                     label: section.label,
+                    section_type: section.section_type,
+                    source_table: section.source_table,
                     rows: section.rows.map((row: any) => ({
                         key: row.key,
                         label: row.label,
@@ -95,11 +97,13 @@ export const getTemplate = async (req: Request, res: Response) => {
 export const createTemplateSection = async (req: Request, res: Response) => {
     try {
         const { templateId } = req.params
-        const { label } = req.body
+        const { label, section_type, source_table } = req.body
         const section = await Template_Section.create({
             template_id: templateId,
             label,
             key: label.toLowerCase().replace(" ", "_"),
+            section_type,
+            source_table,
         })
         res.json(section)
     } catch (error) {

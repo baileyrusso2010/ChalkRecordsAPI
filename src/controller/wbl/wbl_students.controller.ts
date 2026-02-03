@@ -72,11 +72,13 @@ export async function updateWblStudent(req: Request, res: Response) {
         const record = await WBL_Hours.findByPk(id)
         if (!record) return res.status(404).json({ error: "Not found" })
 
-        const { student_id, hours, comments } = req.body
+        const { student_id, hours, comments, date, catagory_id } = req.body
         await record.update({
             student_id: student_id ?? record.get("student_id"),
             hours: hours ?? record.get("hours"),
             comments: comments ?? record.get("comments"),
+            date: date ?? record.get("date"),
+            catagory_id: catagory_id ?? record.get("catagory_id"),
         })
 
         res.json(record)

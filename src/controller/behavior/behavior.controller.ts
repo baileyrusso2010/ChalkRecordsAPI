@@ -83,9 +83,10 @@ export const getBehaviorsByStudentId = async (req: Request, res: Response) => {
 
 export const getBehaviorAnalytics = async (req: Request, res: Response) => {
     try {
-        const { groupBy, startDate, endDate, studentId } = req.query
+        const { groupBy, startDate, endDate, studentId, schoolId, grade } = req.query
 
         const whereClause: any = {}
+        const studentWhereClause: any = {}
 
         // 1. Add Filters
         if (studentId) whereClause.student_id = studentId
@@ -94,6 +95,9 @@ export const getBehaviorAnalytics = async (req: Request, res: Response) => {
                 [Op.between]: [new Date(startDate as string), new Date(endDate as string)],
             }
         }
+
+        if (schoolId) studentWhereClause.school_id = schoolId
+        if (grade) studentWhereClause.grade = grade
 
         // 2. Determine Grouping Logic
         const include: any[] = []
@@ -135,12 +139,16 @@ export const getBehaviorAnalytics = async (req: Request, res: Response) => {
                         model: Student,
                         as: "student",
                         attributes: ["first_name", "last_name"],
+                        where:
+                            Object.keys(studentWhereClause).length > 0
+                                ? studentWhereClause
+                                : undefined,
                     })
                     groupColumn.push(
                         "Behavior.student_id",
                         "student.id",
                         "student.first_name",
-                        "student.last_name"
+                        "student.last_name",
                     )
                     break
                 case "type":
@@ -152,13 +160,24 @@ export const getBehaviorAnalytics = async (req: Request, res: Response) => {
                     groupColumn.push(
                         "Behavior.behavior_type_id",
                         "behavior_type.id",
-                        "behavior_type.name"
+                        "behavior_type.name",
                     )
                     break
                 default:
                     break
             }
         })
+
+        // If we have student filters (school or grade) but NOT grouping by student, we still need to include the model to filter
+        const hasStudentGroup = groups.includes("student")
+        if (!hasStudentGroup && Object.keys(studentWhereClause).length > 0) {
+            include.push({
+                model: Student,
+                as: "student",
+                attributes: [],
+                where: studentWhereClause,
+            })
+        }
 
         // 3. Execute Query
         const data = await Behavior.findAll({

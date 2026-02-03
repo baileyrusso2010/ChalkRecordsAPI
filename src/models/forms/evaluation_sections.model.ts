@@ -7,6 +7,8 @@ export class Evaluation_Section extends Model {
     public key!: string
     public label!: string
     public order!: number
+    public section_type!: string
+    public source_table!: string
 }
 
 Evaluation_Section.init(
@@ -24,6 +26,7 @@ Evaluation_Section.init(
                 key: "id",
             },
         },
+
         key: {
             // "cdos_performances, cdoes_technical, assessments"
             type: DataTypes.STRING,
@@ -44,6 +47,16 @@ Evaluation_Section.init(
                 model: "rubric",
                 key: "id",
             },
+        },
+        section_type: {
+            type: DataTypes.ENUM("manual", "linked"),
+            allowNull: true,
+            defaultValue: "manual",
+        },
+        source_table: {
+            //this is optional
+            type: DataTypes.STRING,
+            allowNull: true,
         },
     },
     {
