@@ -11,6 +11,7 @@ export class Template_Section extends Model {
     public order!: number
     public section_type!: string
     public source_table!: string
+    public uses_rubric!: boolean
 
     public rows?: Template_Row[]
     public columns?: Template_Column[]
@@ -39,6 +40,11 @@ Template_Section.init(
         label: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        uses_rubric: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
         },
         section_type: {
             type: DataTypes.ENUM("manual", "linked"),

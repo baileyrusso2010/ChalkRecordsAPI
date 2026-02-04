@@ -70,6 +70,7 @@ export const getTemplate = async (req: Request, res: Response) => {
                     label: section.label,
                     section_type: section.section_type,
                     source_table: section.source_table,
+                    uses_rubric: section.uses_rubric,
                     rows: section.rows.map((row: any) => ({
                         key: row.key,
                         label: row.label,
@@ -97,13 +98,14 @@ export const getTemplate = async (req: Request, res: Response) => {
 export const createTemplateSection = async (req: Request, res: Response) => {
     try {
         const { templateId } = req.params
-        const { label, section_type, source_table } = req.body
+        const { label, section_type, source_table, uses_rubric } = req.body
         const section = await Template_Section.create({
             template_id: templateId,
             label,
             key: label.toLowerCase().replace(" ", "_"),
             section_type,
             source_table,
+            uses_rubric,
         })
         res.json(section)
     } catch (error) {
@@ -120,6 +122,41 @@ export const getTemplateSections = async (req: Request, res: Response) => {
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: "Error fetching template sections" })
+    }
+}
+
+export const updateTemplateSection = async (req: Request, res: Response) => {
+    try {
+        const { sectionId } = req.params
+        const { section_type, source_table, label, uses_rubric } = req.body
+
+        const section = await Template_Section.findByPk(sectionId)
+
+        if (!section) {
+            return res.status(404).json({ error: "Template section not found" })
+        }
+
+        // Update fields if provided
+        if (label !== undefined) {
+            section.label = label
+            section.key = label.toLowerCase().replace(/\s+/g, "_")
+        }
+        if (section_type !== undefined) {
+            section.section_type = section_type
+        }
+        if (source_table !== undefined) {
+            section.source_table = source_table
+        }
+        if (uses_rubric !== undefined) {
+            section.uses_rubric = uses_rubric
+        }
+
+        await section.save()
+
+        res.json(section)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: "Error updating template section" })
     }
 }
 

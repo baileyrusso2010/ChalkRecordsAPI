@@ -28,6 +28,7 @@ import {
     getTemplate,
     createTemplateSection,
     getTemplateSections,
+    updateTemplateSection,
     createRow,
     getTemplateRows,
     createColumn,
@@ -46,6 +47,7 @@ router.get("/templates/:id", getTemplate)
 //sections
 router.get("/templates/:templateId/sections", getTemplateSections)
 router.post("/templates/:templateId/sections", createTemplateSection)
+router.patch("/templates/:templateId/sections/:sectionId", updateTemplateSection)
 
 //rows
 router.get("/templates/:templateId/sections/:sectionId/rows", getTemplateRows)

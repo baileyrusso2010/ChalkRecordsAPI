@@ -559,6 +559,16 @@ Rubric_Levels.belongsTo(Rubric, {
     as: "rubric",
 })
 
+// Evaluation_Document belongs to Rubric (form-level rubric attachment)
+Evaluation_Document.belongsTo(Rubric, {
+    foreignKey: "rubric_id",
+    as: "rubric",
+})
+Rubric.hasMany(Evaluation_Document, {
+    foreignKey: "rubric_id",
+    as: "evaluation_documents",
+})
+
 // MTSS Associations
 
 // Student Tiers

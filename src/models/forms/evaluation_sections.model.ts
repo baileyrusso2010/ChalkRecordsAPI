@@ -9,6 +9,7 @@ export class Evaluation_Section extends Model {
     public order!: number
     public section_type!: string
     public source_table!: string
+    public uses_rubric!: boolean
 }
 
 Evaluation_Section.init(
@@ -40,13 +41,10 @@ Evaluation_Section.init(
             type: DataTypes.INTEGER,
             allowNull: true, //doesnt have to be required
         },
-        rubric_id: {
-            type: DataTypes.INTEGER,
-            allowNull: true, //doesnt have to be required
-            references: {
-                model: "rubric",
-                key: "id",
-            },
+        uses_rubric: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
         },
         section_type: {
             type: DataTypes.ENUM("manual", "linked"),

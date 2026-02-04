@@ -7,6 +7,8 @@ import { Evaluation_Section_Columns } from "../../models/forms/evaluation_sectio
 import { Evaluation_Cells } from "../../models/forms/evaluation_cells.model"
 import { WBL_Hours } from "../../models/wbl/wbl_hours.model"
 import { WBL_Catagories } from "../../models/wbl/wbl_catagories.model"
+import { Rubric } from "../../models/rubric/rubric.model"
+import { Rubric_Levels } from "../../models/rubric/rubric_levels.model"
 import { Student } from "../../models/student.model"
 import { Form_Template } from "../../models/forms/template/form_template.model"
 import { Template_Section } from "../../models/forms/template/template_section.model"
@@ -56,6 +58,11 @@ export const getEvaluationForm = async (req: Request, res: Response) => {
                         { model: Evaluation_Section_Columns, as: "columns" },
                     ],
                 },
+                {
+                    model: Rubric,
+                    as: "rubric",
+                    include: [{ model: Rubric_Levels, as: "rubric_levels" }],
+                },
             ],
         })
 
@@ -84,6 +91,24 @@ export const getEvaluationForm = async (req: Request, res: Response) => {
             id: form.id,
             class_id: form.class_id,
             name: form.name,
+            rubric_id: form.rubric_id,
+            rubric: form.rubric
+                ? {
+                      id: form.rubric.id,
+                      name: form.rubric.name,
+                      description: form.rubric.description,
+                      levels:
+                          form.rubric.rubric_levels
+                              ?.map((level: any) => ({
+                                  id: level.id,
+                                  value: level.value,
+                                  label: level.label,
+                                  description: level.description,
+                                  sort_order: level.sort_order,
+                              }))
+                              .sort((a: any, b: any) => a.sort_order - b.sort_order) || [],
+                  }
+                : null,
             sections: await Promise.all(
                 form.sections?.map(async (section: any) => {
                     let rows = section.rows.map((row: any) => ({
@@ -104,16 +129,58 @@ export const getEvaluationForm = async (req: Request, res: Response) => {
                             const wblEntries = await WBL_Hours.findAll({
                                 where: { student_id: studentId },
                                 include: [{ model: WBL_Catagories, as: "category" }],
+                                order: [["date", "DESC"]],
                             })
 
                             rows = wblEntries.map((entry: any) => ({
                                 key: `wbl_${entry.id}`,
-                                id: entry.id, // using wbl ID as row ID context
-                                label: entry.date, // or some other label
+                                id: entry.id,
+                                label: entry.date,
                                 description: entry.comments,
                                 row_type: "linked",
                                 original_data: entry,
                             }))
+                        }
+
+                        // For WBL linked sections, use predefined columns that match WBL_Hours fields
+                        // This ensures proper data mapping in the cell injection logic
+                        return {
+                            id: section.id,
+                            key: section.key,
+                            label: section.label,
+                            section_type: section.section_type,
+                            source_table: section.source_table,
+                            rows: rows,
+                            columns: [
+                                {
+                                    key: "date",
+                                    id: "wbl_date",
+                                    label: "Date",
+                                    valueType: "text",
+                                    config: { editable: false },
+                                },
+                                {
+                                    key: "category",
+                                    id: "wbl_category",
+                                    label: "Category",
+                                    valueType: "text",
+                                    config: { editable: false },
+                                },
+                                {
+                                    key: "hours",
+                                    id: "wbl_hours",
+                                    label: "Hours",
+                                    valueType: "number",
+                                    config: { editable: false },
+                                },
+                                {
+                                    key: "comments",
+                                    id: "wbl_comments",
+                                    label: "Comments",
+                                    valueType: "text",
+                                    config: { editable: false },
+                                },
+                            ],
                         }
                     }
 
@@ -123,6 +190,7 @@ export const getEvaluationForm = async (req: Request, res: Response) => {
                         label: section.label,
                         section_type: section.section_type,
                         source_table: section.source_table,
+                        uses_rubric: section.uses_rubric || false,
                         rows: rows,
                         columns: section.columns.map((col: any) => ({
                             key: col.key,
@@ -270,9 +338,12 @@ export const updateEvaluationSection = async (req: Request, res: Response) => {
             return res.status(404).json({ error: "Evaluation section not found" })
         }
 
-        //update key and label
-        section.key = req.body.key
-        section.label = req.body.label
+        // Update fields if provided
+        if (req.body.key !== undefined) section.key = req.body.key
+        if (req.body.label !== undefined) section.label = req.body.label
+        if (req.body.uses_rubric !== undefined) section.uses_rubric = req.body.uses_rubric
+        if (req.body.section_type !== undefined) section.section_type = req.body.section_type
+        if (req.body.source_table !== undefined) section.source_table = req.body.source_table
 
         await section.save()
 
@@ -703,8 +774,9 @@ export const bulkUpsertEvaluationCells = async (req: Request, res: Response) => 
 export const convertTemplateToForm = async (req: Request, res: Response) => {
     const t = await sequelize.transaction()
     try {
+        console.log("in here")
         const { templateId } = req.params
-        const { classId } = req.body
+        const { classId, rubric_id } = req.body
         const { updatedSections } = req.body || []
 
         const template = await Form_Template.findByPk(templateId)
@@ -717,6 +789,7 @@ export const convertTemplateToForm = async (req: Request, res: Response) => {
             {
                 class_id: Number(classId),
                 name: template.name,
+                rubric_id: rubric_id || null,
             },
             { transaction: t },
         )
@@ -786,7 +859,8 @@ export const convertTemplateToForm = async (req: Request, res: Response) => {
         }
 
         await t.commit()
-        return res.status(200).json({ success: true })
+        //return form id
+        return res.status(200).json({ success: true, formId: form.id })
     } catch (err) {
         console.log(err)
         await t.rollback()

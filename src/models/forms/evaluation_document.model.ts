@@ -7,8 +7,10 @@ export class Evaluation_Document extends Model {
     public id!: number
     public class_id!: string
     public name!: string
+    public rubric_id?: number
 
     public sections?: Evaluation_Section[]
+    public rubric?: any
 }
 
 Evaluation_Document.init(
@@ -30,7 +32,15 @@ Evaluation_Document.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        //othe rattributes like school_year, term, created by, locked, etc, tenant
+        rubric_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: "rubric",
+                key: "id",
+            },
+        },
+        //other attributes like school_year, term, created by, locked, etc, tenant
     },
     {
         sequelize,
