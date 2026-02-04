@@ -1,36 +1,92 @@
 import { Router } from "express"
 import {
-    listForms,
-    getForm,
-    createForm,
-    updateForm,
-    deleteForm,
-    createClassForm,
-    getClassForms,
-    createStudentFormSubmission,
-    getStudentFormSubmission,
-    insertStudentFormSubmissionData,
+    getEvaluationForm,
+    createEvaluationForm,
+    updateEvaluationForm,
+    deleteEvaluationForm,
+    bulkUpsertEvaluationCells,
+    getEvaluationSections,
+    createEvaluationSection,
+    updateEvaluationSection,
+    deleteEvaluationSection,
+    getEvaluationSectionRows,
+    updateEvaluationSectionRow,
+    createEvaluationSectionRow,
+    deleteEvaluationSectionRow,
+    getEvaluationSectionColumns,
+    createEvaluationSectionColumn,
+    updateEvaluationSectionColumn,
+    deleteEvaluationSectionColumn,
+    convertTemplateToForm,
+    getEvaluationFormsByClass,
+    getAllEvaluationForms,
 } from "../../controller/forms/form.controller"
-import { assignForms, getStudentForms } from "../../controller/forms/student_form.controller"
+
+import {
+    createTemplateForm,
+    getTemplates,
+    getTemplate,
+    createTemplateSection,
+    getTemplateSections,
+    updateTemplateSection,
+    createRow,
+    getTemplateRows,
+    createColumn,
+    getTemplateColumns,
+} from "../../controller/forms/template_form.controller"
 
 const router = Router()
 
-router.get("/", listForms) // List all forms
-router.post("/", createForm) // Create new form
-// Specific routes MUST come before generic parameterized routes
-router.post("/assign", assignForms) // Assign forms to students
-router.get("/student/:studentId", getStudentForms) // Get forms for a student
+//TEMPLATES
 
-router.post("/class", createClassForm) // Create new class form
-router.get("/class", getClassForms) // Get all class forms
+//documents
+router.get("/templates", getTemplates)
+router.post("/templates", createTemplateForm)
+router.get("/templates/:id", getTemplate)
 
-router.get("/:formId", getForm) // Get single form
-router.put("/:formId", updateForm) // Update form
-router.delete("/:formId", deleteForm) // Delete form
+//sections
+router.get("/templates/:templateId/sections", getTemplateSections)
+router.post("/templates/:templateId/sections", createTemplateSection)
+router.patch("/templates/:templateId/sections/:sectionId", updateTemplateSection)
 
-// Submission routes
-router.get("/submission/:formId/:studentId", getStudentFormSubmission) // Get student form submission
-router.post("/submission", createStudentFormSubmission) // Create new student form submission
-router.post("/submission/:submissionId", insertStudentFormSubmissionData) // Upsert student form submission data
+//rows
+router.get("/templates/:templateId/sections/:sectionId/rows", getTemplateRows)
+router.post("/templates/:templateId/sections/:sectionId/rows", createRow)
+
+//columns
+router.get("/templates/:templateId/sections/:sectionId/columns", getTemplateColumns)
+router.post("/templates/:templateId/sections/:sectionId/columns", createColumn)
+
+//documents
+router.get("/", getAllEvaluationForms)
+router.get("/:id", getEvaluationForm)
+router.post("/:classId", createEvaluationForm)
+router.get("/class/:classId", getEvaluationFormsByClass)
+router.put("/:id", updateEvaluationForm)
+router.delete("/:id", deleteEvaluationForm)
+
+//sections
+router.get("/:documentId/sections", getEvaluationSections)
+router.post("/:documentId/sections", createEvaluationSection)
+router.put("/:documentId/sections/:sectionId", updateEvaluationSection)
+router.delete("/:documentId/sections/:sectionId", deleteEvaluationSection)
+
+//rows
+router.get("/:documentId/sections/:sectionId/rows", getEvaluationSectionRows)
+router.post("/:documentId/sections/:sectionId/rows", createEvaluationSectionRow)
+router.put("/:documentId/sections/:sectionId/rows/:rowId", updateEvaluationSectionRow)
+router.delete("/:documentId/sections/:sectionId/rows/:rowId", deleteEvaluationSectionRow)
+
+//columns
+router.get("/:documentId/sections/:sectionId/columns", getEvaluationSectionColumns)
+router.post("/:documentId/sections/:sectionId/columns", createEvaluationSectionColumn)
+router.put("/:documentId/sections/:sectionId/columns/:columnId", updateEvaluationSectionColumn)
+router.delete("/:documentId/sections/:sectionId/columns/:columnId", deleteEvaluationSectionColumn)
+
+//cells
+router.post("/:documentId/students/:studentId/cells", bulkUpsertEvaluationCells)
+
+//convert template to form
+router.post("/:templateId/convert", convertTemplateToForm)
 
 export default router

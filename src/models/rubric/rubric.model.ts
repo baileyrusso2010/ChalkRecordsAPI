@@ -4,6 +4,7 @@ import sequelize from "../../database"
 export class Rubric extends Model {
     public id!: number
     public name!: string
+    public description!: string
 }
 
 Rubric.init(
@@ -14,10 +15,14 @@ Rubric.init(
             primaryKey: true,
         },
         name: {
+            //name of rubric
             type: DataTypes.STRING,
             allowNull: false,
         },
-        //add staff later
+        description: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
     },
     {
         sequelize,
@@ -25,5 +30,5 @@ Rubric.init(
         tableName: "rubric",
         timestamps: true,
         underscored: true,
-    }
+    },
 )

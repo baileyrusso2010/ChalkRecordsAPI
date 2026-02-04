@@ -1,6 +1,5 @@
 import { DataTypes, Model } from "sequelize"
 import sequelize from "../database"
-import { Form } from "./forms/form.model"
 import { getTenant } from "../utils/tenant.context"
 
 export class Student extends Model {
@@ -13,7 +12,6 @@ export class Student extends Model {
     public age!: number
     public school_id!: number
     public district_id!: number
-    public forms?: Form[]
 }
 
 Student.init(

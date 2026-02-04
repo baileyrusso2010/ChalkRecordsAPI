@@ -10,7 +10,7 @@ import studentRouter from "./student/student.routes"
 import staffRouter from "./staff/staff.routes"
 import skillRouter from "./skill/skill.routes"
 import gradingRouter from "./gradebook/gradebook.routes"
-import formroutes from "./forms/form.routes"
+import formRouter from "./forms/form.routes"
 import assessmentRouter from "./assessments/assessment.routes"
 import metricRotuer from "./common/metric.routes"
 import behaviorRouter from "./behavior/behavior.routes"
@@ -32,6 +32,7 @@ import referralsRouter from "./mtss/referrals.routes"
 import mtssTimelineRouter from "./mtss/mtss_timeline.routes"
 
 export const routes = [
+    { path: "/api/evaluations", router: formRouter },
     { path: "/api/behaviors", router: behaviorRouter },
     { path: "/api/attendance", router: attendanceRouter },
     { path: "/api/cte-district-programs", router: cteDistrictProgramRouter },
@@ -47,7 +48,6 @@ export const routes = [
     { path: "/api/skill", router: skillRouter },
     { path: "/api/gradebook", router: gradingRouter },
     { path: "/api/metric", router: metricRotuer },
-    { path: "/api/forms", router: formroutes },
     { path: "/api/assessment", router: assessmentRouter },
     { path: "/api/rubrics", router: rubricRouter },
     { path: "/api/mtss/domains", router: mtssDomainsRouter },
@@ -60,7 +60,7 @@ export const routes = [
     { path: "/api/mtss/meetings", router: mtssMeetingsRouter },
     { path: "/api/mtss/decisions", router: mtssDecisionsRouter },
     { path: "/api/mtss/referrals", router: referralsRouter },
-    { path: "/api", router: mtssTimelineRouter },
     { path: "/api/permissions", router: permissionsRouter },
     { path: "/api/roles", router: rolesRouter },
+    { path: "/api/mtss", router: mtssTimelineRouter },
 ]

@@ -1,11 +1,16 @@
 import { DataTypes, Model } from "sequelize"
-import sequelize from "../../database"
+import sequelize from "../../../database"
 
-export class FormField extends Model {
+export class Template_Row extends Model {
     public id!: number
+    public section_id!: number
+    public key!: string
+    public label!: string
+    public description!: string
+    public row_type!: string
 }
 
-FormField.init(
+Template_Row.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -16,11 +21,12 @@ FormField.init(
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "form_sections",
+                model: "template_sections",
                 key: "id",
             },
         },
-        name: {
+        key: {
+            // "cdos_performances, cdoes_technical, assessments"
             type: DataTypes.STRING,
             allowNull: false,
         },
@@ -28,20 +34,22 @@ FormField.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        type: {
+        description: {
             type: DataTypes.STRING,
-            allowNull: false,
-        },
-        config: {
-            type: DataTypes.JSON,
             allowNull: true,
         },
+        row_type: {
+            type: DataTypes.STRING, //skill, exam
+            allowNull: false,
+        },
+        //sort
+        //order
     },
     {
         sequelize,
-        modelName: "FormField",
-        tableName: "form_fields",
-        timestamps: true,
+        modelName: "Template_Row",
+        tableName: "template_rows",
+        timestamps: false,
         underscored: true,
-    }
+    },
 )

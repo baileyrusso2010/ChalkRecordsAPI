@@ -1,43 +1,53 @@
 import { DataTypes, Model } from "sequelize"
 import sequelize from "../../database"
 
-export class FormSection extends Model {
+export class Rubric_Levels extends Model {
     public id!: number
-    public form_id!: number
-    public name!: string
+    public rubric_id!: number
+    public value!: number
+    public label!: string
     public description!: string
+    public sort_order!: number
 }
 
-FormSection.init(
+Rubric_Levels.init(
     {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
-        form_id: {
+        rubric_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "form",
+                model: "rubric",
                 key: "id",
             },
         },
-        name: {
+        value: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        label: {
             type: DataTypes.STRING,
             allowNull: false,
         },
         description: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: false,
         },
-        //add everything else later
+        sort_order: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        //add staff later
     },
     {
         sequelize,
-        modelName: "FormSection",
-        tableName: "form_sections",
+        modelName: "Rubric_Level",
+        tableName: "rubric_levels",
         timestamps: true,
         underscored: true,
-    }
+    },
 )

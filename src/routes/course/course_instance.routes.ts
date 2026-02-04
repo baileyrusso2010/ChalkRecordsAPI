@@ -1,23 +1,25 @@
-import { Router } from "express"
+import { Router } from "express";
 import {
-    listCourseInstances,
-    getCourseInstance,
-    createCourseInstance,
-    updateCourseInstance,
-    deleteCourseInstance,
-    getCourseStats,
-    getCourseSummary,
-} from "../../controller/course/course_instance.controller"
+  listCourseInstances,
+  getCourseInstance,
+  createCourseInstance,
+  updateCourseInstance,
+  deleteCourseInstance,
+  getCourseStats,
+  getCourseSummary,
+  getCoursesByTeacher,
+} from "../../controller/course/course_instance.controller";
 
-const router = Router()
+const router = Router();
 
-router.get("/", listCourseInstances)
-router.get("/summary", getCourseSummary)
-router.get("/:id", getCourseInstance)
-router.post("/", createCourseInstance)
-router.put("/:id", updateCourseInstance)
-router.delete("/:id", deleteCourseInstance)
+router.get("/", listCourseInstances);
+router.get("/summary", getCourseSummary);
+router.get("/teacher/:teacherId", getCoursesByTeacher);
+router.get("/:id", getCourseInstance);
+router.post("/", createCourseInstance);
+router.put("/:id", updateCourseInstance);
+router.delete("/:id", deleteCourseInstance);
 
-router.get("/:id/stats", getCourseStats)
+router.get("/:id/stats", getCourseStats);
 
-export default router
+export default router;

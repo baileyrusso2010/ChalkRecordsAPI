@@ -1,22 +1,22 @@
 import { DataTypes, Model } from "sequelize"
 import sequelize from "../../database"
 
-export class ClassForm extends Model {
+export class Evaluation_Status extends Model {
     public id!: number
 }
 
-ClassForm.init(
+Evaluation_Status.init(
     {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
-        course_instance_id: {
+        student_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "course_instance",
+                model: "students",
                 key: "id",
             },
         },
@@ -24,24 +24,21 @@ ClassForm.init(
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "form",
+                model: "forms",
                 key: "id",
             },
         },
-        rubric_id: {
-            type: DataTypes.INTEGER,
+        is_completed: {
+            type: DataTypes.BOOLEAN,
             allowNull: false,
-            references: {
-                model: "rubric",
-                key: "id",
-            },
+            defaultValue: false,
         },
     },
     {
         sequelize,
-        modelName: "ClassForm",
-        tableName: "class_forms",
+        modelName: "Evaluation_Status",
+        tableName: "evaluation_status",
         timestamps: true,
         underscored: true,
-    }
+    },
 )

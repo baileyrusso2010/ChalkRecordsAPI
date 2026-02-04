@@ -12,6 +12,8 @@ import { Student } from "../../models/student.model"
 import { StudentFlag } from "../../models/flags/student_flags.model"
 import { Flag } from "../../models/flags/flag.model"
 import { District_Program } from "../../models/program/district_program.model"
+import { attribute } from "@sequelize/core/lib/expression-builders/attribute"
+import { WBL_Hours } from "../../models/wbl/wbl_hours.model"
 
 // GET /course-instances
 // Query params: schoolId, programCatalogId, courseCatalogId, schoolYearId, termId, from, to
@@ -64,19 +66,39 @@ export async function listCourseInstances(req: Request, res: Response) {
 export async function getCourseInstance(req: Request, res: Response) {
     try {
         const id = Number(req.params.id)
+
+        //should have query params to include enrollments, school, program, course
+        const { includeEnrollments, includeSchool, includeProgram, includeCourse } =
+            req.query as any
+        const include: any = []
+        if (includeEnrollments)
+            include.push({
+                model: Enrollment,
+                as: "enrollments",
+                attributes: ["id"],
+                include: [
+                    {
+                        model: Student,
+                        as: "student",
+                        attributes: ["id", "first_name", "last_name", "student_id"],
+                        //include wbl
+                        include: [
+                            {
+                                model: WBL_Hours,
+                                as: "wbl_hours",
+                            },
+                        ],
+                    },
+                ],
+            })
+        if (includeSchool) include.push({ model: School, as: "school" })
+        if (includeProgram) include.push({ model: Program_Catalog, as: "program_catalog" })
+        if (includeCourse) include.push({ model: Course_Catalog, as: "course_catalog" })
+
         if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: "Invalid id" })
 
         const record = await Course_Instance.findByPk(id, {
-            include: [
-                { model: Course_Catalog, as: "course_catalog" },
-                { model: Program_Catalog, as: "program_catalog" },
-                { model: School, as: "school" },
-                {
-                    model: Enrollment,
-                    as: "enrollments",
-                    include: [{ model: Student, as: "student" }],
-                },
-            ],
+            include,
         })
 
         if (!record) return res.status(404).json({ error: "Not found" })
@@ -88,6 +110,7 @@ export async function getCourseInstance(req: Request, res: Response) {
 }
 
 // POST /course-instances
+//this should be rare since were bringing courses over from SIS
 export async function createCourseInstance(req: Request, res: Response) {
     try {
         const { school_id, program_catalog_id, course_catalog_id, instructorId, alias } = req.body
@@ -315,4 +338,20 @@ export async function getCourseStats(req: Request, res: Response) {
     }
 }
 
-//graphql
+//this is distilled version, will have to add more
+export async function getCoursesByTeacher(req: Request, res: Response) {
+    try {
+        const { teacherId } = req.params
+
+        const courses = await Course_Instance.findAll({
+            where: {
+                instructorId: teacherId,
+            },
+        })
+
+        res.json(courses)
+    } catch (err) {
+        console.error("Error get course instance", err)
+        res.status(500).json({ error: "Failed to get course instance stats" })
+    }
+}
